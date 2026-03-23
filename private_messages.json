@@ -1,0 +1,74 @@
+{
+  "conversations": {
+    "Anas_أحمد محمد": [
+      {
+        "id": 1774205178137,
+        "from": "Anas",
+        "to": "أحمد محمد",
+        "message": "a",
+        "timestamp": "2026-03-22T18:46:18.135Z",
+        "read": false
+      }
+    ],
+    "Anas_فاطمة حسن": [
+      {
+        "id": 1774205222760,
+        "from": "Anas",
+        "to": "فاطمة حسن",
+        "message": "dddd",
+        "timestamp": "2026-03-22T18:47:02.759Z",
+        "read": false
+      }
+    ],
+    "Abbas_Lena": [
+      {
+        "id": 1774206133535,
+        "from": "Lena",
+        "to": "Abbas",
+        "message": "مرحبا",
+        "timestamp": "2026-03-22T19:02:13.534Z",
+        "read": true
+      },
+      {
+        "id": 1774206157944,
+        "from": "Abbas",
+        "to": "Lena",
+        "message": "أهلا",
+        "timestamp": "2026-03-22T19:02:37.943Z",
+        "read": true
+      },
+      {
+        "id": 1774206174224,
+        "from": "Lena",
+        "to": "Abbas",
+        "message": "بابا إشلونك",
+        "timestamp": "2026-03-22T19:02:54.222Z",
+        "read": true
+      },
+      {
+        "id": 1774206191880,
+        "from": "Abbas",
+        "to": "Lena",
+        "message": "شكو ماكو",
+        "timestamp": "2026-03-22T19:03:11.878Z",
+        "read": true
+      },
+      {
+        "id": 1774206235840,
+        "from": "Abbas",
+        "to": "Lena",
+        "message": "بابا",
+        "timestamp": "2026-03-22T19:03:55.838Z",
+        "read": false
+      },
+      {
+        "id": 1774206241680,
+        "from": "Abbas",
+        "to": "Lena",
+        "message": "وينك",
+        "timestamp": "2026-03-22T19:04:01.679Z",
+        "read": false
+      }
+    ]
+  }
+}

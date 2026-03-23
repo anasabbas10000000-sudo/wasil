@@ -1,0 +1,46 @@
+{
+  "contacts": [
+    {
+      "id": "1",
+      "name": "أحمد محمد",
+      "phone": "0501111111",
+      "avatar": "أ",
+      "status": "offline"
+    },
+    {
+      "id": "2",
+      "name": "سارة أحمد",
+      "phone": "0502222222",
+      "avatar": "س",
+      "status": "offline"
+    },
+    {
+      "id": "3",
+      "name": "محمد علي",
+      "phone": "0503333333",
+      "avatar": "م",
+      "status": "offline"
+    },
+    {
+      "id": "4",
+      "name": "فاطمة حسن",
+      "phone": "0504444444",
+      "avatar": "ف",
+      "status": "offline"
+    },
+    {
+      "id": "1774205930498",
+      "name": "Abbas",
+      "phone": "0504702769",
+      "avatar": "A",
+      "status": "online"
+    },
+    {
+      "id": "1774206084499",
+      "name": "Lena",
+      "phone": "05012345678",
+      "avatar": "L",
+      "status": "online"
+    }
+  ]
+}
