@@ -11,7 +11,9 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 // تحديد المجلد الذي يحتوي على ملفات الواجهة الأمامية
-app.use(express.static(__dirname + '/public'));
+//app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname));
+
 app.use(express.json());
 
 // مسار ملفات البيانات
