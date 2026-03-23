@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق محادثة - واتساب ويب</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e5ddd5;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .app-container {
+            display: flex;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #fff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        /* قائمة جهات الاتصال */
+        .contacts-sidebar {
+            width: 350px;
+            background: #fff;
+            border-left: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            background: #075e54;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .sidebar-header h3 {
+            font-size: 18px;
+        }
+        
+        .logout-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .user-info {
+            padding: 15px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #128c7e;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .user-status {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .search-box {
+            padding: 10px;
+            background: #f5f5f5;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+        }
+        
+        .contacts-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative;
+        }
+        
+        .contact-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .contact-item.active {
+            background: #e8f5e9;
+        }
+        
+        .contact-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #128c7e;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            margin-left: 15px;
+        }
+        
+        .contact-info {
+            flex: 1;
+        }
+        
+        .contact-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .contact-phone {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .contact-status {
+            font-size: 11px;
+            margin-top: 3px;
+        }
+        
+        .status-online {
+            color: #25d366;
+        }
+        
+        .status-offline {
+            color: #999;
+        }
+        
+        .unread-badge {
+            background: #25d366;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        /* منطقة المحادثة */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #e5ddd5;
+        }
+        
+        .chat-header {
+            background: #075e54;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .chat-contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #128c7e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .chat-contact-info {
+            flex: 1;
+        }
+        
+        .chat-contact-name {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .chat-contact-status {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message {
+            max-width: 65%;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message.sent {
+            align-self: flex-end;
+        }
+        
+        .message.received {
+            align-self: flex-start;
+        }
+        
+        .message-bubble {
+            padding: 10px 15px;
+            border-radius: 15px;
+            position: relative;
+            word-wrap: break-word;
+        }
+        
+        .message.sent .message-bubble {
+            background: #dcf8c6;
+            border-bottom-left-radius: 0;
+        }
+        
+        .message.received .message-bubble {
+            background: white;
+            border-bottom-right-radius: 0;
+        }
+        
+        .message-text {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .message-time {
+            font-size: 10px;
+            color: #999;
+            margin-top: 5px;
+            text-align: left;
+        }
+        
+        .message.sent .message-time {
+            text-align: right;
+        }
+        
+        .input-area {
+            background: #f0f0f0;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        .send-btn {
+            background: #128c7e;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .send-btn:hover {
+            background: #075e54;
+        }
+        
+        .empty-chat {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #999;
+            font-size: 18px;
+        }
+        
+        /* شريط التمرير */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        
+        @media (max-width: 768px) {
+            .contacts-sidebar {
+                width: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- قائمة جهات الاتصال -->
+        <div class="contacts-sidebar">
+            <div class="sidebar-header">
+                <h3>المحادثات</h3>
+                <button class="logout-btn" onclick="logout()">خروج</button>
+            </div>
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar" id="userAvatar"></div>
+                <div class="user-details">
+                    <div class="user-name" id="userName"></div>
+                    <div class="user-status" id="userStatus"></div>
+                </div>
+            </div>
+            <div class="search-box">
+                <input type="text" placeholder="بحث في جهات الاتصال..." id="searchInput" onkeyup="filterContacts()">
+            </div>
+            <div class="contacts-list" id="contactsList"></div>
+        </div>
+        
+        <!-- منطقة المحادثة -->
+        <div class="chat-area" id="chatArea">
+            <div class="empty-chat">
+                اختر محادثة لبدء المراسلة
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket;
+        let currentUser = null;
+        let currentContact = null;
+        let allContacts = [];
+        let unreadMessages = new Map(); // contactId -> count
+        
+        // تحميل بيانات المستخدم
+        function loadUserData() {
+            if (sessionStorage.getItem('accessGranted') !== 'true') {
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            currentUser = {
+                username: sessionStorage.getItem('username'),
+                userId: sessionStorage.getItem('username')
+            };
+            
+            document.getElementById('userName').textContent = currentUser.username;
+            document.getElementById('userAvatar').textContent = currentUser.username.charAt(0);
+            
+            // الاتصال بالخادم
+            initializeSocket();
+            loadContacts();
+        }
+        
+        // تهيئة Socket.IO
+        function initializeSocket() {
+            socket = io();
+            
+            socket.on('connect', () => {
+                socket.emit('register user', {
+                    username: currentUser.username,
+                    userId: currentUser.userId
+                });
+            });
+            
+            // استقبال رسائل خاصة
+            socket.on('private message', (data) => {
+                addMessageToChat(data.from, data.message, data.timestamp, false);
+                
+                // تحديث عدد الرسائل غير المقروءة
+                if (currentContact && currentContact.name !== data.from) {
+                    const count = unreadMessages.get(data.from) || 0;
+                    unreadMessages.set(data.from, count + 1);
+                    updateContactsList();
+                } else if (!currentContact) {
+                    const count = unreadMessages.get(data.from) || 0;
+                    unreadMessages.set(data.from, count + 1);
+                    updateContactsList();
+                } else {
+                    // إذا كانت المحادثة مفتوحة، نرسل إشعار بالقراءة
+                    socket.emit('mark messages read', {
+                        userId: currentUser.username,
+                        contactId: data.from
+                    });
+                }
+            });
+            
+            // تحديث حالة المستخدمين
+            socket.on('user status change', (data) => {
+                updateContactStatus(data.username, data.status);
+            });
+            
+            // تحديث عدد الرسائل غير المقروءة الكلي
+            socket.on('unread count update', (count) => {
+                if (count > 0 && document.title !== `(${count}) تطبيق المحادثة`) {
+                    document.title = `(${count}) تطبيق المحادثة`;
+                } else if (count === 0) {
+                    document.title = 'تطبيق المحادثة';
+                }
+            });
+            
+            // تأكيد إرسال الرسالة
+            socket.on('message sent', (data) => {
+                console.log('تم إرسال الرسالة بنجاح إلى:', data.to);
+            });
+        }
+        
+        // تحميل جهات الاتصال
+        async function loadContacts() {
+            try {
+                const response = await fetch('/get-contacts');
+                const data = await response.json();
+                allContacts = data.contacts.filter(c => c.name !== currentUser.username);
+                updateContactsList();
+            } catch (error) {
+                console.error('خطأ في تحميل جهات الاتصال:', error);
+            }
+        }
+        
+        // تحديث قائمة جهات الاتصال
+        function updateContactsList() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredContacts = allContacts.filter(contact => 
+                contact.name.toLowerCase().includes(searchTerm) || 
+                contact.phone.includes(searchTerm)
+            );
+            
+            const contactsList = document.getElementById('contactsList');
+            contactsList.innerHTML = '';
+            
+            filteredContacts.forEach(contact => {
+                const unreadCount = unreadMessages.get(contact.name) || 0;
+                const contactDiv = document.createElement('div');
+                contactDiv.className = `contact-item ${currentContact && currentContact.id === contact.id ? 'active' : ''}`;
+                contactDiv.onclick = () => openChat(contact);
+                
+                contactDiv.innerHTML = `
+                    <div class="contact-avatar">${contact.avatar}</div>
+                    <div class="contact-info">
+                        <div class="contact-name">${contact.name}</div>
+                        <div class="contact-phone">${contact.phone}</div>
+                        <div class="contact-status ${contact.status === 'online' ? 'status-online' : 'status-offline'}">
+                            ${contact.status === 'online' ? '● متصل' : '○ غير متصل'}
+                        </div>
+                    </div>
+                    ${unreadCount > 0 ? `<div class="unread-badge">${unreadCount}</div>` : ''}
+                `;
+                
+                contactsList.appendChild(contactDiv);
+            });
+        }
+        
+        // فتح محادثة مع جهة اتصال
+        async function openChat(contact) {
+            currentContact = contact;
+            
+            // إزالة الإشعارات غير المقروءة لهذه المحادثة
+            if (unreadMessages.has(contact.name)) {
+                unreadMessages.delete(contact.name);
+                updateContactsList();
+            }
+            
+            // إعلام الخادم بقراءة الرسائل
+            socket.emit('mark messages read', {
+                userId: currentUser.username,
+                contactId: contact.name
+            });
+            
+            // تحميل المحادثة السابقة
+            await loadConversation(contact);
+            
+            // عرض واجهة المحادثة
+            const chatArea = document.getElementById('chatArea');
+            chatArea.innerHTML = `
+                <div class="chat-header">
+                    <div class="chat-contact-avatar">${contact.avatar}</div>
+                    <div class="chat-contact-info">
+                        <div class="chat-contact-name">${contact.name}</div>
+                        <div class="chat-contact-status ${contact.status === 'online' ? 'status-online' : 'status-offline'}">
+                            ${contact.status === 'online' ? 'متصل الآن' : 'غير متصل'}
+                        </div>
+                    </div>
+                </div>
+                <div class="messages-container" id="messagesContainer"></div>
+                <div class="input-area">
+                    <input type="text" class="message-input" id="messageInput" placeholder="اكتب رسالتك..." onkeypress="handleKeyPress(event)">
+                    <button class="send-btn" onclick="sendMessage()">إرسال</button>
+                </div>
+            `;
+            
+            // عرض الرسائل المحفوظة
+            displayMessages();
+        }
+        
+        // تحميل المحادثة من الخادم
+        async function loadConversation(contact) {
+            try {
+                const response = await fetch('/get-conversation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: currentUser.username,
+                        contactId: contact.name
+                    })
+                });
+                
+                const data = await response.json();
+                window.currentMessages = data.messages || [];
+                displayMessages();
+            } catch (error) {
+                console.error('خطأ في تحميل المحادثة:', error);
+                window.currentMessages = [];
+            }
+        }
+        
+        // عرض الرسائل في واجهة المحادثة
+        function displayMessages() {
+            const container = document.getElementById('messagesContainer');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            if (window.currentMessages && window.currentMessages.length > 0) {
+                window.currentMessages.forEach(msg => {
+                    const isSent = msg.from === currentUser.username;
+                    addMessageToChatUI(msg.from, msg.message, msg.timestamp, isSent);
+                });
+            }
+            
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // إضافة رسالة إلى واجهة المحادثة
+        function addMessageToChatUI(sender, message, timestamp, isSent) {
+            const container = document.getElementById('messagesContainer');
+            if (!container) return;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+            
+            const time = new Date(timestamp).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                <div class="message-bubble">
+                    <div class="message-text">${escapeHtml(message)}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // إضافة رسالة مستلمة
+        function addMessageToChat(sender, message, timestamp, isReceived) {
+            if (currentContact && currentContact.name === sender) {
+                const messageObj = {
+                    from: sender,
+                    message: message,
+                    timestamp: timestamp,
+                    read: false
+                };
+                
+                if (!window.currentMessages) window.currentMessages = [];
+                window.currentMessages.push(messageObj);
+                addMessageToChatUI(sender, message, timestamp, false);
+            }
+        }
+        
+        // إرسال رسالة
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message || !currentContact) return;
+            
+            const timestamp = new Date().toISOString();
+            
+            // إرسال عبر Socket.IO
+            socket.emit('private message', {
+                from: currentUser.username,
+                to: currentContact.name,
+                message: message,
+                timestamp: timestamp
+            });
+            
+            // إضافة للواجهة المحلية
+            addMessageToChatUI(currentUser.username, message, timestamp, true);
+            
+            // حفظ في الذاكرة المحلية
+            const messageObj = {
+                from: currentUser.username,
+                to: currentContact.name,
+                message: message,
+                timestamp: timestamp,
+                read: true
+            };
+            
+            if (!window.currentMessages) window.currentMessages = [];
+            window.currentMessages.push(messageObj);
+            
+            input.value = '';
+        }
+        
+        // معالجة ضغط Enter
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        // تحديث حالة جهة اتصال
+        function updateContactStatus(username, status) {
+            const contact = allContacts.find(c => c.name === username);
+            if (contact) {
+                contact.status = status;
+                updateContactsList();
+                
+                if (currentContact && currentContact.name === username) {
+                    const statusElement = document.querySelector('.chat-contact-status');
+                    if (statusElement) {
+                        statusElement.textContent = status === 'online' ? 'متصل الآن' : 'غير متصل';
+                        statusElement.className = `chat-contact-status ${status === 'online' ? 'status-online' : 'status-offline'}`;
+                    }
+                }
+            }
+        }
+        
+        // فلترة جهات الاتصال
+        function filterContacts() {
+            updateContactsList();
+        }
+        
+        // تسجيل الخروج
+        function logout() {
+            if (socket) {
+                socket.disconnect();
+            }
+            sessionStorage.clear();
+            window.location.href = '/login.html';
+        }
+        
+        // دالة لتأمين النصوص
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // تحميل البيانات عند فتح الصفحة
+        loadUserData();
+    </script>
+</body>
+</html>
