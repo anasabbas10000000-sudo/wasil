@@ -1404,11 +1404,10 @@
         let currentMenuPopup = null;
         
         // ============================================================
-        // متغيرات مكالمة الفيديو
+        // متغيرات مكالمة الفيديو - تم إصلاحها بالكامل
         // ============================================================
         let peerConnection = null;
         let localStream = null;
-        let remoteStream = null;
         let isInCall = false;
         let callTimerInterval = null;
         let callSeconds = 0;
@@ -1416,29 +1415,76 @@
         let isCameraEnabled = true;
         let pendingCallFrom = null;
         let pendingOffer = null;
+        let currentCallId = null; // ✅ مهم جداً: تخزين callId الموحد
         
-        // تكوين WebRTC
+        // ✅🔥 تكوين WebRTC مع 7 TURN servers متعددة (ضروري لـ iPhone وجميع الشبكات)
         const webrtcConfig = {
             iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' },
-                { urls: 'stun:stun3.l.google.com:19302' },
-                { urls: 'stun:stun4.l.google.com:19302' },
-                { urls: 'stun:stun.stunprotocol.org:3478' }
+                // STUN servers - للمساعدة في اكتشاف العناوين
+                { urls: "stun:stun.l.google.com:19302" },
+                { urls: "stun:stun1.l.google.com:19302" },
+                { urls: "stun:stun2.l.google.com:19302" },
+                { urls: "stun:stun3.l.google.com:19302" },
+                { urls: "stun:stun4.l.google.com:19302" },
+                { urls: "stun:stun.stunprotocol.org:3478" },
+                { urls: "stun:stun.voip.blackberry.com:3478" },
+                { urls: "stun:stun.voipstunt.com:3478" },
+                { urls: "stun:stun.sipgate.net:3478" },
+                
+                // ✅🔥 TURN server 1 - Open Relay (UDP)
+                {
+                    urls: "turn:openrelay.metered.ca:80",
+                    username: "openrelayproject",
+                    credential: "openrelayproject"
+                },
+                // ✅🔥 TURN server 2 - Open Relay (TCP)
+                {
+                    urls: "turn:openrelay.metered.ca:443",
+                    username: "openrelayproject",
+                    credential: "openrelayproject"
+                },
+                // ✅🔥 TURN server 3 - Open Relay (TCP alternate)
+                {
+                    urls: "turn:openrelay.metered.ca:443?transport=tcp",
+                    username: "openrelayproject",
+                    credential: "openrelayproject"
+                },
+                // ✅🔥 TURN server 4 - Twilio (UDP)
+                {
+                    urls: "turn:global.turn.twilio.com:3478?transport=udp",
+                    username: "any",
+                    credential: "any"
+                },
+                // ✅🔥 TURN server 5 - Twilio (TCP)
+                {
+                    urls: "turn:global.turn.twilio.com:3478?transport=tcp",
+                    username: "any",
+                    credential: "any"
+                },
+                // ✅🔥 TURN server 6 - Xirsys (UDP)
+                {
+                    urls: "turn:turn.xirsys.com:80?transport=udp",
+                    username: "any",
+                    credential: "any"
+                },
+                // ✅🔥 TURN server 7 - Xirsys (TCP)
+                {
+                    urls: "turn:turn.xirsys.com:443?transport=tcp",
+                    username: "any",
+                    credential: "any"
+                }
             ],
             iceCandidatePoolSize: 10,
             bundlePolicy: 'max-bundle',
-            rtcpMuxPolicy: 'require'
+            rtcpMuxPolicy: 'require',
+            iceTransportPolicy: 'all', // ✅ السماح بجميع أنواع النقل
+            iceServersTimeout: 5000 // ✅ مهلة 5 ثوانٍ لـ ICE servers
         };
         
         // إعدادات التطبيق
         let appSettings = {
             theme: 'light',
-            retentionDays: 7,
-            ringtone: 'default',
-            ringtoneVolume: 80,
-            ringtoneVibrate: true
+            retentionDays: 7
         };
         
         // مسارات الرفع المتعددة للمحاولة
@@ -1946,7 +1992,7 @@
         }
         
         // ============================================================
-        // 7. مكالمة الفيديو
+        // 7. مكالمة الفيديو - مع TURN servers و callId الموحد
         // ============================================================
         function showVideoCallMenu() {
             if (!currentContact) {
@@ -1968,18 +2014,26 @@
                 const loadingDiv = document.getElementById('videoLoading');
                 if (loadingDiv) loadingDiv.style.display = 'block';
                 
+                // الحصول على تيار الكاميرا مع إعدادات محسنة لـ iPhone
                 localStream = await navigator.mediaDevices.getUserMedia({ 
                     video: { 
                         width: { ideal: 1280 }, 
                         height: { ideal: 720 },
-                        facingMode: 'user'
+                        facingMode: 'user',
+                        frameRate: { ideal: 30 }
                     }, 
-                    audio: true 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
                 });
                 
                 const localVideo = document.getElementById('localVideo');
                 if (localVideo) {
                     localVideo.srcObject = localStream;
+                    // ✅ مهم لـ iPhone: تشغيل الفيديو يدوياً
+                    localVideo.play().catch(e => console.log('خطأ في تشغيل الفيديو المحلي:', e));
                 }
                 
                 peerConnection = new RTCPeerConnection(webrtcConfig);
@@ -1988,26 +2042,32 @@
                     peerConnection.addTrack(track, localStream);
                 });
                 
+                // استقبال الفيديو البعيد مع تشغيل تلقائي
                 peerConnection.ontrack = (event) => {
                     console.log('تم استقبال تيار الفيديو البعيد');
                     const remoteVideo = document.getElementById('remoteVideo');
                     if (remoteVideo && event.streams && event.streams[0]) {
                         remoteVideo.srcObject = event.streams[0];
+                        // ✅ مهم لـ iPhone: تشغيل الفيديو يدوياً
+                        remoteVideo.play().catch(e => console.log('خطأ في تشغيل الفيديو البعيد:', e));
                         const loadingDiv = document.getElementById('videoLoading');
                         if (loadingDiv) loadingDiv.style.display = 'none';
                         showBeautifulNotification('📹 مكالمة فيديو', 'تم الاتصال بـ ' + currentContact.name, '📹', 3000);
                     }
                 };
                 
+                // ✅ إرسال ICE candidates مع callId
                 peerConnection.onicecandidate = (event) => {
-                    if (event.candidate && socket) {
+                    if (event.candidate && socket && currentCallId) {
                         socket.emit('video-call-ice', {
                             to: currentContact.name,
-                            candidate: event.candidate
+                            candidate: event.candidate,
+                            callId: currentCallId
                         });
                     }
                 };
                 
+                // مراقبة حالة الاتصال
                 peerConnection.onconnectionstatechange = () => {
                     console.log('حالة الاتصال:', peerConnection.connectionState);
                     if (peerConnection.connectionState === 'connected') {
@@ -2020,6 +2080,14 @@
                     }
                 };
                 
+                // مراقبة حالة ICE
+                peerConnection.oniceconnectionstatechange = () => {
+                    console.log('حالة ICE:', peerConnection.iceConnectionState);
+                    if (peerConnection.iceConnectionState === 'failed') {
+                        console.log('⚠️ فشل اتصال ICE، محاولة إعادة الاتصال...');
+                    }
+                };
+                
                 // إرسال حدث بدء المكالمة للسيرفر
                 socket.emit('video-call-init', {
                     to: currentContact.name,
@@ -2028,14 +2096,18 @@
                     audioEnabled: true
                 });
                 
-                const offer = await peerConnection.createOffer();
+                const offer = await peerConnection.createOffer({
+                    offerToReceiveAudio: true,
+                    offerToReceiveVideo: true
+                });
                 await peerConnection.setLocalDescription(offer);
                 
+                // ✅ إرسال offer مع currentCallId (الذي سيأتي من السيرفر)
                 socket.emit('video-call-offer', {
                     to: currentContact.name,
                     offer: offer,
                     quality: 'high',
-                    callId: `${currentUser.username}_${currentContact.name}_${Date.now()}`
+                    callId: currentCallId
                 });
                 
                 isInCall = true;
@@ -2073,14 +2145,20 @@
                         video: { 
                             width: { ideal: 1280 }, 
                             height: { ideal: 720 },
-                            facingMode: 'user'
+                            facingMode: 'user',
+                            frameRate: { ideal: 30 }
                         }, 
-                        audio: true 
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true
+                        }
                     });
                     
                     const localVideo = document.getElementById('localVideo');
                     if (localVideo) {
                         localVideo.srcObject = localStream;
+                        localVideo.play().catch(e => console.log('خطأ في تشغيل الفيديو المحلي:', e));
                     }
                     
                     peerConnection = new RTCPeerConnection(webrtcConfig);
@@ -2094,6 +2172,7 @@
                         const remoteVideo = document.getElementById('remoteVideo');
                         if (remoteVideo && event.streams && event.streams[0]) {
                             remoteVideo.srcObject = event.streams[0];
+                            remoteVideo.play().catch(e => console.log('خطأ في تشغيل الفيديو البعيد:', e));
                             const loadingDiv = document.getElementById('videoLoading');
                             if (loadingDiv) loadingDiv.style.display = 'none';
                             showBeautifulNotification('📹 مكالمة فيديو', 'متصل مع ' + caller, '📹', 3000);
@@ -2101,10 +2180,11 @@
                     };
                     
                     peerConnection.onicecandidate = (event) => {
-                        if (event.candidate && socket) {
+                        if (event.candidate && socket && currentCallId) {
                             socket.emit('video-call-ice', {
                                 to: caller,
-                                candidate: event.candidate
+                                candidate: event.candidate,
+                                callId: currentCallId
                             });
                         }
                     };
@@ -2117,7 +2197,7 @@
                         socket.emit('video-call-answer', {
                             to: caller,
                             answer: answer,
-                            callId: `${caller}_${currentUser.username}_${Date.now()}`
+                            callId: currentCallId
                         });
                         
                         pendingOffer = null;
@@ -2142,13 +2222,14 @@
             if (pendingCallFrom && socket) {
                 socket.emit('video-call-reject', { 
                     to: pendingCallFrom,
-                    callId: `${pendingCallFrom}_${currentUser?.username}_${Date.now()}`
+                    callId: currentCallId
                 });
                 showBeautifulNotification('📹 مكالمة فيديو', 'تم رفض المكالمة', '📹', 2000);
             }
             document.getElementById('incomingCallModal').classList.remove('active');
             pendingCallFrom = null;
             pendingOffer = null;
+            currentCallId = null;
         }
         
         function endVideoCall() {
@@ -2182,7 +2263,7 @@
             if (socket && currentContact) {
                 socket.emit('video-call-end', { 
                     to: currentContact?.name,
-                    callId: `${currentUser?.username}_${currentContact?.name}_${Date.now()}`
+                    callId: currentCallId
                 });
             }
             
@@ -2192,6 +2273,8 @@
             const cameraBtn = document.getElementById('cameraToggleBtn');
             if (micBtn) micBtn.textContent = '🎤';
             if (cameraBtn) cameraBtn.textContent = '📹';
+            
+            currentCallId = null;
             
             showBeautifulNotification('📹 مكالمة فيديو', 'تم إنهاء المكالمة', '📹', 2000);
         }
@@ -2247,7 +2330,7 @@
         }
         
         // ============================================================
-        // 8. اتصالات Socket.io مع أحداث الرنين المتكاملة
+        // 8. اتصالات Socket.io مع أحداث الرنين المتكاملة وإصلاح callId
         // ============================================================
         function initializeSocket() {
             socket = io({
@@ -2276,6 +2359,8 @@
             // 🔔 رنين المتصل (عند بدء المكالمة)
             socket.on('outgoing-call', (data) => {
                 console.log('📞 جاري الاتصال بـ:', data.to);
+                // ✅ تخزين callId من السيرفر
+                currentCallId = data.callId;
                 playRingtone('calling', true, ringtoneSettings.volume);
                 showBeautifulNotification('📞 جاري الاتصال', `جاري الاتصال بـ ${data.to}...`, '📞', 3000);
             });
@@ -2284,6 +2369,8 @@
             socket.on('video-call-init', (data) => {
                 console.log('📞 مكالمة واردة من:', data.from);
                 pendingCallFrom = data.from;
+                // ✅ تخزين callId من السيرفر
+                currentCallId = data.callId;
                 
                 // تشغيل الرنين مع الإعدادات المستلمة
                 playRingtone(data.ringtoneFile || ringtoneSettings.ringtoneFile || 'default', true, data.volume || ringtoneSettings.volume);
@@ -2303,12 +2390,10 @@
                 console.log('🔇 إيقاف الرنين:', data.reason);
                 stopRingtone();
                 
-                // إيقاف الاهتزاز
                 if (navigator.vibrate) {
                     navigator.vibrate(0);
                 }
                 
-                // إغلاق نافذة المكالمة الواردة إذا كانت مفتوحة
                 document.getElementById('incomingCallModal').classList.remove('active');
                 
                 if (data.reason === 'answered') {
@@ -2322,12 +2407,16 @@
                 }
             });
             
-            // أحداث مكالمة الفيديو الأخرى
+            // ✅ استقبال offer مع callId
             socket.on('video-call-offer', (data) => {
                 pendingCallFrom = data.from;
                 pendingOffer = data.offer;
+                if (data.callId) {
+                    currentCallId = data.callId;
+                }
             });
             
+            // ✅ استقبال answer مع callId
             socket.on('video-call-answer', async (data) => {
                 if (peerConnection && peerConnection.signalingState === 'have-local-offer') {
                     try {
@@ -2339,8 +2428,9 @@
                 }
             });
             
+            // ✅ استقبال ICE مع التحقق من callId
             socket.on('video-call-ice', async (data) => {
-                if (peerConnection) {
+                if (peerConnection && data.callId === currentCallId) {
                     try {
                         await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
                         console.log('تم إضافة ICE candidate بنجاح');
@@ -2349,10 +2439,8 @@
                     }
                 }
             });
-       
-         
             
-
+        
             socket.on('video-call-end', (data) => {
     const { to, callId, reason } = data;
     const targetSocketId = userSockets.get(to);
@@ -2375,11 +2463,6 @@
         });
     }
 });
-
-      
-
-
-
             
             socket.on('video-call-reject', () => {
                 if (pendingCallFrom) {
@@ -2392,7 +2475,6 @@
                 }
             });
             
-            // حدث انقطاع المكالمة
             socket.on('call-interrupted', (data) => {
                 stopRingtone();
                 showErrorNotification(data.message);
@@ -2402,10 +2484,6 @@
                     }, 2000);
                 }
             });
-
-
-
-            
             
             // أحداث الرسائل
             socket.on('private message', (data) => {
