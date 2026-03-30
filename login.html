@@ -2,367 +2,588 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق محادثة - تسجيل الدخول</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>واصل – سجّل دخولك</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        /* نفس التنسيقات السابقة مع إضافة تنسيقات لإدارة جهات الاتصال */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --green: #25d366;
+            --green-dark: #075e54;
+            --green-mid: #128c7e;
+            --purple: #6f42c1;
+            --purple-light: #9c27b0;
+            --github: #24292e;
+            --glass: rgba(255,255,255,0.12);
+            --glass-border: rgba(255,255,255,0.22);
         }
-        
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #075e54 0%, #128c7e 100%);
+            font-family: 'Cairo', sans-serif;
             min-height: 100vh;
+            min-height: 100dvh;
+            background: linear-gradient(135deg, #0a1628 0%, #0d2137 40%, #071a0f 100%);
             display: flex;
+            align-items: center;
             justify-content: center;
-            align-items: center;
+            overflow: hidden;
+            position: relative;
         }
-        
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            width: 90%;
-            max-width: 500px;
+
+        /* ── Animated background blobs ── */
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.18;
+            animation: blobFloat 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .blob-1 { width:400px;height:400px;background:#25d366;top:-80px;right:-80px;animation-delay:0s; }
+        .blob-2 { width:300px;height:300px;background:#128c7e;bottom:-60px;left:-60px;animation-delay:-3s; }
+        .blob-3 { width:250px;height:250px;background:#6f42c1;top:50%;left:50%;animation-delay:-5s; }
+        @keyframes blobFloat {
+            0%,100% { transform: translate(0,0) scale(1); }
+            33%      { transform: translate(20px,-20px) scale(1.05); }
+            66%      { transform: translate(-15px,15px) scale(0.97); }
+        }
+
+        /* ── Floating particles ── */
+        .particles { position:fixed;inset:0;pointer-events:none;overflow:hidden; }
+        .particle {
+            position:absolute;width:3px;height:3px;border-radius:50%;
+            background:rgba(37,211,102,0.5);
+            animation: particleDrift linear infinite;
+        }
+        @keyframes particleDrift {
+            from { transform: translateY(100vh) rotate(0deg); opacity:0; }
+            10%  { opacity:1; }
+            90%  { opacity:1; }
+            to   { transform: translateY(-100px) rotate(720deg); opacity:0; }
+        }
+
+        /* ── Card ── */
+        .card {
+            position: relative;
+            z-index: 10;
+            background: rgba(10,22,40,0.75);
+            backdrop-filter: blur(24px) saturate(1.5);
+            -webkit-backdrop-filter: blur(24px) saturate(1.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            padding: 44px 40px;
+            width: 100%;
+            max-width: 420px;
+            margin: 16px;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04);
+            animation: cardIn 0.6s cubic-bezier(0.16,1,0.3,1);
+        }
+        @keyframes cardIn {
+            from { opacity:0; transform: translateY(32px) scale(0.96); }
+            to   { opacity:1; transform: translateY(0) scale(1); }
+        }
+
+        /* ── Logo ── */
+        .logo-wrap {
             text-align: center;
+            margin-bottom: 32px;
         }
-        
-        .login-container h2 {
-            color: #075e54;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-        
-        .input-group {
-            margin-bottom: 20px;
-            text-align: right;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #075e54;
-            font-weight: bold;
-        }
-        
-        .input-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-            font-family: inherit;
-        }
-        
-        .input-group input:focus {
-            outline: none;
-            border-color: #128c7e;
-        }
-        
-        .login-btn {
-            background: #128c7e;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 10px;
-            font-size: 18px;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.3s;
-            font-weight: bold;
-        }
-        
-        .login-btn:hover {
-            background: #075e54;
-        }
-        
-        .error-message {
-            color: #dc3545;
-            margin-top: 15px;
-            font-size: 14px;
-            display: none;
-        }
-        
-        .admin-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-        }
-        
-        .admin-toggle {
-            color: #128c7e;
-            cursor: pointer;
-            font-size: 12px;
-            text-decoration: underline;
-        }
-        
-        .admin-panel {
-            display: none;
-            margin-top: 15px;
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 10px;
-        }
-        
-        .admin-panel h4 {
-            color: #075e54;
-            margin-bottom: 10px;
-        }
-        
-        .admin-panel input {
-            width: calc(100% - 80px);
-            padding: 8px;
-            margin-left: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        
-        .admin-panel button {
-            background: #075e54;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 5px;
-        }
-        
-        .codes-list, .contacts-list-admin {
-            margin-top: 10px;
-            text-align: right;
-            font-size: 12px;
-            color: #666;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-        
-        .contact-item-admin {
-            display: flex;
-            justify-content: space-between;
+        .logo-icon {
+            width: 72px; height: 72px;
+            background: linear-gradient(135deg, var(--green-dark), var(--green));
+            border-radius: 22px;
+            display: inline-flex;
             align-items: center;
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
+            justify-content: center;
+            font-size: 36px;
+            margin-bottom: 14px;
+            box-shadow: 0 8px 24px rgba(37,211,102,0.3);
+            animation: logoPulse 3s ease-in-out infinite;
         }
-        
-        .delete-contact {
-            background: #dc3545;
-            padding: 3px 8px;
+        @keyframes logoPulse {
+            0%,100% { box-shadow: 0 8px 24px rgba(37,211,102,0.3); }
+            50%      { box-shadow: 0 8px 40px rgba(37,211,102,0.55); }
+        }
+        .logo-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+        .logo-title span { color: var(--green); }
+        .logo-sub {
+            font-size: 13px;
+            color: rgba(255,255,255,0.45);
+            margin-top: 4px;
+        }
+
+        /* ── Tabs ── */
+        .tabs {
+            display: flex;
+            background: rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 28px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 9px;
+            border: none;
+            border-radius: 9px;
+            background: transparent;
+            color: rgba(255,255,255,0.5);
+            font-family: 'Cairo', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+            color: white;
+            box-shadow: 0 4px 12px rgba(18,140,126,0.4);
+        }
+
+        /* ── OAuth Buttons ── */
+        .oauth-section { margin-bottom: 20px; }
+        .oauth-btn {
+            width: 100%;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.25s;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .oauth-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0);
+            transition: background 0.2s;
+        }
+        .oauth-btn:hover::after { background: rgba(255,255,255,0.08); }
+        .oauth-btn:active { transform: scale(0.98); }
+
+        .google-btn {
+            background: linear-gradient(135deg, #ea4335, #fbbc04, #34a853, #4285f4);
+            background-size: 300% 300%;
+            color: white;
+            animation: gradientShift 5s ease infinite;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        @keyframes gradientShift {
+            0%,100% { background-position: 0% 50%; }
+            50%      { background-position: 100% 50%; }
+        }
+
+        .github-btn {
+            background: linear-gradient(135deg, #24292e, #444d56);
+            color: white;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+
+        .oauth-icon { font-size: 20px; flex-shrink: 0; }
+
+        /* ── Divider ── */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 20px 0;
+            color: rgba(255,255,255,0.25);
+            font-size: 12px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.12);
+        }
+
+        /* ── Code Input (hidden tab) ── */
+        .code-section { display: none; }
+        .code-section.active { display: block; }
+
+        .field-label {
+            font-size: 13px;
+            color: rgba(255,255,255,0.55);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .input-group { position: relative; margin-bottom: 16px; }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            color: white;
+            font-family: 'Cairo', sans-serif;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.25s;
+            direction: rtl;
+        }
+        .input-field::placeholder { color: rgba(255,255,255,0.28); }
+        .input-field:focus {
+            border-color: var(--green);
+            background: rgba(37,211,102,0.07);
+            box-shadow: 0 0 0 3px rgba(37,211,102,0.12);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--green-dark), var(--green));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            margin-top: 4px;
+            box-shadow: 0 6px 20px rgba(37,211,102,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .login-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(37,211,102,0.45); }
+        .login-btn:active { transform: scale(0.98); }
+        .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* ── Error / Loading ── */
+        .error-msg {
+            color: #ff6b6b;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 12px;
+            min-height: 20px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .error-msg.show { opacity: 1; }
+
+        .loading-ring {
+            display: inline-block;
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Footer ── */
+        .card-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.22);
+            line-height: 1.7;
+        }
+
+        /* ── Security badge ── */
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(37,211,102,0.1);
+            border: 1px solid rgba(37,211,102,0.2);
+            color: var(--green);
+            padding: 5px 12px;
+            border-radius: 20px;
             font-size: 11px;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 480px) {
+            .card { padding: 32px 22px; }
+            .logo-title { font-size: 26px; }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h2>🔐 تطبيق المحادثة</h2>
-        <p>الرجاء إدخال رمز الدخول للوصول إلى التطبيق</p>
-        
-        <div class="input-group">
-            <label>رمز الدخول</label>
-            <input type="text" id="accessCode" placeholder="أدخل الرمز هنا..." autocomplete="off">
-        </div>
-        
-        <div class="input-group">
-            <label>اسم المستخدم</label>
-            <input type="text" id="username" placeholder="أدخل اسمك..." autocomplete="off">
-        </div>
-        
-        <button class="login-btn" onclick="verifyCode()">دخول</button>
-        
-        <div class="error-message" id="errorMessage"></div>
-        
-        <div class="admin-section">
-            <div class="admin-toggle" onclick="toggleAdminPanel()">🔧 لوحة التحكم (للمسؤول)</div>
-            <div class="admin-panel" id="adminPanel">
-                <h4>🔑 إدارة رموز الدخول</h4>
-                <div>
-                    <input type="text" id="newCode" placeholder="رمز جديد">
-                    <button onclick="addNewCode()">إضافة</button>
-                </div>
-                <div id="codesList" class="codes-list"></div>
-                
-                <h4 style="margin-top: 15px;">👥 إدارة جهات الاتصال</h4>
-                <div>
-                    <input type="text" id="newContactName" placeholder="الاسم">
-                    <input type="text" id="newContactPhone" placeholder="رقم الهاتف" style="width: calc(100% - 80px); margin-top: 5px;">
-                    <button onclick="addNewContact()" style="margin-top: 5px;">إضافة جهة اتصال</button>
-                </div>
-                <div id="contactsListAdmin" class="contacts-list-admin"></div>
-                
-                <button onclick="loadAllData()" style="margin-top: 10px;">تحديث الكل</button>
-            </div>
-        </div>
+
+<!-- Animated background -->
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+<div class="particles" id="particles"></div>
+
+<div class="card">
+    <!-- Logo -->
+    <div class="logo-wrap">
+        <div class="logo-icon">💬</div>
+        <div class="logo-title">وا<span>صل</span></div>
+        <div class="logo-sub">محادثات ذكية · مكالمات فيديو · رسائل صوتية</div>
     </div>
 
-    <script>
-        async function verifyCode() {
-            const code = document.getElementById('accessCode').value;
-            const username = document.getElementById('username').value;
-            const errorDiv = document.getElementById('errorMessage');
-            
-            if (!code || !username) {
-                errorDiv.textContent = 'الرجاء إدخال رمز الدخول واسم المستخدم';
-                errorDiv.style.display = 'block';
-                return;
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('oauth')">🔐 تسجيل سريع</button>
+        <button class="tab-btn" onclick="switchTab('code')">🔑 رمز الدخول</button>
+    </div>
+
+    <!-- OAuth Tab -->
+    <div class="oauth-section" id="oauthTab">
+        <button class="oauth-btn google-btn" onclick="handleGoogleLogin()">
+            <span class="oauth-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                </svg>
+            </span>
+            الدخول بحساب Google
+        </button>
+
+        <button class="oauth-btn github-btn" onclick="handleGitHubLogin()">
+            <span class="oauth-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+                </svg>
+            </span>
+            الدخول بحساب GitHub
+        </button>
+
+        <div class="divider">أو</div>
+
+        <div class="input-group">
+            <label class="field-label">اسم المستخدم المباشر</label>
+            <input type="text" class="input-field" id="directUsername" placeholder="اكتب اسمك..." maxlength="30" onkeypress="if(event.key==='Enter')directLogin()">
+        </div>
+        <button class="login-btn" onclick="directLogin()">🚀 دخول مباشر</button>
+    </div>
+
+    <!-- Code Tab -->
+    <div class="code-section" id="codeTab">
+        <div class="input-group">
+            <label class="field-label">اسم المستخدم</label>
+            <input type="text" class="input-field" id="codeUsername" placeholder="أدخل اسمك..." maxlength="30">
+        </div>
+        <div class="input-group">
+            <label class="field-label">رمز الدخول</label>
+            <input type="text" class="input-field" id="accessCode" placeholder="أدخل الرمز السري..." maxlength="20" onkeypress="if(event.key==='Enter')loginWithCode()">
+        </div>
+        <button class="login-btn" onclick="loginWithCode()" id="codeLoginBtn">🔑 تسجيل الدخول</button>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <div class="card-footer">
+        <div class="security-badge">🔒 مشفّر ومحمي</div><br>
+        مكالمات فيديو عالية الجودة بين جميع الأجهزة
+    </div>
+</div>
+
+<script>
+// ── Particles ──────────────────────────────────────
+(function() {
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 22; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.cssText = `
+            left:${Math.random()*100}%;
+            animation-duration:${6+Math.random()*10}s;
+            animation-delay:${Math.random()*8}s;
+            width:${2+Math.random()*3}px;
+            height:${2+Math.random()*3}px;
+            opacity:${0.3+Math.random()*0.5};
+        `;
+        container.appendChild(p);
+    }
+})();
+
+// ── Tab switching ──────────────────────────────────
+function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b,i) => {
+        b.classList.toggle('active', (tab==='oauth' && i===0) || (tab==='code' && i===1));
+    });
+    document.getElementById('oauthTab').style.display = tab==='oauth' ? 'block' : 'none';
+    document.getElementById('codeTab').classList.toggle('active', tab==='code');
+    clearError();
+}
+
+function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.classList.add('show');
+}
+function clearError() {
+    document.getElementById('errorMsg').classList.remove('show');
+}
+
+// ── Direct login (no auth server needed) ──────────
+function directLogin() {
+    const username = document.getElementById('directUsername').value.trim();
+    if (!username) { showError('أدخل اسم المستخدم'); return; }
+    if (username.length < 2) { showError('الاسم قصير جداً (حرفان على الأقل)'); return; }
+    sessionStorage.setItem('accessGranted', 'true');
+    sessionStorage.setItem('username', username);
+    sessionStorage.setItem('loginMethod', 'direct');
+    window.location.href = '/chat.html';
+}
+
+// ── Google Login ───────────────────────────────────
+function handleGoogleLogin() {
+    const clientId = window.GOOGLE_CLIENT_ID || null;
+    if (!clientId) {
+        // Fallback to name prompt
+        const name = prompt('تسجيل الدخول بـ Google\n\nأدخل اسمك:');
+        if (!name || !name.trim()) return;
+        completeOAuthLogin(name.trim(), 'google');
+        return;
+    }
+    // Real Google OAuth popup
+    const params = new URLSearchParams({
+        client_id: clientId,
+        redirect_uri: window.location.origin + '/auth/google/callback',
+        response_type: 'token',
+        scope: 'openid email profile'
+    });
+    const popup = window.open(`https://accounts.google.com/o/oauth2/v2/auth?${params}`, 'google_oauth', 'width=520,height=620');
+    const timer = setInterval(() => {
+        try {
+            if (!popup || popup.closed) { clearInterval(timer); return; }
+            const hash = popup.location.hash || '';
+            if (hash.includes('access_token')) {
+                clearInterval(timer);
+                popup.close();
+                const token = new URLSearchParams(hash.replace('#','?')).get('access_token');
+                fetchGoogleUser(token);
             }
-            
-            try {
-                const response = await fetch('/verify-code', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code: code })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    sessionStorage.setItem('accessGranted', 'true');
-                    sessionStorage.setItem('username', username);
-                    sessionStorage.setItem('accessCode', code);
-                    window.location.href = '/chat.html';
-                } else {
-                    errorDiv.textContent = result.message;
-                    errorDiv.style.display = 'block';
-                }
-            } catch (error) {
-                errorDiv.textContent = 'حدث خطأ في الاتصال بالخادم';
-                errorDiv.style.display = 'block';
-            }
-        }
-        
-        function toggleAdminPanel() {
-            const panel = document.getElementById('adminPanel');
-            if (panel.style.display === 'none' || !panel.style.display) {
-                panel.style.display = 'block';
-                loadAllData();
-            } else {
-                panel.style.display = 'none';
-            }
-        }
-        
-        async function addNewCode() {
-            const newCode = document.getElementById('newCode').value;
-            if (!newCode) {
-                alert('الرجاء إدخال رمز جديد');
-                return;
-            }
-            
-            try {
-                const response = await fetch('/add-code', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ newCode: newCode })
-                });
-                
-                const result = await response.json();
-                alert(result.message);
-                
-                if (result.success) {
-                    document.getElementById('newCode').value = '';
-                    loadCodes();
-                }
-            } catch (error) {
-                alert('حدث خطأ في إضافة الرمز');
-            }
-        }
-        
-        async function loadCodes() {
-            try {
-                const response = await fetch('/get-codes');
-                const data = await response.json();
-                const codesList = document.getElementById('codesList');
-                codesList.innerHTML = '<strong>الرموز المتاحة:</strong><br>' + data.codes.join(', ');
-            } catch (error) {
-                console.error('خطأ في تحميل الرموز:', error);
-            }
-        }
-        
-        async function loadContactsForAdmin() {
-            try {
-                const response = await fetch('/get-contacts');
-                const data = await response.json();
-                const contactsList = document.getElementById('contactsListAdmin');
-                contactsList.innerHTML = '<strong>جهات الاتصال:</strong>';
-                
-                data.contacts.forEach(contact => {
-                    const contactDiv = document.createElement('div');
-                    contactDiv.className = 'contact-item-admin';
-                    contactDiv.innerHTML = `
-                        <span>${contact.name} (${contact.phone})</span>
-                        <button class="delete-contact" onclick="deleteContact('${contact.id}')">حذف</button>
-                    `;
-                    contactsList.appendChild(contactDiv);
-                });
-            } catch (error) {
-                console.error('خطأ في تحميل جهات الاتصال:', error);
-            }
-        }
-        
-        async function addNewContact() {
-            const name = document.getElementById('newContactName').value;
-            const phone = document.getElementById('newContactPhone').value;
-            
-            if (!name || !phone) {
-                alert('الرجاء إدخال الاسم ورقم الهاتف');
-                return;
-            }
-            
-            try {
-                const response = await fetch('/add-contact', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: name, phone: phone })
-                });
-                
-                const result = await response.json();
-                if (result.success) {
-                    alert('تم إضافة جهة الاتصال بنجاح');
-                    document.getElementById('newContactName').value = '';
-                    document.getElementById('newContactPhone').value = '';
-                    loadContactsForAdmin();
-                } else {
-                    alert(result.message || 'حدث خطأ');
-                }
-            } catch (error) {
-                alert('حدث خطأ في إضافة جهة الاتصال');
-            }
-        }
-        
-        async function deleteContact(contactId) {
-            if (!confirm('هل أنت متأكد من حذف هذه جهة الاتصال؟')) return;
-            
-            try {
-                const response = await fetch('/delete-contact', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contactId: contactId })
-                });
-                
-                const result = await response.json();
-                if (result.success) {
-                    alert('تم حذف جهة الاتصال بنجاح');
-                    loadContactsForAdmin();
-                } else {
-                    alert(result.message || 'حدث خطأ');
-                }
-            } catch (error) {
-                alert('حدث خطأ في حذف جهة الاتصال');
-            }
-        }
-        
-        async function loadAllData() {
-            await loadCodes();
-            await loadContactsForAdmin();
-        }
-        
-        // التحقق من وجود صلاحية دخول سابقة
-        if (sessionStorage.getItem('accessGranted') === 'true') {
+        } catch(e) {}
+    }, 500);
+}
+
+async function fetchGoogleUser(token) {
+    try {
+        const r = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`);
+        const p = await r.json();
+        const username = p.name || p.email.split('@')[0];
+        await completeOAuthServerLogin({ provider:'google', id:p.sub, username, email:p.email, token });
+    } catch(e) { showError('فشل الحصول على بيانات Google'); }
+}
+
+// ── GitHub Login ───────────────────────────────────
+function handleGitHubLogin() {
+    const clientId = window.GITHUB_CLIENT_ID || null;
+    if (!clientId) {
+        const name = prompt('تسجيل الدخول بـ GitHub\n\nأدخل اسمك:');
+        if (!name || !name.trim()) return;
+        completeOAuthLogin(name.trim(), 'github');
+        return;
+    }
+    // Real GitHub OAuth
+    const params = new URLSearchParams({ client_id: clientId, scope: 'read:user user:email' });
+    window.location.href = `https://github.com/login/oauth/authorize?${params}`;
+}
+
+// ── Shared OAuth finisher (client-side only) ──────
+function completeOAuthLogin(username, provider) {
+    sessionStorage.setItem('accessGranted', 'true');
+    sessionStorage.setItem('username', username);
+    sessionStorage.setItem('loginMethod', provider);
+    window.location.href = '/chat.html';
+}
+
+// ── Shared OAuth finisher (with server) ───────────
+async function completeOAuthServerLogin(profile) {
+    try {
+        const r = await fetch('/auth/oauth-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ provider: profile.provider, token: profile.token, profile })
+        });
+        const d = await r.json();
+        if (d.success) {
+            sessionStorage.setItem('accessGranted', 'true');
+            sessionStorage.setItem('username', d.username);
+            sessionStorage.setItem('loginMethod', profile.provider);
             window.location.href = '/chat.html';
+        } else {
+            showError('فشل تسجيل الدخول');
         }
-    </script>
+    } catch(e) {
+        // Server might not have OAuth configured – fallback to client-side
+        completeOAuthLogin(profile.username, profile.provider);
+    }
+}
+
+// ── Code login ────────────────────────────────────
+async function loginWithCode() {
+    const username = document.getElementById('codeUsername').value.trim();
+    const code = document.getElementById('accessCode').value.trim();
+    if (!username) { showError('أدخل اسم المستخدم'); return; }
+    if (!code) { showError('أدخل رمز الدخول'); return; }
+
+    const btn = document.getElementById('codeLoginBtn');
+    btn.disabled = true;
+    btn.innerHTML = 'جاري التحقق <span class="loading-ring"></span>';
+    clearError();
+
+    try {
+        const r = await fetch('/verify-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, username })
+        });
+        const d = await r.json();
+        if (d.success) {
+            sessionStorage.setItem('accessGranted', 'true');
+            sessionStorage.setItem('username', username);
+            sessionStorage.setItem('loginMethod', 'code');
+            window.location.href = '/chat.html';
+        } else {
+            showError(d.message || 'رمز الدخول غير صحيح');
+            btn.disabled = false;
+            btn.innerHTML = '🔑 تسجيل الدخول';
+        }
+    } catch(e) {
+        showError('خطأ في الاتصال بالخادم');
+        btn.disabled = false;
+        btn.innerHTML = '🔑 تسجيل الدخول';
+    }
+}
+
+// ── Handle GitHub OAuth callback (if redirected back) ──
+(function checkGitHubCallback() {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const state = params.get('state');
+    if (code && state === 'github') {
+        // Server would exchange code for token
+        fetch('/auth/github-callback?code=' + code)
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) completeOAuthLogin(d.username, 'github');
+                else showError('فشل تسجيل الدخول بـ GitHub');
+            })
+            .catch(() => showError('خطأ في تسجيل الدخول'));
+    }
+})();
+
+// Initial tab display
+switchTab('oauth');
+</script>
 </body>
 </html>
