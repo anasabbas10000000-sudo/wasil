@@ -6,22 +6,16 @@ const path = require('path');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 
-// ==================== Cloudinary Config ====================
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dezprpy5q',
     api_key: process.env.CLOUDINARY_API_KEY || '462762935819578',
     api_secret: process.env.CLOUDINARY_API_SECRET || 'vV6GrKIp-VBifpafhdz4Bs82xdA'
 });
 
-// ==================== Server Setup ====================
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-    cors: {
-        origin: '*',
-        methods: ['GET', 'POST'],
-        credentials: true
-    },
+    cors: { origin: '*', methods: ['GET', 'POST'], credentials: true },
     transports: ['websocket', 'polling'],
     pingTimeout: 60000,
     pingInterval: 25000,
@@ -29,7 +23,6 @@ const io = new Server(server, {
     allowEIO3: true,
     upgradeTimeout: 15000,
     maxHttpBufferSize: 1e8,
-    // ✅ Fix: Enable larger ICE candidate payloads for cross-device compatibility
     perMessageDeflate: false
 });
 
@@ -37,11 +30,9 @@ app.use(express.static(__dirname));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ==================== Uploads Folder ====================
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
-// ==================== Multer ====================
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 },
@@ -59,11 +50,10 @@ const upload = multer({
     }
 });
 
-// ==================== Cloudinary Upload ====================
 async function uploadToCloudinary(buffer, originalName, mimetype) {
     return new Promise((resolve, reject) => {
         let resourceType = 'auto';
-        if (mimetype.startsWith('image/'))  resourceType = 'image';
+        if (mimetype.startsWith('image/')) resourceType = 'image';
         else if (mimetype.startsWith('video/')) resourceType = 'video';
         else if (mimetype.startsWith('audio/')) resourceType = 'raw';
         else resourceType = 'raw';
@@ -81,7 +71,6 @@ async function uploadToCloudinary(buffer, originalName, mimetype) {
     });
 }
 
-// ==================== File Upload Handler ====================
 async function handleFileUpload(req, res) {
     if (!req.file) return res.status(400).json({ success: false, message: 'لم يتم رفع أي ملف' });
     try {
@@ -100,19 +89,19 @@ async function handleFileUpload(req, res) {
 }
 
 app.post('/upload-file', upload.single('file'), handleFileUpload);
-app.post('/api/upload',  upload.single('file'), handleFileUpload);
-app.post('/upload',      upload.single('file'), handleFileUpload);
+app.post('/api/upload', upload.single('file'), handleFileUpload);
+app.post('/upload', upload.single('file'), handleFileUpload);
 app.use('/uploads', express.static(uploadsDir));
 
-// ==================== Data File Paths ====================
-const codesFilePath       = path.join(__dirname, 'access_codes.json');
-const contactsFilePath    = path.join(__dirname, 'contacts.json');
+const codesFilePath = path.join(__dirname, 'access_codes.json');
+const contactsFilePath = path.join(__dirname, 'contacts.json');
 const privateMessagesPath = path.join(__dirname, 'private_messages.json');
-const settingsFilePath    = path.join(__dirname, 'user_settings.json');
-const sessionFilePath     = path.join(__dirname, 'user_sessions.json');
-const oauthUsersPath      = path.join(__dirname, 'oauth_users.json');
+const settingsFilePath = path.join(__dirname, 'user_settings.json');
+const sessionFilePath = path.join(__dirname, 'user_sessions.json');
+const oauthUsersPath = path.join(__dirname, 'oauth_users.json');
+const usersFilePath = path.join(__dirname, 'users.json');
+const bannedUsersFilePath = path.join(__dirname, 'banned_users.json');
 
-// ==================== File Helpers ====================
 function readJSON(filePath, defaultValue) {
     try {
         if (fs.existsSync(filePath)) return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -129,11 +118,11 @@ function writeJSON(filePath, data) {
 function readContacts() {
     return readJSON(contactsFilePath, {
         contacts: [
-            { id:'1', name:'أحمد محمد',  phone:'0501111111', avatar:'أ', status:'online' },
-            { id:'2', name:'سارة أحمد',  phone:'0502222222', avatar:'س', status:'offline' },
-            { id:'3', name:'محمد علي',   phone:'0503333333', avatar:'م', status:'online' },
-            { id:'4', name:'فاطمة حسن',  phone:'0504444444', avatar:'ف', status:'offline' },
-            { id:'5', name:'عبدالله عمر',phone:'0505555555', avatar:'ع', status:'online' }
+            { id:'1', name:'أحمد محمد', phone:'0501111111', avatar:'أ', status:'offline' },
+            { id:'2', name:'سارة أحمد', phone:'0502222222', avatar:'س', status:'offline' },
+            { id:'3', name:'محمد علي', phone:'0503333333', avatar:'م', status:'offline' },
+            { id:'4', name:'فاطمة حسن', phone:'0504444444', avatar:'ف', status:'offline' },
+            { id:'5', name:'عبدالله عمر', phone:'0505555555', avatar:'ع', status:'offline' }
         ]
     });
 }
@@ -170,7 +159,6 @@ function getUserSession(username) {
 
 function getConversationId(u1, u2) { return [u1, u2].sort().join('_'); }
 
-// ==================== OAuth Users ====================
 function readOAuthUsers() {
     return readJSON(oauthUsersPath, { users: [] });
 }
@@ -180,7 +168,6 @@ function saveOAuthUser(profile) {
     const existing = data.users.find(u => u.id === profile.id && u.provider === profile.provider);
     if (!existing) {
         data.users.push({ ...profile, createdAt: new Date().toISOString() });
-        // Also add to contacts list if not already there
         const cd = readContacts();
         if (!cd.contacts.find(c => c.name === profile.username)) {
             cd.contacts.push({
@@ -193,23 +180,31 @@ function saveOAuthUser(profile) {
             });
             writeJSON(contactsFilePath, cd);
         }
+        const usersData = readJSON(usersFilePath, { users: [] });
+        if (!usersData.users.find(u => u.username === profile.username)) {
+            usersData.users.push({
+                username: profile.username,
+                email: profile.email || '',
+                phone: '',
+                registeredAt: new Date().toISOString(),
+                provider: profile.provider
+            });
+            writeJSON(usersFilePath, usersData);
+        }
     } else {
-        // Update last login
         existing.lastLogin = new Date().toISOString();
     }
     writeJSON(oauthUsersPath, data);
     return data.users.find(u => u.id === profile.id && u.provider === profile.provider);
 }
 
-// ==================== API Routes ====================
 app.post('/verify-code', (req, res) => {
-    const codes = readJSON(codesFilePath, { codes:['1234','5678'] });
+    const codes = readJSON(codesFilePath, { codes: ['1234', '5678'] });
     res.json(codes.codes.includes(req.body.code)
-        ? { success:true }
-        : { success:false, message:'رمز غير صحيح' });
+        ? { success: true }
+        : { success: false, message: 'رمز غير صحيح' });
 });
 
-// ✅ OAuth login endpoint (simulated - integrates with Google/GitHub OAuth flow)
 app.post('/auth/oauth-login', (req, res) => {
     const { provider, token, profile } = req.body;
     if (!provider || !profile || !profile.username) {
@@ -223,7 +218,6 @@ app.post('/auth/oauth-login', (req, res) => {
     }
 });
 
-// ✅ Check OAuth user
 app.post('/auth/check-user', (req, res) => {
     const { provider, id } = req.body;
     const data = readOAuthUsers();
@@ -235,17 +229,17 @@ app.get('/get-contacts', (req, res) => res.json(readContacts()));
 
 app.post('/add-contact', (req, res) => {
     const d = readContacts();
-    const c = { id:Date.now().toString(), name:req.body.name, phone:req.body.phone, avatar:req.body.name.charAt(0), status:'offline' };
+    const c = { id: Date.now().toString(), name: req.body.name, phone: req.body.phone, avatar: req.body.name.charAt(0), status: 'offline' };
     d.contacts.push(c);
     writeJSON(contactsFilePath, d);
-    res.json({ success:true, contact:c });
+    res.json({ success: true, contact: c });
 });
 
 app.post('/delete-contact', (req, res) => {
     const d = readContacts();
     const i = d.contacts.findIndex(c => c.id === req.body.contactId);
-    if (i !== -1) { d.contacts.splice(i,1); writeJSON(contactsFilePath, d); res.json({ success:true }); }
-    else res.json({ success:false });
+    if (i !== -1) { d.contacts.splice(i, 1); writeJSON(contactsFilePath, d); res.json({ success: true }); }
+    else res.json({ success: false });
 });
 
 app.post('/get-conversation', (req, res) => {
@@ -256,7 +250,7 @@ app.post('/get-conversation', (req, res) => {
 
 app.post('/cleanup-messages', (req, res) => {
     const { username, days } = req.body;
-    if (!days || days <= 0) return res.json({ success:true, cleanedCount:0 });
+    if (!days || days <= 0) return res.json({ success: true, cleanedCount: 0 });
     const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - days);
     const d = readPrivateMessages(); let count = 0;
     for (const key of Object.keys(d.conversations)) {
@@ -265,24 +259,24 @@ app.post('/cleanup-messages', (req, res) => {
         count += orig - d.conversations[key].length;
     }
     writeJSON(privateMessagesPath, d);
-    res.json({ success:true, cleanedCount:count });
+    res.json({ success: true, cleanedCount: count });
 });
 
 app.post('/update-status', (req, res) => {
     const d = readContacts();
     const c = d.contacts.find(c => c.id === req.body.userId || c.name === req.body.userId);
-    if (c) { c.status = req.body.status; writeJSON(contactsFilePath, d); res.json({ success:true }); }
-    else res.json({ success:false });
+    if (c) { c.status = req.body.status; writeJSON(contactsFilePath, d); res.json({ success: true }); }
+    else res.json({ success: false });
 });
 
 app.get('/get-ringtone-settings', (req, res) => {
-    if (!req.query.username) return res.status(400).json({ success:false });
-    res.json({ success:true, settings: readUserSettings(req.query.username) });
+    if (!req.query.username) return res.status(400).json({ success: false });
+    res.json({ success: true, settings: readUserSettings(req.query.username) });
 });
 
 app.post('/update-ringtone-settings', (req, res) => {
     const { username, settings } = req.body;
-    if (!username || !settings) return res.status(400).json({ success:false });
+    if (!username || !settings) return res.status(400).json({ success: false });
     res.json({ success: saveUserSettings(username, settings) });
 });
 
@@ -292,7 +286,7 @@ app.post('/save-user-state', (req, res) => {
 });
 
 app.get('/get-user-state', (req, res) => {
-    res.json({ success:true, state: getUserSession(req.query.username) });
+    res.json({ success: true, state: getUserSession(req.query.username) });
 });
 
 app.post('/delete-message', (req, res) => {
@@ -303,7 +297,7 @@ app.post('/delete-message', (req, res) => {
         d.conversations[key] = d.conversations[key].filter(m => m.id !== messageId);
         writeJSON(privateMessagesPath, d);
     }
-    res.json({ success:true });
+    res.json({ success: true });
 });
 
 app.get('/available-ringtones', (req, res) => {
@@ -318,83 +312,308 @@ app.get('/available-ringtones', (req, res) => {
             });
         }
     } catch(e) {}
-    res.json({ success:true, ringtones });
+    res.json({ success: true, ringtones });
 });
 
-// ==================== In-Memory State ====================
-const connectedUsers = new Map();   // socketId -> { username, userId }
-const userSockets    = new Map();   // username -> socketId
-const activeCalls    = new Map();   // callId -> callInfo
+const ADMIN_PASSWORD = 'admin123';
 
-// ✅ Group call rooms: roomId -> { members: Set<username>, peerMap: Map<username, Map<username, {offer,answer,ice[]}>> }
+app.post('/api/admin/login', (req, res) => {
+    const { password } = req.body;
+    if (password === ADMIN_PASSWORD) {
+        res.json({ success: true });
+    } else {
+        res.json({ success: false, message: 'كلمة مرور غير صحيحة' });
+    }
+});
+
+app.get('/api/admin/users', (req, res) => {
+    const usersData = readJSON(usersFilePath, { users: [] });
+    const bannedData = readJSON(bannedUsersFilePath, { banned: [] });
+    const contacts = readContacts();
+    const allUsers = [];
+    const userMap = new Map();
+    contacts.contacts.forEach(contact => {
+        const isBanned = bannedData.banned.find(b => b.username === contact.name);
+        userMap.set(contact.name, {
+            username: contact.name,
+            phone: contact.phone,
+            status: contact.status || 'offline',
+            avatar: contact.avatar,
+            banned: !!isBanned,
+            banReason: isBanned?.reason,
+            lastActive: contact.lastActive || null,
+            email: ''
+        });
+    });
+    usersData.users.forEach(user => {
+        if (userMap.has(user.username)) {
+            const existing = userMap.get(user.username);
+            existing.email = user.email || '';
+            existing.registeredAt = user.registeredAt;
+        } else {
+            const isBanned = bannedData.banned.find(b => b.username === user.username);
+            userMap.set(user.username, {
+                username: user.username,
+                phone: user.phone || '',
+                status: 'offline',
+                avatar: user.username.charAt(0).toUpperCase(),
+                banned: !!isBanned,
+                banReason: isBanned?.reason,
+                lastActive: null,
+                email: user.email || '',
+                registeredAt: user.registeredAt
+            });
+        }
+    });
+    const users = Array.from(userMap.values());
+    const stats = {
+        total: users.length,
+        online: users.filter(u => u.status === 'online').length,
+        banned: users.filter(u => u.banned).length
+    };
+    res.json({ success: true, users, stats });
+});
+
+app.post('/api/admin/add-user', (req, res) => {
+    const { username, phone } = req.body;
+    if (!username) {
+        return res.json({ success: false, message: 'اسم المستخدم مطلوب' });
+    }
+    const contacts = readContacts();
+    if (contacts.contacts.find(c => c.name === username)) {
+        return res.json({ success: false, message: 'المستخدم موجود بالفعل' });
+    }
+    const newUser = {
+        id: Date.now().toString(),
+        name: username,
+        phone: phone || '',
+        avatar: username.charAt(0).toUpperCase(),
+        status: 'offline',
+        createdAt: new Date().toISOString()
+    };
+    contacts.contacts.push(newUser);
+    writeJSON(contactsFilePath, contacts);
+    const usersData = readJSON(usersFilePath, { users: [] });
+    if (!usersData.users.find(u => u.username === username)) {
+        usersData.users.push({
+            username,
+            phone: phone || '',
+            registeredAt: new Date().toISOString()
+        });
+        writeJSON(usersFilePath, usersData);
+    }
+    res.json({ success: true, user: newUser });
+});
+
+app.delete('/api/admin/delete-user/:username', (req, res) => {
+    const { username } = req.params;
+    const contacts = readContacts();
+    const index = contacts.contacts.findIndex(c => c.name === username);
+    if (index !== -1) {
+        contacts.contacts.splice(index, 1);
+        writeJSON(contactsFilePath, contacts);
+    }
+    const usersData = readJSON(usersFilePath, { users: [] });
+    const userIndex = usersData.users.findIndex(u => u.username === username);
+    if (userIndex !== -1) {
+        usersData.users.splice(userIndex, 1);
+        writeJSON(usersFilePath, usersData);
+    }
+    const bannedData = readJSON(bannedUsersFilePath, { banned: [] });
+    const bannedIndex = bannedData.banned.findIndex(b => b.username === username);
+    if (bannedIndex !== -1) {
+        bannedData.banned.splice(bannedIndex, 1);
+        writeJSON(bannedUsersFilePath, bannedData);
+    }
+    const messages = readPrivateMessages();
+    for (const key of Object.keys(messages.conversations)) {
+        messages.conversations[key] = messages.conversations[key].filter(m =>
+            m.from !== username && m.to !== username
+        );
+    }
+    writeJSON(privateMessagesPath, messages);
+    if (userSockets.has(username)) {
+        const socketId = userSockets.get(username);
+        const sock = io.sockets.sockets.get(socketId);
+        if (sock) {
+            sock.emit('force-reload', { reason: 'account_deleted' });
+            sock.disconnect(true);
+        }
+        userSockets.delete(username);
+    }
+    res.json({ success: true });
+});
+
+app.post('/api/admin/ban-user', (req, res) => {
+    const { username, reason } = req.body;
+    if (!username) {
+        return res.json({ success: false, message: 'اسم المستخدم مطلوب' });
+    }
+    const bannedData = readJSON(bannedUsersFilePath, { banned: [] });
+    if (!bannedData.banned.find(b => b.username === username)) {
+        bannedData.banned.push({
+            username,
+            reason: reason || 'تم الحظر من قبل الإدارة',
+            bannedAt: new Date().toISOString(),
+            bannedBy: 'admin'
+        });
+        writeJSON(bannedUsersFilePath, bannedData);
+    }
+    if (userSockets.has(username)) {
+        const socketId = userSockets.get(username);
+        const sock = io.sockets.sockets.get(socketId);
+        if (sock) {
+            sock.emit('force-reload', { reason: 'account_banned' });
+            sock.disconnect(true);
+        }
+        userSockets.delete(username);
+    }
+    res.json({ success: true });
+});
+
+app.post('/api/admin/unban-user', (req, res) => {
+    const { username } = req.body;
+    const bannedData = readJSON(bannedUsersFilePath, { banned: [] });
+    const index = bannedData.banned.findIndex(b => b.username === username);
+    if (index !== -1) {
+        bannedData.banned.splice(index, 1);
+        writeJSON(bannedUsersFilePath, bannedData);
+    }
+    res.json({ success: true });
+});
+
+app.get('/api/check-banned', (req, res) => {
+    const { username } = req.query;
+    const bannedData = readJSON(bannedUsersFilePath, { banned: [] });
+    const banned = bannedData.banned.find(b => b.username === username);
+    res.json({ banned: !!banned, reason: banned?.reason });
+});
+
+app.get('/api/admin/user-messages/:username', (req, res) => {
+    const { username } = req.params;
+    const messages = readPrivateMessages();
+    const userMessages = [];
+    for (const [key, msgs] of Object.entries(messages.conversations)) {
+        const relatedMsgs = msgs.filter(m => m.from === username || m.to === username);
+        userMessages.push(...relatedMsgs);
+    }
+    userMessages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    res.json({ success: true, messages: userMessages });
+});
+
+app.post('/api/admin/delete-message', (req, res) => {
+    const { messageId, username, otherUser } = req.body;
+    const messages = readPrivateMessages();
+    for (const key of Object.keys(messages.conversations)) {
+        const before = messages.conversations[key].length;
+        messages.conversations[key] = messages.conversations[key].filter(m => m.id !== messageId);
+        if (before !== messages.conversations[key].length) break;
+    }
+    writeJSON(privateMessagesPath, messages);
+    res.json({ success: true });
+});
+
+app.post('/api/admin/clear-conversation', (req, res) => {
+    const { username, otherUser } = req.body;
+    const messages = readPrivateMessages();
+    const key = [username, otherUser].sort().join('_');
+    if (messages.conversations[key]) {
+        messages.conversations[key] = [];
+        writeJSON(privateMessagesPath, messages);
+    }
+    res.json({ success: true });
+});
+
+app.post('/api/admin/send-notification', (req, res) => {
+    const { username, message } = req.body;
+    if (!username || !message) {
+        return res.json({ success: false, message: 'البيانات غير مكتملة' });
+    }
+    const socketId = userSockets.get(username);
+    if (socketId) {
+        io.to(socketId).emit('admin-notification', {
+            message,
+            timestamp: new Date().toISOString(),
+            from: 'admin'
+        });
+        const notificationsFile = path.join(__dirname, 'admin_notifications.json');
+        const notifications = readJSON(notificationsFile, { notifications: [] });
+        notifications.notifications.push({
+            to: username,
+            message,
+            sentAt: new Date().toISOString()
+        });
+        writeJSON(notificationsFile, notifications);
+        res.json({ success: true });
+    } else {
+        res.json({ success: false, message: 'المستخدم غير متصل حالياً' });
+    }
+});
+
+app.post('/api/admin/update-status', (req, res) => {
+    const { username, status } = req.body;
+    const contacts = readContacts();
+    const contact = contacts.contacts.find(c => c.name === username);
+    if (contact) {
+        contact.status = status;
+        writeJSON(contactsFilePath, contacts);
+        io.emit('user status change', { username, status });
+        res.json({ success: true });
+    } else {
+        res.json({ success: false });
+    }
+});
+
+const connectedUsers = new Map();
+const userSockets = new Map();
+const activeCalls = new Map();
 const groupCallRooms = new Map();
 
-// ==================== Socket.IO ====================
 io.on('connection', (socket) => {
     console.log('🔌 Connected:', socket.id);
 
-    // ── Register ──────────────────────────────────────────
     socket.on('register user', (data) => {
         const { username, userId } = data;
         connectedUsers.set(socket.id, { username, userId });
-
-        // Disconnect duplicate sessions
         if (userSockets.has(username)) {
             const oldId = userSockets.get(username);
             if (oldId !== socket.id) {
                 const oldSock = io.sockets.sockets.get(oldId);
                 if (oldSock?.connected) {
-                    oldSock.emit('force-reload', { reason:'new_connection' });
+                    oldSock.emit('force-reload', { reason: 'new_connection' });
                     setTimeout(() => oldSock.disconnect(true), 600);
                 }
             }
         }
-
         userSockets.set(username, socket.id);
-
-        // Update status in contacts list
         const cd = readContacts();
         const contact = cd.contacts.find(c => c.name === username);
         if (contact) { contact.status = 'online'; writeJSON(contactsFilePath, cd); }
-
-        socket.broadcast.emit('user status change', { username, status:'online' });
+        socket.broadcast.emit('user status change', { username, status: 'online' });
         socket.emit('contacts list', { contacts: readContacts().contacts });
         socket.emit('ringtone settings', { settings: readUserSettings(username) });
         socket.emit('registration-confirmed', { username, timestamp: Date.now() });
         console.log(`✅ Registered: ${username}`);
     });
 
-    // ── Video Call: Initiate ───────────────────────────────
-    // ✅ FIX: Caller sends 'video-call-init' first so callee rings,
-    //         then sends offer. This prevents race conditions on iOS.
     socket.on('video-call-init', (data) => {
         const { to, quality = 'high', videoEnabled = true, audioEnabled = true } = data;
         const fromUser = connectedUsers.get(socket.id);
         const targetId = userSockets.get(to);
-
         if (!fromUser) return;
-
         if (!targetId) {
-            return socket.emit('video-call-error', { message:'المستخدم غير متصل', code:'user_offline' });
+            return socket.emit('video-call-error', { message: 'المستخدم غير متصل', code: 'user_offline' });
         }
-
         const callId = `${fromUser.username}_${to}_${Date.now()}`;
         const targetSettings = readUserSettings(to);
-
         activeCalls.set(callId, {
             from: fromUser.username, to,
             quality, startTime: Date.now(),
             videoEnabled, audioEnabled,
-            // ✅ Buffer ICE candidates that arrive before answer
             pendingCandidates: []
         });
-
         console.log(`📹 Call init: ${fromUser.username} → ${to} [${callId}]`);
-
-        // Tell caller their callId + play outgoing ring
-        socket.emit('outgoing-call', { to, callId, message:`جاري الاتصال بـ ${to}...` });
-
-        // Tell callee to ring
+        socket.emit('outgoing-call', { to, callId, message: `جاري الاتصال بـ ${to}...` });
         io.to(targetId).emit('video-call-init', {
             from: fromUser.username,
             quality, videoEnabled, audioEnabled,
@@ -405,47 +624,37 @@ io.on('connection', (socket) => {
         });
     });
 
-    // ── Video Call: Offer (SDP) ────────────────────────────
     socket.on('video-call-offer', (data) => {
         const { to, offer, quality, callId } = data;
         const fromUser = connectedUsers.get(socket.id);
         const targetId = userSockets.get(to);
         if (!fromUser || !targetId) return;
-
         if (callId && activeCalls.has(callId)) {
             const info = activeCalls.get(callId);
             info.offerSent = true;
             info.offer = offer;
             activeCalls.set(callId, info);
         }
-
         console.log(`📤 Offer sent: ${fromUser.username} → ${to}`);
         io.to(targetId).emit('video-call-offer', {
             from: fromUser.username, offer, quality, callId
         });
     });
 
-    // ── Video Call: Answer (SDP) ───────────────────────────
     socket.on('video-call-answer', (data) => {
         const { to, answer, callId } = data;
         const fromUser = connectedUsers.get(socket.id);
         const targetId = userSockets.get(to);
         if (!fromUser || !targetId) return;
-
-        // Stop ringing on both sides
-        io.to(targetId).emit('stop-ringtone', { callId, reason:'answered' });
-        socket.emit('stop-ringtone', { callId, reason:'answered' });
-
+        io.to(targetId).emit('stop-ringtone', { callId, reason: 'answered' });
+        socket.emit('stop-ringtone', { callId, reason: 'answered' });
         if (callId && activeCalls.has(callId)) {
             const info = activeCalls.get(callId);
             info.answered = true; info.answeredAt = Date.now();
             activeCalls.set(callId, info);
         }
-
         console.log(`✅ Call answered: ${fromUser.username} ↔ ${to}`);
         io.to(targetId).emit('video-call-answer', { from: fromUser.username, answer, callId });
-
-        // ✅ FIX: Flush any buffered ICE candidates after answer
         if (callId && activeCalls.has(callId)) {
             const info = activeCalls.get(callId);
             if (info.pendingCandidates && info.pendingCandidates.length > 0) {
@@ -459,35 +668,27 @@ io.on('connection', (socket) => {
         }
     });
 
-    // ── Video Call: ICE Candidate ──────────────────────────
-    // ✅ FIX: Buffer candidates if answer not yet sent, prevents iOS failures
     socket.on('video-call-ice', (data) => {
         const { to, candidate, callId } = data;
         const fromUser = connectedUsers.get(socket.id);
         const targetId = userSockets.get(to);
         if (!fromUser || !candidate) return;
-
         if (targetId) {
             io.to(targetId).emit('video-call-ice', { from: fromUser.username, candidate, callId });
         }
     });
 
-    // ── Video Call: End ────────────────────────────────────
     socket.on('video-call-end', (data) => {
         const { to, callId, reason } = data;
         const fromUser = connectedUsers.get(socket.id);
         const targetId = userSockets.get(to);
         if (!fromUser) return;
-
         console.log(`📵 Call ended: ${fromUser.username} → ${to}`);
-
-        // Stop ringing/call on both sides
         if (targetId) {
             io.to(targetId).emit('stop-ringtone', { callId, reason: reason || 'ended' });
             io.to(targetId).emit('video-call-end', { from: fromUser.username, callId, reason: reason || 'ended' });
         }
         socket.emit('stop-ringtone', { callId, reason: reason || 'ended' });
-
         if (callId && activeCalls.has(callId)) {
             const info = activeCalls.get(callId);
             const duration = Math.floor((Date.now() - info.startTime) / 1000);
@@ -496,55 +697,38 @@ io.on('connection', (socket) => {
         }
     });
 
-    // ── Video Call: Reject ─────────────────────────────────
     socket.on('video-call-reject', (data) => {
         const { to, callId } = data;
         const fromUser = connectedUsers.get(socket.id);
         const targetId = userSockets.get(to);
         if (!fromUser) return;
-
         console.log(`❌ Call rejected: ${fromUser.username} → ${to}`);
-
         if (targetId) {
-            io.to(targetId).emit('stop-ringtone', { callId, reason:'rejected' });
+            io.to(targetId).emit('stop-ringtone', { callId, reason: 'rejected' });
             io.to(targetId).emit('video-call-reject', { from: fromUser.username, callId });
         }
-        socket.emit('stop-ringtone', { callId, reason:'rejected' });
-
+        socket.emit('stop-ringtone', { callId, reason: 'rejected' });
         if (callId && activeCalls.has(callId)) activeCalls.delete(callId);
     });
 
-    // ================================================================
-    // ✅ GROUP CALL SIGNALING
-    // ================================================================
-
-    // Join or create a group call room
     socket.on('group-call-join', (data) => {
         const { roomId, username } = data;
         const fromUser = connectedUsers.get(socket.id);
         if (!fromUser) return;
-
         if (!groupCallRooms.has(roomId)) {
             groupCallRooms.set(roomId, { members: new Set(), createdAt: Date.now() });
         }
         const room = groupCallRooms.get(roomId);
         const existingMembers = [...room.members];
-
         room.members.add(fromUser.username);
         socket.join(`group-${roomId}`);
-
         console.log(`👥 ${fromUser.username} joined group call ${roomId}`);
-
-        // Tell this user who else is in the room (so they can offer to each)
         socket.emit('group-call-existing-members', { roomId, members: existingMembers });
-
-        // Tell everyone else a new peer joined
         socket.to(`group-${roomId}`).emit('group-call-member-joined', {
             roomId, username: fromUser.username
         });
     });
 
-    // Group call SDP offer (peer-to-peer within group)
     socket.on('group-call-offer', (data) => {
         const { roomId, to, offer, callId } = data;
         const fromUser = connectedUsers.get(socket.id);
@@ -555,7 +739,6 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Group call SDP answer
     socket.on('group-call-answer', (data) => {
         const { roomId, to, answer, callId } = data;
         const fromUser = connectedUsers.get(socket.id);
@@ -566,7 +749,6 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Group call ICE candidates
     socket.on('group-call-ice', (data) => {
         const { roomId, to, candidate, callId } = data;
         const fromUser = connectedUsers.get(socket.id);
@@ -577,7 +759,6 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Leave group call
     socket.on('group-call-leave', (data) => {
         const { roomId } = data;
         const fromUser = connectedUsers.get(socket.id);
@@ -594,7 +775,6 @@ io.on('connection', (socket) => {
         console.log(`👋 ${fromUser.username} left group call ${roomId}`);
     });
 
-    // Invite to group call
     socket.on('group-call-invite', (data) => {
         const { roomId, to, from } = data;
         const targetId = userSockets.get(to);
@@ -609,7 +789,6 @@ io.on('connection', (socket) => {
         });
     });
 
-    // ── Messages ───────────────────────────────────────────
     socket.on('private message', (data) => {
         const { from, to, message, timestamp, messageId } = data;
         const d = readPrivateMessages();
@@ -617,15 +796,14 @@ io.on('connection', (socket) => {
         if (!d.conversations[key]) d.conversations[key] = [];
         d.conversations[key].push({
             id: messageId || Date.now().toString(),
-            from, to, message, type:'text',
+            from, to, message, type: 'text',
             timestamp: timestamp || new Date().toISOString(),
             read: false
         });
         writeJSON(privateMessagesPath, d);
-
         const recipId = userSockets.get(to);
         if (recipId) io.to(recipId).emit('private message', { from, message, timestamp, messageId });
-        socket.emit('message sent', { messageId, status:'sent' });
+        socket.emit('message sent', { messageId, status: 'sent' });
     });
 
     socket.on('send file', (data) => {
@@ -644,7 +822,6 @@ io.on('connection', (socket) => {
             read: false
         });
         writeJSON(privateMessagesPath, d);
-
         const recipId = userSockets.get(to);
         if (recipId) io.to(recipId).emit('file received', { from, fileUrl, fileName, fileType, timestamp });
     });
@@ -656,12 +833,11 @@ io.on('connection', (socket) => {
         if (!d.conversations[key]) d.conversations[key] = [];
         d.conversations[key].push({
             id: messageId || Date.now().toString(),
-            from, to, type:'voice', audioUrl, duration,
+            from, to, type: 'voice', audioUrl, duration,
             timestamp: timestamp || new Date().toISOString(),
             read: false
         });
         writeJSON(privateMessagesPath, d);
-
         const recipId = userSockets.get(to);
         if (recipId) io.to(recipId).emit('voice message', { from, audioUrl, duration, timestamp });
     });
@@ -698,31 +874,26 @@ io.on('connection', (socket) => {
         const { username, settings } = data;
         if (username && settings) {
             saveUserSettings(username, settings);
-            socket.emit('ringtone settings updated', { success:true });
+            socket.emit('ringtone settings updated', { success: true });
         }
     });
 
-    // ── Disconnect ─────────────────────────────────────────
     socket.on('disconnect', (reason) => {
         const userInfo = connectedUsers.get(socket.id);
         if (!userInfo) return;
         const { username } = userInfo;
         console.log(`⚠️ Disconnected: ${username} (${reason})`);
-
-        // End any active 1-to-1 calls
         for (const [callId, callInfo] of activeCalls.entries()) {
             if (callInfo.from === username || callInfo.to === username) {
                 const other = callInfo.from === username ? callInfo.to : callInfo.from;
                 const otherId = userSockets.get(other);
                 if (otherId) {
-                    io.to(otherId).emit('stop-ringtone', { callId, reason:'disconnected' });
-                    io.to(otherId).emit('video-call-end', { from: username, callId, reason:'disconnected' });
+                    io.to(otherId).emit('stop-ringtone', { callId, reason: 'disconnected' });
+                    io.to(otherId).emit('video-call-end', { from: username, callId, reason: 'disconnected' });
                 }
                 activeCalls.delete(callId);
             }
         }
-
-        // Clean up group calls
         for (const [roomId, room] of groupCallRooms.entries()) {
             if (room.members.has(username)) {
                 room.members.delete(username);
@@ -730,31 +901,27 @@ io.on('connection', (socket) => {
                 if (room.members.size === 0) groupCallRooms.delete(roomId);
             }
         }
-
-        // Update contact status
         const cd = readContacts();
         const contact = cd.contacts.find(c => c.name === username);
         if (contact) { contact.status = 'offline'; writeJSON(contactsFilePath, cd); }
-
         if (userSockets.get(username) === socket.id) {
             userSockets.delete(username);
-            io.emit('user status change', { username, status:'offline' });
+            io.emit('user status change', { username, status: 'offline' });
         }
-
         connectedUsers.delete(socket.id);
     });
 
     socket.on('error', (err) => {
         console.error('Socket error:', err);
-        socket.emit('force-reload', { reason:'socket_error' });
+        socket.emit('force-reload', { reason: 'socket_error' });
     });
 });
 
-// ==================== Routes ====================
-app.get('/',          (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/index.html',(req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/index.html', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/chat.html', (req, res) => res.sendFile(path.join(__dirname, 'chat.html')));
+app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 
-// ==================== Graceful Shutdown ====================
 let isShuttingDown = false;
 
 function gracefulShutdown(signal) {
@@ -763,7 +930,7 @@ function gracefulShutdown(signal) {
     console.log(`\n🛑 ${signal} received – shutting down...`);
     io.close(() => {
         server.close(() => {
-            try { if (fs.existsSync(uploadsDir)) fs.rmSync(uploadsDir, { recursive:true, force:true }); } catch(e){}
+            try { if (fs.existsSync(uploadsDir)) fs.rmSync(uploadsDir, { recursive: true, force: true }); } catch(e) { }
             console.log('🛑 Server closed cleanly');
             process.exit(0);
         });
@@ -772,30 +939,15 @@ function gracefulShutdown(signal) {
 }
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
-process.on('uncaughtException',  (e) => { console.error('Uncaught:', e); gracefulShutdown('uncaughtException'); });
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('uncaughtException', (e) => { console.error('Uncaught:', e); gracefulShutdown('uncaughtException'); });
 process.on('unhandledRejection', (r) => { console.error('Unhandled:', r); });
 
-// ==================== Start ====================
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`\n========================================`);
     console.log(`🚀 Server running on http://localhost:${PORT}`);
     console.log(`☁️  Cloudinary ready`);
-    console.log(`\n📹 Video call features:`);
-    console.log(`   ✅ iPhone ↔ Computer`);
-    console.log(`   ✅ iPhone ↔ iPhone`);
-    console.log(`   ✅ MacBook ↔ iPhone`);
-    console.log(`   ✅ Computer ↔ MacBook`);
-    console.log(`   ✅ Group calls (mesh)`);
-    console.log(`   ✅ ICE candidate buffering`);
-    console.log(`   ✅ Camera flip (mobile)`);
-    console.log(`   ✅ Speaker toggle`);
-    console.log(`   ✅ ICE restart on failure`);
-    console.log(`   ✅ Ringtone stop on answer/reject/end/disconnect`);
-    console.log(`\n🔐 Auth features:`);
-    console.log(`   ✅ Google OAuth`);
-    console.log(`   ✅ GitHub OAuth`);
-    console.log(`   ✅ Access code`);
+    console.log(`🔐 Admin password: admin123`);
     console.log(`========================================\n`);
 });
