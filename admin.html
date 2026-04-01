@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>واصل - لوحة تحكم الأدمن</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .admin-header h1 {
+            color: #075e54;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #075e54, #128c7e);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .stat-card .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .stat-card .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        .search-bar {
+            background: white;
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-bar input:focus {
+            border-color: #128c7e;
+        }
+
+        .search-bar button {
+            background: linear-gradient(135deg, #075e54, #128c7e);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .search-bar button:hover {
+            transform: scale(1.02);
+        }
+
+        .add-user-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .add-user-section h3 {
+            color: #075e54;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-user-form {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .add-user-form input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .add-user-form input:focus {
+            border-color: #128c7e;
+        }
+
+        .add-user-form button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .add-user-form button:hover {
+            background: #218838;
+            transform: scale(1.02);
+        }
+
+        .users-table-container {
+            background: white;
+            border-radius: 15px;
+            overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        .users-table th {
+            background: #075e54;
+            color: white;
+            padding: 15px;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .users-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .users-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #075e54, #128c7e);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-online {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-offline {
+            background: #6c757d;
+            color: white;
+        }
+
+        .status-banned {
+            background: #dc3545;
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-view {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .btn-ban {
+            background: #ffc107;
+            color: #333;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .btn-unban {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .btn-notify {
+            background: #6f42c1;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .btn-view:hover, .btn-ban:hover, .btn-unban:hover, .btn-delete:hover, .btn-notify:hover {
+            transform: scale(1.05);
+            filter: brightness(0.95);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #075e54, #128c7e);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .messages-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 12px;
+            border-right: 4px solid #128c7e;
+        }
+
+        .message-sender {
+            font-weight: bold;
+            color: #075e54;
+            margin-bottom: 5px;
+        }
+
+        .message-text {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .message-delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+
+        .clear-conversation-btn {
+            background: #ffc107;
+            color: #333;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .notification-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .send-notification-btn {
+            background: #6f42c1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .users-table {
+                font-size: 12px;
+            }
+            
+            .users-table th, .users-table td {
+                padding: 8px 10px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>🛡️ لوحة تحكم الأدمن - واصل</h1>
+            <div class="admin-stats" id="adminStats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalUsers">0</div>
+                    <div class="stat-label">إجمالي المستخدمين</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="onlineUsers">0</div>
+                    <div class="stat-label">متصلون الآن</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="bannedUsers">0</div>
+                    <div class="stat-label">محظورون</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">🚪 خروج</button>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 بحث عن مستخدم... (اسم المستخدم أو البريد)" onkeyup="filterUsers()">
+            <button onclick="refreshUsers()">🔄 تحديث</button>
+        </div>
+
+        <div class="add-user-section">
+            <h3>➕ إضافة مستخدم جديد</h3>
+            <div class="add-user-form">
+                <input type="text" id="newUsername" placeholder="اسم المستخدم" maxlength="30">
+                <input type="text" id="newPhone" placeholder="رقم الهاتف (اختياري)">
+                <button onclick="addUser()">إضافة مستخدم</button>
+            </div>
+        </div>
+
+        <div class="users-table-container">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>المستخدم</th>
+                        <th>رقم الهاتف</th>
+                        <th>الحالة</th>
+                        <th>آخر نشاط</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <tr>
+                        <td colspan="5" class="loading">جاري التحميل...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal" id="messagesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">رسائل المستخدم</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="loading">جاري التحميل...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="notificationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📢 إرسال تنبيه</h3>
+                <button class="modal-close" onclick="closeNotificationModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <textarea id="notificationMessage" class="notification-input" rows="4" placeholder="اكتب رسالة التنبيه هنا..."></textarea>
+                <button class="send-notification-btn" onclick="sendNotification()">إرسال التنبيه</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUsers = [];
+        let currentSelectedUser = null;
+        let notifyUser = null;
+
+        function checkAuth() {
+            if (sessionStorage.getItem('adminLoggedIn') !== 'true') {
+                window.location.href = '/index.html';
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('adminLoggedIn');
+            window.location.href = '/index.html';
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/admin/users');
+                const data = await response.json();
+                if (data.success) {
+                    currentUsers = data.users;
+                    updateStats(data.stats);
+                    renderUsers(currentUsers);
+                } else {
+                    showError('فشل في تحميل المستخدمين');
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showError('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        function updateStats(stats) {
+            document.getElementById('totalUsers').textContent = stats.total || 0;
+            document.getElementById('onlineUsers').textContent = stats.online || 0;
+            document.getElementById('bannedUsers').textContent = stats.banned || 0;
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('usersTableBody');
+            if (!users || users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">لا يوجد مستخدمين</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                
+                const userCell = document.createElement('td');
+                userCell.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <div class="user-avatar">${(user.username?.charAt(0) || '?').toUpperCase()}</div>
+                        <div>
+                            <div style="font-weight:bold">${escapeHtml(user.username)}</div>
+                            <div style="font-size:11px;color:#666">${user.email || ''}</div>
+                        </div>
+                    </div>
+                `;
+                
+                const phoneCell = document.createElement('td');
+                phoneCell.textContent = user.phone || '—';
+                
+                const statusCell = document.createElement('td');
+                let statusClass = 'status-offline';
+                let statusText = 'غير متصل';
+                if (user.banned) {
+                    statusClass = 'status-banned';
+                    statusText = 'محظور';
+                } else if (user.status === 'online') {
+                    statusClass = 'status-online';
+                    statusText = 'متصل';
+                }
+                statusCell.innerHTML = `<span class="status-badge ${statusClass}">${statusText}</span>`;
+                
+                const lastActiveCell = document.createElement('td');
+                lastActiveCell.textContent = user.lastActive ? new Date(user.lastActive).toLocaleString('ar-SA') : '—';
+                
+                const actionsCell = document.createElement('td');
+                actionsCell.className = 'action-buttons';
+                
+                const viewBtn = document.createElement('button');
+                viewBtn.textContent = '📋 رسائل';
+                viewBtn.className = 'btn-view';
+                viewBtn.onclick = () => viewUserMessages(user.username);
+                
+                const notifyBtn = document.createElement('button');
+                notifyBtn.textContent = '📢 تنبيه';
+                notifyBtn.className = 'btn-notify';
+                notifyBtn.onclick = () => openNotificationModal(user.username);
+                
+                let banBtn;
+                if (user.banned) {
+                    banBtn = document.createElement('button');
+                    banBtn.textContent = '🔓 رفع الحظر';
+                    banBtn.className = 'btn-unban';
+                    banBtn.onclick = () => unbanUser(user.username);
+                } else {
+                    banBtn = document.createElement('button');
+                    banBtn.textContent = '🔒 حظر';
+                    banBtn.className = 'btn-ban';
+                    banBtn.onclick = () => banUser(user.username);
+                }
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '🗑️ حذف';
+                deleteBtn.className = 'btn-delete';
+                deleteBtn.onclick = () => deleteUser(user.username);
+                
+                actionsCell.appendChild(viewBtn);
+                actionsCell.appendChild(notifyBtn);
+                actionsCell.appendChild(banBtn);
+                actionsCell.appendChild(deleteBtn);
+                
+                row.appendChild(userCell);
+                row.appendChild(phoneCell);
+                row.appendChild(statusCell);
+                row.appendChild(lastActiveCell);
+                row.appendChild(actionsCell);
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function filterUsers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (!searchTerm) {
+                renderUsers(currentUsers);
+                return;
+            }
+            const filtered = currentUsers.filter(user => 
+                user.username.toLowerCase().includes(searchTerm) ||
+                (user.email && user.email.toLowerCase().includes(searchTerm)) ||
+                (user.phone && user.phone.includes(searchTerm))
+            );
+            renderUsers(filtered);
+        }
+
+        function refreshUsers() {
+            loadUsers();
+        }
+
+        async function addUser() {
+            const username = document.getElementById('newUsername').value.trim();
+            const phone = document.getElementById('newPhone').value.trim();
+            
+            if (!username) {
+                alert('الرجاء إدخال اسم المستخدم');
+                return;
+            }
+            
+            if (username.length < 2) {
+                alert('اسم المستخدم قصير جداً (حرفان على الأقل)');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/add-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, phone })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('تم إضافة المستخدم بنجاح');
+                    document.getElementById('newUsername').value = '';
+                    document.getElementById('newPhone').value = '';
+                    loadUsers();
+                } else {
+                    alert(data.message || 'فشل في إضافة المستخدم');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        async function banUser(username) {
+            if (!confirm(`هل أنت متأكد من حظر المستخدم "${username}"؟`)) return;
+            
+            const reason = prompt('الرجاء إدخال سبب الحظر (اختياري):');
+            
+            try {
+                const response = await fetch('/api/admin/ban-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, reason: reason || 'تم الحظر من قبل الإدارة' })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert(`تم حظر المستخدم ${username} بنجاح`);
+                    loadUsers();
+                } else {
+                    alert(data.message || 'فشل في حظر المستخدم');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        async function unbanUser(username) {
+            if (!confirm(`هل أنت متأكد من رفع الحظر عن المستخدم "${username}"؟`)) return;
+            
+            try {
+                const response = await fetch('/api/admin/unban-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert(`تم رفع الحظر عن المستخدم ${username}`);
+                    loadUsers();
+                } else {
+                    alert(data.message || 'فشل في رفع الحظر');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        async function deleteUser(username) {
+            if (!confirm(`⚠️ تحذير: هذا الإجراء سيقوم بحذف المستخدم "${username}" وجميع رسائله نهائياً.\nهل أنت متأكد؟`)) return;
+            
+            try {
+                const response = await fetch(`/api/admin/delete-user/${encodeURIComponent(username)}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert(`تم حذف المستخدم ${username} بنجاح`);
+                    loadUsers();
+                } else {
+                    alert(data.message || 'فشل في حذف المستخدم');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        async function viewUserMessages(username) {
+            currentSelectedUser = username;
+            document.getElementById('modalTitle').textContent = `رسائل المستخدم: ${username}`;
+            document.getElementById('messagesModal').classList.add('active');
+            document.getElementById('modalBody').innerHTML = '<div class="loading">جاري تحميل الرسائل...</div>';
+            
+            try {
+                const response = await fetch(`/api/admin/user-messages/${encodeURIComponent(username)}`);
+                const data = await response.json();
+                if (data.success) {
+                    renderMessages(data.messages);
+                } else {
+                    document.getElementById('modalBody').innerHTML = '<div style="color:red;text-align:center">فشل في تحميل الرسائل</div>';
+                }
+            } catch (error) {
+                document.getElementById('modalBody').innerHTML = '<div style="color:red;text-align:center">خطأ في الاتصال بالخادم</div>';
+            }
+        }
+
+        function renderMessages(messages) {
+            const container = document.getElementById('modalBody');
+            if (!messages || messages.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:#666">لا توجد رسائل لهذا المستخدم</div>';
+                return;
+            }
+            
+            const conversations = {};
+            messages.forEach(msg => {
+                const otherUser = msg.from === currentSelectedUser ? msg.to : msg.from;
+                if (!conversations[otherUser]) conversations[otherUser] = [];
+                conversations[otherUser].push(msg);
+            });
+            
+            let html = '';
+            for (const [otherUser, msgs] of Object.entries(conversations)) {
+                html += `<div style="margin-bottom:20px">
+                    <div style="background:#e9ecef;padding:8px 12px;border-radius:10px;margin-bottom:10px">
+                        <strong>📱 محادثة مع: ${escapeHtml(otherUser)}</strong>
+                        <button class="clear-conversation-btn" onclick="clearConversation('${escapeHtml(otherUser)}')">🗑️ حذف المحادثة بالكامل</button>
+                    </div>
+                    <div class="messages-list">`;
+                
+                msgs.sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+                msgs.forEach(msg => {
+                    const isSent = msg.from === currentSelectedUser;
+                    let messageContent = '';
+                    if (msg.type === 'text') {
+                        messageContent = escapeHtml(msg.message);
+                    } else if (msg.type === 'file') {
+                        messageContent = `📎 ملف: ${msg.fileName || 'ملف'}`;
+                    } else if (msg.type === 'voice') {
+                        messageContent = `🎤 رسالة صوتية (${msg.duration || 0} ث)`;
+                    } else if (msg.type === 'video') {
+                        messageContent = `📹 فيديو`;
+                    } else {
+                        messageContent = 'رسالة';
+                    }
+                    
+                    html += `
+                        <div class="message-item">
+                            <div class="message-sender">${isSent ? '📤 مرسلة' : '📥 واردة'} (${msg.from})</div>
+                            <div class="message-text">${messageContent}</div>
+                            <div class="message-time">${new Date(msg.timestamp).toLocaleString('ar-SA')}</div>
+                            <button class="message-delete-btn" onclick="deleteMessage('${msg.id}', '${escapeHtml(otherUser)}')">حذف هذه الرسالة</button>
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        async function deleteMessage(messageId, otherUser) {
+            if (!confirm('هل تريد حذف هذه الرسالة؟')) return;
+            
+            try {
+                const response = await fetch('/api/admin/delete-message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messageId, username: currentSelectedUser, otherUser })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    viewUserMessages(currentSelectedUser);
+                } else {
+                    alert('فشل في حذف الرسالة');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        async function clearConversation(otherUser) {
+            if (!confirm(`هل تريد حذف جميع رسائل المحادثة مع ${otherUser} نهائياً؟`)) return;
+            
+            try {
+                const response = await fetch('/api/admin/clear-conversation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: currentSelectedUser, otherUser })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    viewUserMessages(currentSelectedUser);
+                } else {
+                    alert('فشل في حذف المحادثة');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        function openNotificationModal(username) {
+            notifyUser = username;
+            document.getElementById('notificationMessage').value = '';
+            document.getElementById('notificationModal').classList.add('active');
+        }
+
+        async function sendNotification() {
+            const message = document.getElementById('notificationMessage').value.trim();
+            if (!message) {
+                alert('الرجاء كتابة رسالة التنبيه');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/send-notification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: notifyUser, message })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert(`تم إرسال التنبيه إلى ${notifyUser}`);
+                    closeNotificationModal();
+                } else {
+                    alert(data.message || 'فشل في إرسال التنبيه');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('messagesModal').classList.remove('active');
+        }
+        
+        function closeNotificationModal() {
+            document.getElementById('notificationModal').classList.remove('active');
+            notifyUser = null;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showError(msg) {
+            alert(msg);
+        }
+
+        let refreshInterval = setInterval(loadUsers, 30000);
+        
+        checkAuth();
+        loadUsers();
+        
+        window.addEventListener('beforeunload', () => {
+            if (refreshInterval) clearInterval(refreshInterval);
+        });
+    </script>
+</body>
+</html>
