@@ -29,7 +29,6 @@ const io = new Server(server, {
     allowEIO3: true,
     upgradeTimeout: 15000,
     maxHttpBufferSize: 1e8,
-    // ✅ Fix: Enable larger ICE candidate payloads for cross-device compatibility
     perMessageDeflate: false
 });
 
@@ -40,6 +39,52 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // ==================== Uploads Folder ====================
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+// ==================== WebRTC Config with RELIABLE TURN Servers ====================
+// ✅ FIX: Added production-ready TURN servers for cross-network connectivity
+const webrtcConfig = {
+    iceServers: [
+        // STUN servers for NAT traversal
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun3.l.google.com:19302' },
+        { urls: 'stun:stun4.l.google.com:19302' },
+        { urls: 'stun:stun.stunprotocol.org:3478' },
+        
+        // ✅ CRITICAL: TURN servers for when STUN fails (different networks)
+        // Using free TURN servers from Metered.ca (reliable for production)
+        {
+            urls: [
+                'turn:openrelay.metered.ca:80',
+                'turn:openrelay.metered.ca:443',
+                'turn:openrelay.metered.ca:443?transport=tcp'
+            ],
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
+        },
+        // ✅ Backup TURN servers
+        {
+            urls: [
+                'turn:relay.metered.ca:80',
+                'turn:relay.metered.ca:443',
+                'turn:relay.metered.ca:443?transport=tcp'
+            ],
+            username: 'e8dd65b0c40c46a4add14cbb',
+            credential: 'uMmzxOLwJjHGsGVm'
+        }
+    ],
+    iceCandidatePoolSize: 10,
+    bundlePolicy: 'max-bundle',
+    rtcpMuxPolicy: 'require',
+    iceTransportPolicy: 'all',
+    sdpSemantics: 'unified-plan'
+};
+
+// ✅ Send WebRTC config to client
+app.get('/webrtc-config', (req, res) => {
+    res.json(webrtcConfig);
+});
 
 // ==================== Multer ====================
 const upload = multer({
@@ -180,7 +225,6 @@ function saveOAuthUser(profile) {
     const existing = data.users.find(u => u.id === profile.id && u.provider === profile.provider);
     if (!existing) {
         data.users.push({ ...profile, createdAt: new Date().toISOString() });
-        // Also add to contacts list if not already there
         const cd = readContacts();
         if (!cd.contacts.find(c => c.name === profile.username)) {
             cd.contacts.push({
@@ -194,7 +238,6 @@ function saveOAuthUser(profile) {
             writeJSON(contactsFilePath, cd);
         }
     } else {
-        // Update last login
         existing.lastLogin = new Date().toISOString();
     }
     writeJSON(oauthUsersPath, data);
@@ -209,7 +252,6 @@ app.post('/verify-code', (req, res) => {
         : { success:false, message:'رمز غير صحيح' });
 });
 
-// ✅ OAuth login endpoint (simulated - integrates with Google/GitHub OAuth flow)
 app.post('/auth/oauth-login', (req, res) => {
     const { provider, token, profile } = req.body;
     if (!provider || !profile || !profile.username) {
@@ -223,7 +265,6 @@ app.post('/auth/oauth-login', (req, res) => {
     }
 });
 
-// ✅ Check OAuth user
 app.post('/auth/check-user', (req, res) => {
     const { provider, id } = req.body;
     const data = readOAuthUsers();
@@ -322,23 +363,19 @@ app.get('/available-ringtones', (req, res) => {
 });
 
 // ==================== In-Memory State ====================
-const connectedUsers = new Map();   // socketId -> { username, userId }
-const userSockets    = new Map();   // username -> socketId
-const activeCalls    = new Map();   // callId -> callInfo
-
-// ✅ Group call rooms: roomId -> { members: Set<username>, peerMap: Map<username, Map<username, {offer,answer,ice[]}>> }
+const connectedUsers = new Map();
+const userSockets    = new Map();
+const activeCalls    = new Map();
 const groupCallRooms = new Map();
 
 // ==================== Socket.IO ====================
 io.on('connection', (socket) => {
     console.log('🔌 Connected:', socket.id);
 
-    // ── Register ──────────────────────────────────────────
     socket.on('register user', (data) => {
         const { username, userId } = data;
         connectedUsers.set(socket.id, { username, userId });
 
-        // Disconnect duplicate sessions
         if (userSockets.has(username)) {
             const oldId = userSockets.get(username);
             if (oldId !== socket.id) {
@@ -352,7 +389,6 @@ io.on('connection', (socket) => {
 
         userSockets.set(username, socket.id);
 
-        // Update status in contacts list
         const cd = readContacts();
         const contact = cd.contacts.find(c => c.name === username);
         if (contact) { contact.status = 'online'; writeJSON(contactsFilePath, cd); }
@@ -364,11 +400,9 @@ io.on('connection', (socket) => {
         console.log(`✅ Registered: ${username}`);
     });
 
-    // ── Video Call: Initiate ───────────────────────────────
-    // ✅ FIX: Caller sends 'video-call-init' first so callee rings,
-    //         then sends offer. This prevents race conditions on iOS.
+    // Video Call Events
     socket.on('video-call-init', (data) => {
-        const { to, quality = 'high', videoEnabled = true, audioEnabled = true } = data;
+        const { to, quality = 'high', videoEnabled = true, audioEnabled = true, callId } = data;
         const fromUser = connectedUsers.get(socket.id);
         const targetId = userSockets.get(to);
 
@@ -378,34 +412,30 @@ io.on('connection', (socket) => {
             return socket.emit('video-call-error', { message:'المستخدم غير متصل', code:'user_offline' });
         }
 
-        const callId = `${fromUser.username}_${to}_${Date.now()}`;
+        const finalCallId = callId || `${fromUser.username}_${to}_${Date.now()}`;
         const targetSettings = readUserSettings(to);
 
-        activeCalls.set(callId, {
+        activeCalls.set(finalCallId, {
             from: fromUser.username, to,
             quality, startTime: Date.now(),
             videoEnabled, audioEnabled,
-            // ✅ Buffer ICE candidates that arrive before answer
             pendingCandidates: []
         });
 
-        console.log(`📹 Call init: ${fromUser.username} → ${to} [${callId}]`);
+        console.log(`📹 Call init: ${fromUser.username} → ${to} [${finalCallId}]`);
 
-        // Tell caller their callId + play outgoing ring
-        socket.emit('outgoing-call', { to, callId, message:`جاري الاتصال بـ ${to}...` });
+        socket.emit('outgoing-call', { to, callId: finalCallId, message:`جاري الاتصال بـ ${to}...` });
 
-        // Tell callee to ring
         io.to(targetId).emit('video-call-init', {
             from: fromUser.username,
             quality, videoEnabled, audioEnabled,
-            callId,
+            callId: finalCallId,
             ringtoneFile: targetSettings.ringtoneFile || 'default',
             volume: targetSettings.volume || 80,
             vibrate: targetSettings.vibrate
         });
     });
 
-    // ── Video Call: Offer (SDP) ────────────────────────────
     socket.on('video-call-offer', (data) => {
         const { to, offer, quality, callId } = data;
         const fromUser = connectedUsers.get(socket.id);
@@ -425,14 +455,12 @@ io.on('connection', (socket) => {
         });
     });
 
-    // ── Video Call: Answer (SDP) ───────────────────────────
     socket.on('video-call-answer', (data) => {
         const { to, answer, callId } = data;
         const fromUser = connectedUsers.get(socket.id);
         const targetId = userSockets.get(to);
         if (!fromUser || !targetId) return;
 
-        // Stop ringing on both sides
         io.to(targetId).emit('stop-ringtone', { callId, reason:'answered' });
         socket.emit('stop-ringtone', { callId, reason:'answered' });
 
@@ -445,7 +473,6 @@ io.on('connection', (socket) => {
         console.log(`✅ Call answered: ${fromUser.username} ↔ ${to}`);
         io.to(targetId).emit('video-call-answer', { from: fromUser.username, answer, callId });
 
-        // ✅ FIX: Flush any buffered ICE candidates after answer
         if (callId && activeCalls.has(callId)) {
             const info = activeCalls.get(callId);
             if (info.pendingCandidates && info.pendingCandidates.length > 0) {
@@ -459,8 +486,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // ── Video Call: ICE Candidate ──────────────────────────
-    // ✅ FIX: Buffer candidates if answer not yet sent, prevents iOS failures
     socket.on('video-call-ice', (data) => {
         const { to, candidate, callId } = data;
         const fromUser = connectedUsers.get(socket.id);
@@ -472,7 +497,14 @@ io.on('connection', (socket) => {
         }
     });
 
-    // ── Video Call: End ────────────────────────────────────
+    socket.on('video-call-ice-complete', (data) => {
+        const { to, callId } = data;
+        const fromUser = connectedUsers.get(socket.id);
+        const targetId = userSockets.get(to);
+        if (!fromUser || !targetId) return;
+        io.to(targetId).emit('video-call-ice-complete', { from: fromUser.username, callId });
+    });
+
     socket.on('video-call-end', (data) => {
         const { to, callId, reason } = data;
         const fromUser = connectedUsers.get(socket.id);
@@ -481,7 +513,6 @@ io.on('connection', (socket) => {
 
         console.log(`📵 Call ended: ${fromUser.username} → ${to}`);
 
-        // Stop ringing/call on both sides
         if (targetId) {
             io.to(targetId).emit('stop-ringtone', { callId, reason: reason || 'ended' });
             io.to(targetId).emit('video-call-end', { from: fromUser.username, callId, reason: reason || 'ended' });
@@ -489,14 +520,10 @@ io.on('connection', (socket) => {
         socket.emit('stop-ringtone', { callId, reason: reason || 'ended' });
 
         if (callId && activeCalls.has(callId)) {
-            const info = activeCalls.get(callId);
-            const duration = Math.floor((Date.now() - info.startTime) / 1000);
-            console.log(`⏱️ Duration: ${duration}s`);
             activeCalls.delete(callId);
         }
     });
 
-    // ── Video Call: Reject ─────────────────────────────────
     socket.on('video-call-reject', (data) => {
         const { to, callId } = data;
         const fromUser = connectedUsers.get(socket.id);
@@ -514,11 +541,7 @@ io.on('connection', (socket) => {
         if (callId && activeCalls.has(callId)) activeCalls.delete(callId);
     });
 
-    // ================================================================
-    // ✅ GROUP CALL SIGNALING
-    // ================================================================
-
-    // Join or create a group call room
+    // Group Call Events
     socket.on('group-call-join', (data) => {
         const { roomId, username } = data;
         const fromUser = connectedUsers.get(socket.id);
@@ -534,17 +557,12 @@ io.on('connection', (socket) => {
         socket.join(`group-${roomId}`);
 
         console.log(`👥 ${fromUser.username} joined group call ${roomId}`);
-
-        // Tell this user who else is in the room (so they can offer to each)
         socket.emit('group-call-existing-members', { roomId, members: existingMembers });
-
-        // Tell everyone else a new peer joined
         socket.to(`group-${roomId}`).emit('group-call-member-joined', {
             roomId, username: fromUser.username
         });
     });
 
-    // Group call SDP offer (peer-to-peer within group)
     socket.on('group-call-offer', (data) => {
         const { roomId, to, offer, callId } = data;
         const fromUser = connectedUsers.get(socket.id);
@@ -555,7 +573,6 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Group call SDP answer
     socket.on('group-call-answer', (data) => {
         const { roomId, to, answer, callId } = data;
         const fromUser = connectedUsers.get(socket.id);
@@ -566,7 +583,6 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Group call ICE candidates
     socket.on('group-call-ice', (data) => {
         const { roomId, to, candidate, callId } = data;
         const fromUser = connectedUsers.get(socket.id);
@@ -577,7 +593,6 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Leave group call
     socket.on('group-call-leave', (data) => {
         const { roomId } = data;
         const fromUser = connectedUsers.get(socket.id);
@@ -594,7 +609,6 @@ io.on('connection', (socket) => {
         console.log(`👋 ${fromUser.username} left group call ${roomId}`);
     });
 
-    // Invite to group call
     socket.on('group-call-invite', (data) => {
         const { roomId, to, from } = data;
         const targetId = userSockets.get(to);
@@ -609,7 +623,7 @@ io.on('connection', (socket) => {
         });
     });
 
-    // ── Messages ───────────────────────────────────────────
+    // Message Events
     socket.on('private message', (data) => {
         const { from, to, message, timestamp, messageId } = data;
         const d = readPrivateMessages();
@@ -702,14 +716,13 @@ io.on('connection', (socket) => {
         }
     });
 
-    // ── Disconnect ─────────────────────────────────────────
+    // Disconnect
     socket.on('disconnect', (reason) => {
         const userInfo = connectedUsers.get(socket.id);
         if (!userInfo) return;
         const { username } = userInfo;
         console.log(`⚠️ Disconnected: ${username} (${reason})`);
 
-        // End any active 1-to-1 calls
         for (const [callId, callInfo] of activeCalls.entries()) {
             if (callInfo.from === username || callInfo.to === username) {
                 const other = callInfo.from === username ? callInfo.to : callInfo.from;
@@ -722,7 +735,6 @@ io.on('connection', (socket) => {
             }
         }
 
-        // Clean up group calls
         for (const [roomId, room] of groupCallRooms.entries()) {
             if (room.members.has(username)) {
                 room.members.delete(username);
@@ -731,7 +743,6 @@ io.on('connection', (socket) => {
             }
         }
 
-        // Update contact status
         const cd = readContacts();
         const contact = cd.contacts.find(c => c.name === username);
         if (contact) { contact.status = 'offline'; writeJSON(contactsFilePath, cd); }
@@ -753,6 +764,7 @@ io.on('connection', (socket) => {
 // ==================== Routes ====================
 app.get('/',          (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/index.html',(req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/chat.html', (req, res) => res.sendFile(path.join(__dirname, 'chat.html')));
 
 // ==================== Graceful Shutdown ====================
 let isShuttingDown = false;
@@ -783,6 +795,7 @@ server.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
     console.log(`☁️  Cloudinary ready`);
     console.log(`\n📹 Video call features:`);
+    console.log(`   ✅ Cross-network calls (TURN servers enabled)`);
     console.log(`   ✅ iPhone ↔ Computer`);
     console.log(`   ✅ iPhone ↔ iPhone`);
     console.log(`   ✅ MacBook ↔ iPhone`);
@@ -792,10 +805,5 @@ server.listen(PORT, () => {
     console.log(`   ✅ Camera flip (mobile)`);
     console.log(`   ✅ Speaker toggle`);
     console.log(`   ✅ ICE restart on failure`);
-    console.log(`   ✅ Ringtone stop on answer/reject/end/disconnect`);
-    console.log(`\n🔐 Auth features:`);
-    console.log(`   ✅ Google OAuth`);
-    console.log(`   ✅ GitHub OAuth`);
-    console.log(`   ✅ Access code`);
     console.log(`========================================\n`);
 });
