@@ -724,6 +724,40 @@
         .incoming-call-btn.reject:hover { background: #c82333; }
 
         /* ====================================================
+           Speech to Text Label (New)
+        ==================================================== */
+        .speech-label {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #dc3545;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            padding: 20px 40px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 20001;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            max-width: 90vw;
+            word-wrap: break-word;
+            display: none;
+            font-family: monospace;
+            direction: ltr;
+        }
+        .speech-label.active {
+            display: block;
+            animation: pulseRed 1s infinite;
+        }
+        @keyframes pulseRed {
+            0% { background-color: #dc3545; }
+            50% { background-color: #ff6b6b; }
+            100% { background-color: #dc3545; }
+        }
+
+
+        /* ====================================================
            Notifications & Toasts
         ==================================================== */
         .notification-toast {
@@ -784,7 +818,7 @@
             z-index: 5000; display: none; font-size: 14px;
         }
 
-        /* Listening overlay */
+        /* Listening overlay (Keep for compatibility) */
         .listening-overlay {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
@@ -850,6 +884,11 @@
             .call-controls { gap: 12px; padding: 14px 16px; padding-bottom: max(14px, env(safe-area-inset-bottom)); }
 
             .btn-wrapper { gap: 16px; }
+            
+            .speech-label {
+                font-size: 22px;
+                padding: 15px 25px;
+            }
         }
 
         /* Landscape on mobile */
@@ -864,6 +903,10 @@
             .local-video { width: 75px; height: 100px; }
             .call-control-btn { width: 46px; height: 46px; font-size: 18px; }
             .call-controls { gap: 10px; }
+            .speech-label {
+                font-size: 18px;
+                padding: 10px 20px;
+            }
         }
 
         /* Back button hidden on desktop */
@@ -1006,6 +1049,9 @@
     </div>
 </div>
 
+<!-- ======================== SPEECH TO TEXT LABEL (New) ======================== -->
+<div class="speech-label" id="speechLabel"></div>
+
 <!-- ======================== MISC OVERLAYS ======================== -->
 <div class="listening-overlay" id="listeningOverlay">
     <div class="mic-icon">🎙️</div>
@@ -1041,9 +1087,12 @@ let mediaRecorder, audioChunks = [], isRecording = false;
 let recordingStream = null, recordingTimer = null;
 let recordingSeconds = 0, currentAudioBlob = null, currentAudioDuration = 0;
 
-// Speech recognition
-let recognition = null, isListening = false;
-let finalTranscript = '', silenceTimeout = null;
+// Speech recognition (FIXED)
+let recognition = null;
+let isListening = false;
+let accumulatedTranscript = ''; // Store text accumulated during the current listening session
+let silenceTimeout = null;
+const speechLabel = document.getElementById('speechLabel');
 
 // Ringtone
 let currentRingtone = null;
@@ -1059,7 +1108,7 @@ let appSettings = { theme: 'light', retentionDays: 7 };
 const uploadEndpoints = ['/upload-file', '/api/upload', '/upload'];
 
 // ============================================================
-// VIDEO CALL STATE
+// VIDEO CALL STATE (FIXED: Added more robust TURN servers)
 // ============================================================
 let peerConnection = null;
 let localStream = null;
@@ -1070,22 +1119,27 @@ let currentFacingMode = 'user';
 let pendingCallFrom = null, pendingOffer = null;
 let currentCallId = null;
 
-// ✅ WebRTC config – robust ICE with multiple TURN/STUN servers
+// ✅ Enhanced WebRTC config – added more powerful TURN servers to ensure 5G to 5G connectivity
 const webrtcConfig = {
     iceServers: [
+        // STUN servers (for discovering public IP)
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
         { urls: 'stun:stun2.l.google.com:19302' },
         { urls: 'stun:stun.stunprotocol.org:3478' },
         // TURN servers (relayed – essential for firewalls / mobile networks)
+        // Using a mix of free, reliable TURN servers
         { urls: 'turn:openrelay.metered.ca:80',    username: 'openrelayproject', credential: 'openrelayproject' },
         { urls: 'turn:openrelay.metered.ca:443',   username: 'openrelayproject', credential: 'openrelayproject' },
-        { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
+        { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
+        // Additional TURN server for redundancy (critical for 5G NATs)
+        { urls: 'turn:turn.anyfirewall.com:3478?transport=udp', username: 'webrtc', credential: 'webrtc' },
+        { urls: 'turns:turn.anyfirewall.com:5349?transport=tcp', username: 'webrtc', credential: 'webrtc' }
     ],
     iceCandidatePoolSize: 10,
     bundlePolicy: 'max-bundle',
     rtcpMuxPolicy: 'require',
-    iceTransportPolicy: 'all'
+    iceTransportPolicy: 'all' // Use all candidates, including relayed
 };
 
 // ============================================================
@@ -1339,11 +1393,14 @@ function updateMessageReadStatus(messageId, isRead) {
 }
 
 // ============================================================
-// SPEECH RECOGNITION
+// SPEECH RECOGNITION (FIXED)
 // ============================================================
 function initSpeechRecognition() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) return;
+    if (!SR) {
+        showErrorNotification('المتصفح لا يدعم خاصية التعرف على الصوت');
+        return;
+    }
     recognition = new SR();
     recognition.lang = 'ar-SA';
     recognition.interimResults = true;
@@ -1353,44 +1410,122 @@ function initSpeechRecognition() {
     recognition.onstart = () => {
         isListening = true;
         document.querySelector('.mic-btn')?.classList.add('listening');
-        document.getElementById('listeningOverlay').classList.add('active');
+        // Show the big red label
+        speechLabel.classList.add('active');
+        speechLabel.textContent = '...جاري الاستماع';
+        accumulatedTranscript = ''; // Reset for new session
+        if (silenceTimeout) clearTimeout(silenceTimeout);
     };
 
     recognition.onresult = (event) => {
+        // Reset silence timeout on any speech
         if (silenceTimeout) clearTimeout(silenceTimeout);
-        let interim = '', fin = '';
+        
+        let interimTranscript = '';
+        let finalTranscript = '';
+        
         for (let i = event.resultIndex; i < event.results.length; i++) {
-            const t = event.results[i][0].transcript;
-            if (event.results[i].isFinal) fin += t; else interim += t;
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+                finalTranscript += transcript;
+            } else {
+                interimTranscript += transcript;
+            }
         }
-        const input = document.getElementById('messageInput');
-        if (input) {
-            if (fin) { finalTranscript += ' ' + fin; input.value = finalTranscript.trim(); }
-            else if (interim) input.value = finalTranscript + ' ' + interim;
+        
+        // Append final transcript to the accumulated text
+        if (finalTranscript) {
+            accumulatedTranscript += ' ' + finalTranscript;
         }
-        silenceTimeout = setTimeout(() => { if (isListening) stopVoiceToText(); }, 2500);
+        
+        // Display the current result (interim + accumulated final) in the label
+        const displayText = accumulatedTranscript + (interimTranscript ? ' ' + interimTranscript : '');
+        speechLabel.textContent = displayText.trim() || '...';
+        
+        // Set a timeout to stop listening after silence
+        silenceTimeout = setTimeout(() => {
+            if (isListening) {
+                stopVoiceToText();
+            }
+        }, 1500); // Stop after 1.5 seconds of silence
     };
 
-    recognition.onerror = () => { stopVoiceToText(); showErrorNotification('خطأ في التعرف على الصوت'); };
-    recognition.onend = () => stopVoiceToText();
+    recognition.onerror = (event) => {
+        console.error('Speech recognition error', event.error);
+        let errorMsg = 'حدث خطأ في التعرف على الصوت';
+        if (event.error === 'not-allowed') errorMsg = 'الرجاء السماح بالوصول إلى الميكروفون';
+        else if (event.error === 'no-speech') errorMsg = 'لم يتم سماع أي صوت';
+        showErrorNotification(errorMsg);
+        stopVoiceToText();
+    };
+    
+    recognition.onend = () => {
+        // When recognition ends (either by silence, error, or manual stop)
+        if (isListening) {
+            stopVoiceToText(); // Clean up
+        }
+    };
 }
 
-function toggleVoiceToText() { isListening ? stopVoiceToText() : startVoiceToText(); }
+function toggleVoiceToText() { 
+    if (isListening) {
+        stopVoiceToText();
+    } else {
+        startVoiceToText();
+    }
+}
 
 function startVoiceToText() {
-    if (!recognition) { showErrorNotification('المتصفح لا يدعم التعرف الصوتي'); return; }
-    if (silenceTimeout) clearTimeout(silenceTimeout);
-    finalTranscript = document.getElementById('messageInput')?.value || '';
-    try { recognition.start(); } catch(e) {}
+    if (!recognition) { 
+        showErrorNotification('المتصفح لا يدعم التعرف الصوتي'); 
+        return; 
+    }
+    if (isListening) return;
+    
+    // Reset accumulated text from previous session
+    accumulatedTranscript = '';
+    const currentInput = document.getElementById('messageInput');
+    if (currentInput) {
+        // Preserve existing text as base, but we'll append to it when stopping
+        accumulatedTranscript = currentInput.value;
+    }
+    
+    try {
+        recognition.start();
+    } catch(e) {
+        console.error('Failed to start recognition:', e);
+        showErrorNotification('حدث خطأ في بدء التعرف على الصوت');
+    }
 }
 
 function stopVoiceToText() {
-    if (!isListening) return;
-    recognition?.stop();
+    if (!isListening && !speechLabel.classList.contains('active')) return;
+    
+    // Stop recognition
+    if (recognition && isListening) {
+        try {
+            recognition.stop();
+        } catch(e) {}
+    }
+    
+    // Update the message input with the final accumulated text
+    const messageInput = document.getElementById('messageInput');
+    if (messageInput && accumulatedTranscript) {
+        // If we have accumulated text, append it to whatever was already there
+        // But we already included existing text in accumulatedTranscript, so just set it
+        messageInput.value = accumulatedTranscript.trim();
+        // Trigger typing event
+        if (currentContact && socket) {
+            socket.emit('typing', { from: currentUser.username, to: currentContact.name });
+        }
+    }
+    
+    // Hide the label and reset UI
+    speechLabel.classList.remove('active');
+    speechLabel.textContent = '';
+    document.querySelector('.mic-btn')?.classList.remove('listening');
     isListening = false;
     if (silenceTimeout) clearTimeout(silenceTimeout);
-    document.querySelector('.mic-btn')?.classList.remove('listening');
-    document.getElementById('listeningOverlay').classList.remove('active');
 }
 
 // ============================================================
@@ -1411,7 +1546,6 @@ async function getLocalMedia(facingMode = 'user') {
         echoCancellation: true,
         noiseSuppression: true,
         autoGainControl: true,
-        // Prefer earpiece on mobile for privacy, overridden if user toggles speaker
     };
 
     return navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: audioConstraints });
@@ -1421,11 +1555,9 @@ async function getLocalMedia(facingMode = 'user') {
 function attachStream(videoEl, stream) {
     if (!videoEl || !stream) return;
     videoEl.srcObject = stream;
-    // iOS requires explicit play() after srcObject assignment
     const playPromise = videoEl.play();
     if (playPromise !== undefined) {
         playPromise.catch(e => {
-            // Autoplay blocked – user gesture required. Show a tap-to-play button on iOS
             if (isIOS) {
                 videoEl.setAttribute('playsinline', '');
                 videoEl.muted = videoEl === document.getElementById('localVideo');
@@ -1461,7 +1593,7 @@ function buildPeerConnection(remoteUser) {
 
     pc.oniceconnectionstatechange = () => {
         if (pc.iceConnectionState === 'failed') {
-            pc.restartIce?.(); // try ICE restart
+            pc.restartIce?.();
         }
     };
 
@@ -1493,7 +1625,6 @@ async function startVideoCall() {
 
         setVideoLoading(true, 'جاري الاتصال...');
 
-        // Notify server to initiate
         socket.emit('video-call-init', {
             to: currentContact.name,
             quality: isMobile ? 'medium' : 'high',
@@ -1600,7 +1731,6 @@ function cleanupCall() {
     document.getElementById('videoCallModal').classList.remove('active');
     stopCallTimer(); stopRingtone(); setVideoLoading(false);
 
-    // Reset button icons
     const micBtn = document.getElementById('micToggleBtn');
     const camBtn = document.getElementById('cameraToggleBtn');
     if (micBtn) { micBtn.textContent = '🎤'; micBtn.classList.remove('btn-off'); }
@@ -1632,17 +1762,14 @@ function toggleCamera() {
     showBeautifulNotification('📹 كاميرا', isCameraEnabled ? 'تم التشغيل' : 'تم الإيقاف','📹',1500);
 }
 
-// ✅ Flip camera (mobile feature)
 async function flipCamera() {
     if (!isMobile || !localStream || !peerConnection) return;
     currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
     try {
         const newStream = await getLocalMedia(currentFacingMode);
         const newVideoTrack = newStream.getVideoTracks()[0];
-        // Replace track in peer connection
         const sender = peerConnection.getSenders().find(s => s.track?.kind === 'video');
         if (sender) await sender.replaceTrack(newVideoTrack);
-        // Update local preview
         const oldTracks = localStream.getVideoTracks();
         oldTracks.forEach(t => { t.stop(); localStream.removeTrack(t); });
         localStream.addTrack(newVideoTrack);
@@ -1651,17 +1778,13 @@ async function flipCamera() {
     } catch(e) { showErrorNotification('لا يمكن تبديل الكاميرا'); }
 }
 
-// ✅ Toggle speaker (iOS: earpiece vs speaker)
 function toggleSpeaker() {
     isSpeakerOn = !isSpeakerOn;
     const btn = document.getElementById('speakerBtn');
     if (btn) { btn.textContent = isSpeakerOn ? '🔊' : '🔈'; btn.classList.toggle('btn-off', !isSpeakerOn); }
     const remoteVideo = document.getElementById('remoteVideo');
-    if (remoteVideo) {
-        // setSinkId works on Chrome; for iOS this is a no-op but we can mute/unmute
-        if (remoteVideo.setSinkId && isSpeakerOn) {
-            remoteVideo.setSinkId('').catch(()=>{});
-        }
+    if (remoteVideo && remoteVideo.setSinkId && isSpeakerOn) {
+        remoteVideo.setSinkId('').catch(()=>{});
     }
     showBeautifulNotification('🔊 سماعة', isSpeakerOn ? 'السماعة الخارجية' : 'سماعة الأذن','🔊',1500);
 }
@@ -1703,8 +1826,6 @@ function initializeSocket() {
     });
 
     socket.on('connect_error', () => showErrorNotification('خطأ في الاتصال'));
-
-    // ===== VIDEO CALL EVENTS =====
 
     socket.on('outgoing-call', (data) => {
         currentCallId = data.callId;
@@ -1776,8 +1897,6 @@ function initializeSocket() {
     });
 
     socket.on('force-reload', () => { setTimeout(() => location.reload(), 1000); });
-
-    // ===== MESSAGE EVENTS =====
 
     socket.on('private message', (data) => {
         if (currentContact?.name === data.from) {
@@ -2081,7 +2200,9 @@ function sendMessage() {
     addMessageToChatUI(currentUser.username, msg, timestamp, true, messageId, true);
     if (!window.currentMessages) window.currentMessages = [];
     window.currentMessages.push({ from: currentUser.username, to: currentContact.name, message: msg, type:'text', timestamp, read:true, id: messageId });
-    input.value = ''; finalTranscript = '';
+    input.value = ''; 
+    // Also clear accumulated transcript if any
+    accumulatedTranscript = '';
 }
 
 function handleKeyPress(e) {
@@ -2189,7 +2310,6 @@ function startVoiceRecording() {
     audioChunks = []; recordingSeconds = 0;
     navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
         recordingStream = stream;
-        // Prefer webm on Chrome, fallback to mp4 on iOS
         const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
         mediaRecorder = new MediaRecorder(stream, { mimeType });
         mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
@@ -2293,7 +2413,6 @@ function loadUserData() {
     showBeautifulNotification('👋 مرحباً', `أهلاً بك ${currentUser.username}`, '👋', 3000);
 }
 
-// Handle window resize for mobile/desktop switching
 window.addEventListener('resize', () => {
     if (!isMobileView()) {
         document.getElementById('contactsSidebar').classList.remove('hidden');
@@ -2302,7 +2421,6 @@ window.addEventListener('resize', () => {
     }
 });
 
-// Prevent accidental page close during call
 window.addEventListener('beforeunload', e => {
     if (isInCall) { e.preventDefault(); e.returnValue = 'أنت في مكالمة فيديو. هل تريد المغادرة؟'; }
 });
