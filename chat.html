@@ -528,7 +528,6 @@
             overflow: hidden;
         }
 
-        /* Remote video fills the container */
         .remote-video {
             width: 100%; height: 100%;
             object-fit: cover;
@@ -536,7 +535,6 @@
             display: block;
         }
 
-        /* Local (self) video - responsive picture-in-picture */
         .local-video {
             position: absolute;
             bottom: 16px; right: 16px;
@@ -549,12 +547,11 @@
             transition: transform 0.25s, width 0.25s, height 0.25s;
             background: #333;
             z-index: 10;
-            -webkit-transform: translateZ(0); /* GPU acceleration on mobile */
+            -webkit-transform: translateZ(0);
         }
         .local-video:hover { transform: scale(1.05); }
         .local-video.draggable { cursor: grab; }
 
-        /* Call info bar (top overlay) */
         .call-info-bar {
             position: absolute;
             top: 0; left: 0; right: 0;
@@ -584,7 +581,6 @@
             padding: 3px 9px; border-radius: 20px;
         }
 
-        /* Video loading indicator */
         .video-loading {
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
@@ -607,7 +603,6 @@
 
         .loading-text { font-size: 15px; opacity: 0.9; }
 
-        /* Call Controls Bar */
         .call-controls {
             background: var(--call-controls-bg, linear-gradient(135deg, #075e54, #128c7e));
             padding: 16px 20px;
@@ -724,40 +719,6 @@
         .incoming-call-btn.reject:hover { background: #c82333; }
 
         /* ====================================================
-           Speech to Text Label (New)
-        ==================================================== */
-        .speech-label {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #dc3545;
-            color: white;
-            font-size: 28px;
-            font-weight: bold;
-            padding: 20px 40px;
-            border-radius: 20px;
-            text-align: center;
-            z-index: 20001;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            max-width: 90vw;
-            word-wrap: break-word;
-            display: none;
-            font-family: monospace;
-            direction: ltr;
-        }
-        .speech-label.active {
-            display: block;
-            animation: pulseRed 1s infinite;
-        }
-        @keyframes pulseRed {
-            0% { background-color: #dc3545; }
-            50% { background-color: #ff6b6b; }
-            100% { background-color: #dc3545; }
-        }
-
-
-        /* ====================================================
            Notifications & Toasts
         ==================================================== */
         .notification-toast {
@@ -800,7 +761,6 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* Upload progress */
         .upload-progress {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
@@ -809,7 +769,6 @@
             z-index: 5000; display: none; text-align: center;
         }
 
-        /* Recording timer */
         .recording-timer {
             position: fixed; bottom: 90px; left: 50%;
             transform: translateX(-50%);
@@ -818,19 +777,65 @@
             z-index: 5000; display: none; font-size: 14px;
         }
 
-        /* Listening overlay (Keep for compatibility) */
-        .listening-overlay {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.88);
-            padding: 18px 36px; border-radius: 60px;
-            z-index: 5000; display: none;
-            align-items: center; gap: 14px;
+        /* ====================================================
+           🎙️ SPEECH RECOGNITION OVERLAY (جديد ومحسّن)
+        ==================================================== */
+        .speech-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 9000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 24px;
         }
-        .listening-overlay.active { display: flex; }
-        .listening-overlay .mic-icon { font-size: 30px; animation: micPulse 1s infinite; }
-        @keyframes micPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.2); } }
-        .listening-text { color: white; font-size: 17px; font-weight: bold; }
+        .speech-overlay.active { display: flex; }
+
+        /* الليبل الأحمر العريض في المنتصف */
+        .speech-live-label {
+            background: #dc3545;
+            color: #fff;
+            font-size: 22px;
+            font-weight: 900;
+            padding: 18px 36px;
+            border-radius: 18px;
+            min-width: 300px;
+            max-width: 80vw;
+            text-align: center;
+            line-height: 1.5;
+            direction: rtl;
+            box-shadow: 0 8px 30px rgba(220,53,69,0.5);
+            word-break: break-word;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: labelPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes labelPulse {
+            0%, 100% { box-shadow: 0 8px 30px rgba(220,53,69,0.5); }
+            50% { box-shadow: 0 8px 50px rgba(220,53,69,0.9); }
+        }
+
+        .speech-mic-icon {
+            font-size: 52px;
+            animation: micBounce 0.8s ease-in-out infinite;
+        }
+        @keyframes micBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.18); }
+        }
+
+        .speech-hint {
+            color: rgba(255,255,255,0.85);
+            font-size: 14px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 20px;
+            border-radius: 30px;
+        }
 
         /* ====================================================
            Scrollbar
@@ -840,12 +845,11 @@
         ::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 3px; }
 
         /* ====================================================
-           RESPONSIVE - Mobile (≤768px)
+           RESPONSIVE - Mobile
         ==================================================== */
         @media (max-width: 768px) {
             .app-container { flex-direction: column; }
 
-            /* On mobile, sidebar becomes bottom sheet / hidden */
             .contacts-sidebar {
                 width: 100%;
                 height: 100vh; height: 100dvh;
@@ -861,7 +865,6 @@
             }
             .chat-area.active { display: flex; }
 
-            /* Back button in chat header for mobile */
             .back-btn {
                 display: flex !important;
                 background: rgba(255,255,255,0.2); border: none;
@@ -872,44 +875,31 @@
             .message { max-width: 82%; }
             .message-menu { opacity: 1; }
 
-            /* Local video smaller on mobile */
             .local-video {
                 width: 90px; height: 120px;
                 bottom: 10px; right: 10px;
             }
 
-            /* Call controls adjusted for mobile */
             .call-control-btn { width: 52px; height: 52px; font-size: 20px; }
             .call-control-btn.end-call { width: 58px; height: 58px; font-size: 22px; }
             .call-controls { gap: 12px; padding: 14px 16px; padding-bottom: max(14px, env(safe-area-inset-bottom)); }
-
             .btn-wrapper { gap: 16px; }
-            
-            .speech-label {
-                font-size: 22px;
-                padding: 15px 25px;
-            }
+
+            .speech-live-label { font-size: 18px; padding: 14px 24px; min-width: 240px; }
         }
 
-        /* Landscape on mobile */
         @media (max-width: 768px) and (orientation: landscape) {
             .local-video { width: 80px; height: 106px; bottom: 8px; right: 8px; }
             .call-controls { padding: 10px 16px; gap: 14px; }
             .call-info-bar { padding: 8px 14px; }
         }
 
-        /* Small phones */
         @media (max-width: 380px) {
             .local-video { width: 75px; height: 100px; }
             .call-control-btn { width: 46px; height: 46px; font-size: 18px; }
             .call-controls { gap: 10px; }
-            .speech-label {
-                font-size: 18px;
-                padding: 10px 20px;
-            }
         }
 
-        /* Back button hidden on desktop */
         .back-btn { display: none; }
     </style>
 </head>
@@ -990,27 +980,21 @@
 <!-- ======================== VIDEO CALL MODAL ======================== -->
 <div class="video-call-modal" id="videoCallModal">
     <div class="video-container" id="videoContainer">
-        <!-- Remote (far-end) video -->
         <video class="remote-video" id="remoteVideo" autoplay playsinline></video>
-
-        <!-- Local (self) video PiP -->
         <video class="local-video" id="localVideo" autoplay playsinline muted></video>
 
-        <!-- Top info bar -->
         <div class="call-info-bar">
             <div class="call-contact-name" id="callContactName">مكالمة فيديو</div>
             <div class="call-quality-badge" id="callQualityBadge">HD</div>
             <div class="call-timer" id="callTimer">00:00</div>
         </div>
 
-        <!-- Loading / Connecting -->
         <div class="video-loading" id="videoLoading">
             <div class="loading-spinner"></div>
             <div class="loading-text" id="loadingText">جاري الاتصال...</div>
         </div>
     </div>
 
-    <!-- Controls Bar -->
     <div class="call-controls">
         <div class="btn-wrapper">
             <button class="call-control-btn" id="micToggleBtn" onclick="toggleMicrophone()" title="كتم الميكروفون">🎤</button>
@@ -1049,15 +1033,14 @@
     </div>
 </div>
 
-<!-- ======================== SPEECH TO TEXT LABEL (New) ======================== -->
-<div class="speech-label" id="speechLabel"></div>
-
-<!-- ======================== MISC OVERLAYS ======================== -->
-<div class="listening-overlay" id="listeningOverlay">
-    <div class="mic-icon">🎙️</div>
-    <div class="listening-text">جاري الاستماع...</div>
+<!-- ======================== 🎙️ SPEECH RECOGNITION OVERLAY (جديد) ======================== -->
+<div class="speech-overlay" id="speechOverlay">
+    <div class="speech-mic-icon">🎙️</div>
+    <div class="speech-live-label" id="speechLiveLabel">جاري الاستماع...</div>
+    <div class="speech-hint">سيُغلق المايك تلقائياً عند السكوت وتنتقل الكتابة إلى خانة الرسالة</div>
 </div>
 
+<!-- ======================== MISC OVERLAYS ======================== -->
 <div class="upload-progress" id="uploadProgress">
     <div>⏳ جاري الرفع... <span id="uploadPercent">0</span>%</div>
     <div style="font-size:12px;margin-top:8px" id="uploadStatus"></div>
@@ -1087,12 +1070,12 @@ let mediaRecorder, audioChunks = [], isRecording = false;
 let recordingStream = null, recordingTimer = null;
 let recordingSeconds = 0, currentAudioBlob = null, currentAudioDuration = 0;
 
-// Speech recognition (FIXED)
+// Speech recognition — إعادة كتابة كاملة
 let recognition = null;
 let isListening = false;
-let accumulatedTranscript = ''; // Store text accumulated during the current listening session
-let silenceTimeout = null;
-const speechLabel = document.getElementById('speechLabel');
+let speechFinalText = '';      // النص المؤكد المتراكم
+let speechSilenceTimer = null; // مؤقت السكوت
+const SILENCE_TIMEOUT_MS = 2000; // 2 ثانية من السكوت = إغلاق تلقائي
 
 // Ringtone
 let currentRingtone = null;
@@ -1108,7 +1091,7 @@ let appSettings = { theme: 'light', retentionDays: 7 };
 const uploadEndpoints = ['/upload-file', '/api/upload', '/upload'];
 
 // ============================================================
-// VIDEO CALL STATE (FIXED: Added more robust TURN servers)
+// VIDEO CALL STATE
 // ============================================================
 let peerConnection = null;
 let localStream = null;
@@ -1119,28 +1102,45 @@ let currentFacingMode = 'user';
 let pendingCallFrom = null, pendingOffer = null;
 let currentCallId = null;
 
-// ✅ Enhanced WebRTC config – added more powerful TURN servers to ensure 5G to 5G connectivity
-const webrtcConfig = {
+// ✅ إصلاح مشكلة 5G↔5G:
+// نبدأ بـ 'all' (STUN + TURN) وإذا فشل الاتصال نُعيد المحاولة بـ 'relay' فقط (TURN إجباري)
+const webrtcConfigAll = {
     iceServers: [
-        // STUN servers (for discovering public IP)
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
         { urls: 'stun:stun2.l.google.com:19302' },
         { urls: 'stun:stun.stunprotocol.org:3478' },
-        // TURN servers (relayed – essential for firewalls / mobile networks)
-        // Using a mix of free, reliable TURN servers
+        // TURN servers متعددة لضمان العمل على جميع شبكات الموبايل (5G/LTE)
         { urls: 'turn:openrelay.metered.ca:80',    username: 'openrelayproject', credential: 'openrelayproject' },
         { urls: 'turn:openrelay.metered.ca:443',   username: 'openrelayproject', credential: 'openrelayproject' },
         { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
-        // Additional TURN server for redundancy (critical for 5G NATs)
-        { urls: 'turn:turn.anyfirewall.com:3478?transport=udp', username: 'webrtc', credential: 'webrtc' },
-        { urls: 'turns:turn.anyfirewall.com:5349?transport=tcp', username: 'webrtc', credential: 'webrtc' }
+        // خادم TURN إضافي للشبكات المحجوبة
+        { urls: 'turn:relay.metered.ca:80',        username: 'e2b3b3e3b3b3e3b3b3e3b3b3', credential: 'openrelayproject' },
+        { urls: 'turn:relay.metered.ca:443',       username: 'e2b3b3e3b3b3e3b3b3e3b3b3', credential: 'openrelayproject' },
+        { urls: 'turn:relay.metered.ca:443?transport=tcp', username: 'e2b3b3e3b3b3e3b3b3e3b3b3', credential: 'openrelayproject' },
     ],
     iceCandidatePoolSize: 10,
     bundlePolicy: 'max-bundle',
     rtcpMuxPolicy: 'require',
-    iceTransportPolicy: 'all' // Use all candidates, including relayed
+    iceTransportPolicy: 'all'   // يجرب STUN أولاً ثم TURN
 };
+
+// ✅ إعداد الطوارئ — يُستخدم عند فشل اتصال 5G↔5G
+// يُجبر على استخدام TURN فقط (relay) متجاوزاً NAT الصارم لشبكات الموبايل
+const webrtcConfigRelayOnly = {
+    iceServers: [
+        { urls: 'turn:openrelay.metered.ca:80',    username: 'openrelayproject', credential: 'openrelayproject' },
+        { urls: 'turn:openrelay.metered.ca:443',   username: 'openrelayproject', credential: 'openrelayproject' },
+        { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
+    ],
+    iceCandidatePoolSize: 10,
+    bundlePolicy: 'max-bundle',
+    rtcpMuxPolicy: 'require',
+    iceTransportPolicy: 'relay'   // TURN إجباري — يعمل حتى مع NAT الصارم لـ 5G
+};
+
+let useRelayOnly = false;       // يصبح true عند إعادة المحاولة
+let iceFailedRetryDone = false; // منع التكرار اللانهائي
 
 // ============================================================
 // MOBILE HELPERS
@@ -1303,12 +1303,9 @@ function showMessageMenu(event, messageData) {
     event.stopPropagation(); closeMenuPopup();
     const menu = document.createElement('div');
     menu.className = 'menu-popup';
-
-    // Position safely within viewport
     const x = Math.min(event.clientX, window.innerWidth - 170);
     const y = Math.min(event.clientY, window.innerHeight - 220);
     menu.style.cssText = `left:${x}px;top:${y}px`;
-
     const items = [
         { icon:'📥', text:'تحميل', action:()=>downloadMessage(messageData), show: messageData.type !== 'text' },
         { icon:'📋', text:'نسخ',   action:()=>copyMessage(messageData),     show: messageData.type === 'text' },
@@ -1317,7 +1314,6 @@ function showMessageMenu(event, messageData) {
         { icon:'📤', text:'مشاركة',action:()=>shareMessage(messageData) },
         { icon:'🗑️', text:'حذف',  action:()=>deleteMessage(messageData), cls:'delete' }
     ];
-
     items.forEach(item => {
         if (item.show === false) return;
         const el = document.createElement('div');
@@ -1326,7 +1322,6 @@ function showMessageMenu(event, messageData) {
         el.onclick = () => { item.action(); closeMenuPopup(); };
         menu.appendChild(el);
     });
-
     document.body.appendChild(menu);
     currentMenuPopup = menu;
     setTimeout(() => {
@@ -1393,139 +1388,164 @@ function updateMessageReadStatus(messageId, isRead) {
 }
 
 // ============================================================
-// SPEECH RECOGNITION (FIXED)
+// 🎙️ SPEECH RECOGNITION — إعادة كتابة كاملة
 // ============================================================
 function initSpeechRecognition() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
-        showErrorNotification('المتصفح لا يدعم خاصية التعرف على الصوت');
+        console.warn('SpeechRecognition غير مدعوم في هذا المتصفح');
         return;
     }
+
     recognition = new SR();
     recognition.lang = 'ar-SA';
-    recognition.interimResults = true;
-    recognition.continuous = true;
+    recognition.interimResults = true;  // عرض النص أثناء الكلام
+    recognition.continuous = true;      // استمرار الاستماع
     recognition.maxAlternatives = 1;
 
+    // عند بدء الاستماع
     recognition.onstart = () => {
         isListening = true;
         document.querySelector('.mic-btn')?.classList.add('listening');
-        // Show the big red label
-        speechLabel.classList.add('active');
-        speechLabel.textContent = '...جاري الاستماع';
-        accumulatedTranscript = ''; // Reset for new session
-        if (silenceTimeout) clearTimeout(silenceTimeout);
+        showSpeechOverlay('جاري الاستماع...');
+        resetSilenceTimer();
     };
 
+    // استقبال النتائج — المنطق الأساسي
     recognition.onresult = (event) => {
-        // Reset silence timeout on any speech
-        if (silenceTimeout) clearTimeout(silenceTimeout);
-        
-        let interimTranscript = '';
-        let finalTranscript = '';
-        
+        // إعادة ضبط مؤقت السكوت عند أي كلام
+        resetSilenceTimer();
+
+        let interimText = '';
+
         for (let i = event.resultIndex; i < event.results.length; i++) {
             const transcript = event.results[i][0].transcript;
             if (event.results[i].isFinal) {
-                finalTranscript += transcript;
+                // نص مؤكد — يُضاف إلى المتراكم
+                speechFinalText += transcript + ' ';
             } else {
-                interimTranscript += transcript;
+                // نص مؤقت — يُعرض فقط
+                interimText += transcript;
             }
         }
-        
-        // Append final transcript to the accumulated text
-        if (finalTranscript) {
-            accumulatedTranscript += ' ' + finalTranscript;
-        }
-        
-        // Display the current result (interim + accumulated final) in the label
-        const displayText = accumulatedTranscript + (interimTranscript ? ' ' + interimTranscript : '');
-        speechLabel.textContent = displayText.trim() || '...';
-        
-        // Set a timeout to stop listening after silence
-        silenceTimeout = setTimeout(() => {
-            if (isListening) {
-                stopVoiceToText();
-            }
-        }, 1500); // Stop after 1.5 seconds of silence
+
+        // تحديث الليبل الأحمر في المنتصف
+        const displayText = (speechFinalText + interimText).trim();
+        updateSpeechLabel(displayText || 'جاري الاستماع...');
     };
 
     recognition.onerror = (event) => {
-        console.error('Speech recognition error', event.error);
-        let errorMsg = 'حدث خطأ في التعرف على الصوت';
-        if (event.error === 'not-allowed') errorMsg = 'الرجاء السماح بالوصول إلى الميكروفون';
-        else if (event.error === 'no-speech') errorMsg = 'لم يتم سماع أي صوت';
-        showErrorNotification(errorMsg);
-        stopVoiceToText();
+        console.error('خطأ في التعرف الصوتي:', event.error);
+        if (event.error === 'no-speech') {
+            // لا يوجد كلام — أغلق تلقائياً
+            finishSpeechAndTransfer();
+        } else if (event.error !== 'aborted') {
+            showErrorNotification('خطأ في التعرف على الصوت: ' + event.error);
+            finishSpeechAndTransfer();
+        }
     };
-    
+
+    // عند انتهاء الجلسة (بسبب السكوت التلقائي أو الإغلاق اليدوي)
     recognition.onend = () => {
-        // When recognition ends (either by silence, error, or manual stop)
+        // إذا لا يزال isListening = true معناه أغلق من تلقاء نفسه (سكوت)
+        // نُنهي ونُحوّل النص
         if (isListening) {
-            stopVoiceToText(); // Clean up
+            finishSpeechAndTransfer();
         }
     };
 }
 
-function toggleVoiceToText() { 
+// إعادة ضبط مؤقت السكوت
+function resetSilenceTimer() {
+    if (speechSilenceTimer) clearTimeout(speechSilenceTimer);
+    speechSilenceTimer = setTimeout(() => {
+        // 2 ثانية من السكوت — أغلق وانقل النص
+        if (isListening) finishSpeechAndTransfer();
+    }, SILENCE_TIMEOUT_MS);
+}
+
+// إظهار الـ overlay
+function showSpeechOverlay(text) {
+    const overlay = document.getElementById('speechOverlay');
+    const label = document.getElementById('speechLiveLabel');
+    if (overlay) overlay.classList.add('active');
+    if (label) label.textContent = text || 'جاري الاستماع...';
+}
+
+// إخفاء الـ overlay
+function hideSpeechOverlay() {
+    const overlay = document.getElementById('speechOverlay');
+    if (overlay) overlay.classList.remove('active');
+}
+
+// تحديث النص في الليبل
+function updateSpeechLabel(text) {
+    const label = document.getElementById('speechLiveLabel');
+    if (label) label.textContent = text || 'جاري الاستماع...';
+}
+
+// إنهاء التعرف ونقل النص إلى حقل الرسائل
+function finishSpeechAndTransfer() {
+    // إيقاف المؤقت
+    if (speechSilenceTimer) { clearTimeout(speechSilenceTimer); speechSilenceTimer = null; }
+
+    isListening = false;
+    document.querySelector('.mic-btn')?.classList.remove('listening');
+
+    // إيقاف التعرف بأمان
+    try { recognition?.stop(); } catch(e) {}
+
+    // إخفاء الـ overlay
+    hideSpeechOverlay();
+
+    // نقل النص المتراكم إلى حقل الرسائل
+    const input = document.getElementById('messageInput');
+    if (input && speechFinalText.trim()) {
+        // إضافة النص بعد أي نص موجود مسبقاً (دون حذفه)
+        const existing = input.value;
+        const separator = existing && !existing.endsWith(' ') ? ' ' : '';
+        input.value = existing + separator + speechFinalText.trim();
+        input.focus();
+
+        // تمرير إلى نهاية النص
+        input.setSelectionRange(input.value.length, input.value.length);
+    }
+
+    // لا نمسح speechFinalText هنا — سيُمسح عند الضغط مجدداً على المايك
+}
+
+// تبديل التعرف الصوتي (زر المايك)
+function toggleVoiceToText() {
     if (isListening) {
-        stopVoiceToText();
+        // إيقاف يدوي
+        finishSpeechAndTransfer();
     } else {
+        // بدء جلسة جديدة
         startVoiceToText();
     }
 }
 
 function startVoiceToText() {
-    if (!recognition) { 
-        showErrorNotification('المتصفح لا يدعم التعرف الصوتي'); 
-        return; 
+    if (!recognition) {
+        showErrorNotification('المتصفح لا يدعم التعرف الصوتي');
+        return;
     }
     if (isListening) return;
-    
-    // Reset accumulated text from previous session
-    accumulatedTranscript = '';
-    const currentInput = document.getElementById('messageInput');
-    if (currentInput) {
-        // Preserve existing text as base, but we'll append to it when stopping
-        accumulatedTranscript = currentInput.value;
-    }
-    
+
+    // إعادة ضبط النص المتراكم — لكن نحتفظ بما في حقل الإدخال
+    speechFinalText = '';
+
     try {
         recognition.start();
     } catch(e) {
-        console.error('Failed to start recognition:', e);
-        showErrorNotification('حدث خطأ في بدء التعرف على الصوت');
+        // إذا كان يعمل بالفعل، أوقفه أولاً ثم أعد
+        try { recognition.stop(); } catch(_) {}
+        setTimeout(() => {
+            try { recognition.start(); } catch(err) {
+                showErrorNotification('لا يمكن بدء التعرف الصوتي');
+            }
+        }, 300);
     }
-}
-
-function stopVoiceToText() {
-    if (!isListening && !speechLabel.classList.contains('active')) return;
-    
-    // Stop recognition
-    if (recognition && isListening) {
-        try {
-            recognition.stop();
-        } catch(e) {}
-    }
-    
-    // Update the message input with the final accumulated text
-    const messageInput = document.getElementById('messageInput');
-    if (messageInput && accumulatedTranscript) {
-        // If we have accumulated text, append it to whatever was already there
-        // But we already included existing text in accumulatedTranscript, so just set it
-        messageInput.value = accumulatedTranscript.trim();
-        // Trigger typing event
-        if (currentContact && socket) {
-            socket.emit('typing', { from: currentUser.username, to: currentContact.name });
-        }
-    }
-    
-    // Hide the label and reset UI
-    speechLabel.classList.remove('active');
-    speechLabel.textContent = '';
-    document.querySelector('.mic-btn')?.classList.remove('listening');
-    isListening = false;
-    if (silenceTimeout) clearTimeout(silenceTimeout);
 }
 
 // ============================================================
@@ -1536,7 +1556,7 @@ function showVideoCallMenu() {
     startVideoCall();
 }
 
-// ✅ Get user media with proper constraints per platform
+// ✅ الحصول على الكاميرا والميكروفون
 async function getLocalMedia(facingMode = 'user') {
     const videoConstraints = isMobile
         ? { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: { ideal: facingMode }, frameRate: { ideal: 24 } }
@@ -1551,7 +1571,7 @@ async function getLocalMedia(facingMode = 'user') {
     return navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: audioConstraints });
 }
 
-// ✅ Attach stream to video element – handles iOS quirks
+// ✅ ربط الستريم بعنصر الفيديو مع دعم iOS
 function attachStream(videoEl, stream) {
     if (!videoEl || !stream) return;
     videoEl.srcObject = stream;
@@ -1567,8 +1587,11 @@ function attachStream(videoEl, stream) {
     }
 }
 
+// ✅ بناء PeerConnection مع منطق إعادة المحاولة بـ relay فقط
 function buildPeerConnection(remoteUser) {
-    const pc = new RTCPeerConnection(webrtcConfig);
+    // اختيار الإعداد بناءً على useRelayOnly
+    const config = useRelayOnly ? webrtcConfigRelayOnly : webrtcConfigAll;
+    const pc = new RTCPeerConnection(config);
 
     pc.ontrack = (event) => {
         if (event.streams && event.streams[0]) {
@@ -1587,17 +1610,87 @@ function buildPeerConnection(remoteUser) {
 
     pc.onconnectionstatechange = () => {
         const s = pc.connectionState;
-        if (s === 'connected') { setVideoLoading(false); }
-        if (s === 'disconnected' || s === 'failed') { endVideoCall(); showErrorNotification('انقطع الاتصال'); }
+        console.log('Connection state:', s);
+        if (s === 'connected') {
+            setVideoLoading(false);
+            iceFailedRetryDone = false; // نجح الاتصال، نعيد ضبط الحالة
+        }
+        if (s === 'failed') {
+            // ✅ منطق إعادة المحاولة لإصلاح 5G↔5G
+            if (!iceFailedRetryDone && !useRelayOnly) {
+                console.warn('⚠️ فشل الاتصال — إعادة المحاولة بـ TURN relay فقط (5G fix)');
+                iceFailedRetryDone = true;
+                retryCallWithRelayOnly(remoteUser);
+            } else {
+                endVideoCall();
+                showErrorNotification('فشل الاتصال. تحقق من الإنترنت وحاول مجدداً.');
+            }
+        }
+        if (s === 'disconnected') {
+            // انتظر قليلاً — قد يعود من تلقاء نفسه
+            setTimeout(() => {
+                if (peerConnection && peerConnection.connectionState === 'disconnected') {
+                    endVideoCall();
+                    showErrorNotification('انقطع الاتصال');
+                }
+            }, 5000);
+        }
     };
 
     pc.oniceconnectionstatechange = () => {
+        console.log('ICE state:', pc.iceConnectionState);
         if (pc.iceConnectionState === 'failed') {
-            pc.restartIce?.();
+            // ✅ محاولة ICE restart أولاً
+            if (pc.restartIce) {
+                pc.restartIce();
+                console.log('🔄 ICE restart...');
+            }
         }
     };
 
     return pc;
+}
+
+// ✅ إعادة المحاولة بـ TURN relay فقط — حل مشكلة 5G↔5G
+async function retryCallWithRelayOnly(remoteUser) {
+    if (!localStream || !isInCall) return;
+
+    showBeautifulNotification('🔄 إعادة محاولة', 'جاري إعادة الاتصال بطريقة بديلة...', '🔄', 3000);
+    setVideoLoading(true, 'جاري إعادة الاتصال...');
+
+    // أغلق الاتصال القديم
+    if (peerConnection) {
+        peerConnection.onconnectionstatechange = null;
+        peerConnection.oniceconnectionstatechange = null;
+        peerConnection.ontrack = null;
+        peerConnection.onicecandidate = null;
+        peerConnection.close();
+        peerConnection = null;
+    }
+
+    useRelayOnly = true; // الآن سنستخدم TURN فقط
+
+    try {
+        peerConnection = buildPeerConnection(remoteUser);
+        localStream.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
+
+        const offer = await peerConnection.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true });
+        await peerConnection.setLocalDescription(offer);
+
+        // أرسل العرض الجديد مع علامة relay
+        socket.emit('video-call-offer', {
+            to: remoteUser,
+            offer,
+            callId: currentCallId,
+            relayOnly: true
+        });
+
+        console.log('✅ إعادة المحاولة بـ relay only — تم إرسال العرض');
+    } catch(e) {
+        console.error('فشل relay retry:', e);
+        endVideoCall();
+        showErrorNotification('تعذّر الاتصال. تأكد من اتصالك بالإنترنت.');
+    }
 }
 
 function setVideoLoading(show, text = 'جاري الاتصال...') {
@@ -1609,6 +1702,11 @@ function setVideoLoading(show, text = 'جاري الاتصال...') {
 
 async function startVideoCall() {
     if (!currentContact || isInCall) return;
+
+    // إعادة ضبط حالة relay عند كل مكالمة جديدة
+    useRelayOnly = false;
+    iceFailedRetryDone = false;
+
     try {
         setVideoLoading(true, 'جاري فتح الكاميرا...');
         document.getElementById('videoCallModal').classList.add('active');
@@ -1661,6 +1759,10 @@ async function acceptIncomingCall() {
     stopRingtone();
     currentContact = allContacts.find(c => c.name === caller) || { name: caller };
 
+    // إعادة ضبط حالة relay
+    useRelayOnly = false;
+    iceFailedRetryDone = false;
+
     try {
         setVideoLoading(true, 'جاري فتح الكاميرا...');
         document.getElementById('videoCallModal').classList.add('active');
@@ -1675,6 +1777,9 @@ async function acceptIncomingCall() {
         localStream.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
 
         if (pendingOffer) {
+            // تحقق إذا كان العرض يستخدم relay فقط
+            if (pendingOffer._relayOnly) useRelayOnly = true;
+
             await peerConnection.setRemoteDescription(new RTCSessionDescription(pendingOffer));
             const answer = await peerConnection.createAnswer();
             await peerConnection.setLocalDescription(answer);
@@ -1728,6 +1833,7 @@ function cleanupCall() {
     isInCall = false;
     isMicEnabled = true; isCameraEnabled = true;
     currentFacingMode = 'user'; currentCallId = null;
+    useRelayOnly = false; iceFailedRetryDone = false;
     document.getElementById('videoCallModal').classList.remove('active');
     stopCallTimer(); stopRingtone(); setVideoLoading(false);
 
@@ -1827,6 +1933,8 @@ function initializeSocket() {
 
     socket.on('connect_error', () => showErrorNotification('خطأ في الاتصال'));
 
+    // ===== VIDEO CALL EVENTS =====
+
     socket.on('outgoing-call', (data) => {
         currentCallId = data.callId;
         playRingtone('calling', true, ringtoneSettings.volume);
@@ -1852,8 +1960,34 @@ function initializeSocket() {
 
     socket.on('video-call-offer', async (data) => {
         pendingCallFrom = data.from;
+        // حفظ علامة relay مع العرض
+        if (data.offer) data.offer._relayOnly = !!data.relayOnly;
         pendingOffer = data.offer;
         if (data.callId) currentCallId = data.callId;
+
+        // ✅ إذا كان العرض من إعادة محاولة relay، نقبله ونرد على الفور
+        if (data.relayOnly && isInCall && peerConnection) {
+            console.log('📩 استقبال عرض relay جديد — تحديث الاتصال...');
+            try {
+                useRelayOnly = true;
+                // أغلق الاتصال القديم وابنِ جديداً
+                peerConnection.onconnectionstatechange = null;
+                peerConnection.oniceconnectionstatechange = null;
+                peerConnection.ontrack = null;
+                peerConnection.onicecandidate = null;
+                peerConnection.close();
+
+                peerConnection = buildPeerConnection(data.from);
+                localStream.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
+
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                socket.emit('video-call-answer', { to: data.from, answer, callId: currentCallId });
+            } catch(e) {
+                console.error('خطأ في قبول عرض relay:', e);
+            }
+        }
     });
 
     socket.on('video-call-answer', async (data) => {
@@ -1868,7 +2002,7 @@ function initializeSocket() {
         if (peerConnection && data.candidate) {
             try {
                 await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-            } catch(e) { /* ignore stale candidates */ }
+            } catch(e) { /* تجاهل المرشحين القديمين */ }
         }
     });
 
@@ -1897,6 +2031,8 @@ function initializeSocket() {
     });
 
     socket.on('force-reload', () => { setTimeout(() => location.reload(), 1000); });
+
+    // ===== MESSAGE EVENTS =====
 
     socket.on('private message', (data) => {
         if (currentContact?.name === data.from) {
@@ -2047,6 +2183,9 @@ async function openChat(contact) {
 
     displayMessages();
     showChatOnMobile(contact);
+
+    // إعادة تهيئة التعرف الصوتي عند فتح المحادثة
+    initSpeechRecognition();
 }
 
 function onTyping() {
@@ -2200,9 +2339,9 @@ function sendMessage() {
     addMessageToChatUI(currentUser.username, msg, timestamp, true, messageId, true);
     if (!window.currentMessages) window.currentMessages = [];
     window.currentMessages.push({ from: currentUser.username, to: currentContact.name, message: msg, type:'text', timestamp, read:true, id: messageId });
-    input.value = ''; 
-    // Also clear accumulated transcript if any
-    accumulatedTranscript = '';
+    input.value = '';
+    // مسح النص المتراكم للتعرف الصوتي بعد الإرسال
+    speechFinalText = '';
 }
 
 function handleKeyPress(e) {
@@ -2387,7 +2526,7 @@ function updateContactStatus(username, status) {
 
 function logout() {
     if (isRecording) stopVoiceRecording();
-    if (isListening) stopVoiceToText();
+    if (isListening) finishSpeechAndTransfer();
     if (isInCall) endVideoCall();
     socket?.disconnect();
     sessionStorage.clear();
