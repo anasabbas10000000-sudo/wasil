@@ -3,214 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>واصل - لوحة تحكم الأدمن</title>
+    <title>تطبيق محادثة - واتساب ويب</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background-color: #e5ddd5;
+            height: 100vh;
+            overflow: hidden;
         }
-
-        .admin-container {
+        
+        .app-container {
+            display: flex;
+            height: 100vh;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
-
-        .admin-header {
-            background: white;
-            border-radius: 20px;
-            padding: 20px 30px;
-            margin-bottom: 25px;
+        
+        /* قائمة جهات الاتصال */
+        .contacts-sidebar {
+            width: 350px;
+            background: #fff;
+            border-left: 1px solid #e0e0e0;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            flex-direction: column;
         }
-
-        .admin-header h1 {
-            color: #075e54;
-            font-size: 24px;
+        
+        .sidebar-header {
+            background: #075e54;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .sidebar-header h3 {
+            font-size: 18px;
+        }
+        
+        .logout-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .user-info {
+            padding: 15px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #e0e0e0;
             display: flex;
             align-items: center;
             gap: 10px;
         }
-
-        .admin-stats {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #075e54, #128c7e);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 15px;
-            text-align: center;
-            min-width: 100px;
-        }
-
-        .stat-card .stat-number {
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .stat-card .stat-label {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
-        .logout-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: #c82333;
-            transform: scale(1.05);
-        }
-
-        .search-bar {
-            background: white;
-            border-radius: 15px;
-            padding: 15px 20px;
-            margin-bottom: 25px;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .search-bar input {
-            flex: 1;
-            padding: 12px 18px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        .search-bar input:focus {
-            border-color: #128c7e;
-        }
-
-        .search-bar button {
-            background: linear-gradient(135deg, #075e54, #128c7e);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .search-bar button:hover {
-            transform: scale(1.02);
-        }
-
-        .add-user-section {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-
-        .add-user-section h3 {
-            color: #075e54;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .add-user-form {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .add-user-form input {
-            flex: 1;
-            padding: 12px 18px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .add-user-form input:focus {
-            border-color: #128c7e;
-        }
-
-        .add-user-form button {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .add-user-form button:hover {
-            background: #218838;
-            transform: scale(1.02);
-        }
-
-        .users-table-container {
-            background: white;
-            border-radius: 15px;
-            overflow-x: auto;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .users-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 600px;
-        }
-
-        .users-table th {
-            background: #075e54;
-            color: white;
-            padding: 15px;
-            text-align: right;
-            font-weight: 600;
-        }
-
-        .users-table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-            vertical-align: middle;
-        }
-
-        .users-table tr:hover {
-            background: #f5f5f5;
-        }
-
+        
         .user-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #075e54, #128c7e);
+            background: #128c7e;
             color: white;
             display: flex;
             align-items: center;
@@ -218,754 +83,632 @@
             font-weight: bold;
             font-size: 18px;
         }
-
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-name {
             font-weight: bold;
-            display: inline-block;
+            font-size: 16px;
         }
-
-        .status-online {
-            background: #28a745;
-            color: white;
-        }
-
-        .status-offline {
-            background: #6c757d;
-            color: white;
-        }
-
-        .status-banned {
-            background: #dc3545;
-            color: white;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .btn-view {
-            background: #17a2b8;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
+        
+        .user-status {
             font-size: 12px;
-            transition: all 0.2s;
+            color: #666;
         }
-
-        .btn-ban {
-            background: #ffc107;
-            color: #333;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s;
+        
+        .search-box {
+            padding: 10px;
+            background: #f5f5f5;
         }
-
-        .btn-unban {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-
-        .btn-delete {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-
-        .btn-notify {
-            background: #6f42c1;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-
-        .btn-view:hover, .btn-ban:hover, .btn-unban:hover, .btn-delete:hover, .btn-notify:hover {
-            transform: scale(1.05);
-            filter: brightness(0.95);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
+        
+        .search-box input {
             width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
             border-radius: 20px;
-            width: 90%;
-            max-width: 700px;
-            max-height: 80vh;
-            overflow: hidden;
+            outline: none;
+            font-size: 14px;
+        }
+        
+        .contacts-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative;
+        }
+        
+        .contact-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .contact-item.active {
+            background: #e8f5e9;
+        }
+        
+        .contact-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #128c7e;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            margin-left: 15px;
+        }
+        
+        .contact-info {
+            flex: 1;
+        }
+        
+        .contact-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .contact-phone {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .contact-status {
+            font-size: 11px;
+            margin-top: 3px;
+        }
+        
+        .status-online {
+            color: #25d366;
+        }
+        
+        .status-offline {
+            color: #999;
+        }
+        
+        .unread-badge {
+            background: #25d366;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        /* منطقة المحادثة */
+        .chat-area {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            animation: modalIn 0.3s ease;
+            background: #e5ddd5;
         }
-
-        @keyframes modalIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .modal-header {
-            background: linear-gradient(135deg, #075e54, #128c7e);
+        
+        .chat-header {
+            background: #075e54;
             color: white;
             padding: 15px 20px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 15px;
         }
-
-        .modal-header h3 {
+        
+        .chat-contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #128c7e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
             font-size: 18px;
         }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
+        
+        .chat-contact-info {
+            flex: 1;
         }
-
-        .modal-body {
+        
+        .chat-contact-name {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .chat-contact-status {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .messages-container {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
-        }
-
-        .messages-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
         }
-
-        .message-item {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 12px;
-            border-right: 4px solid #128c7e;
+        
+        .message {
+            max-width: 65%;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
         }
-
-        .message-sender {
-            font-weight: bold;
-            color: #075e54;
-            margin-bottom: 5px;
+        
+        .message.sent {
+            align-self: flex-end;
         }
-
+        
+        .message.received {
+            align-self: flex-start;
+        }
+        
+        .message-bubble {
+            padding: 10px 15px;
+            border-radius: 15px;
+            position: relative;
+            word-wrap: break-word;
+        }
+        
+        .message.sent .message-bubble {
+            background: #dcf8c6;
+            border-bottom-left-radius: 0;
+        }
+        
+        .message.received .message-bubble {
+            background: white;
+            border-bottom-right-radius: 0;
+        }
+        
         .message-text {
             font-size: 14px;
-            color: #333;
-            margin-bottom: 8px;
-            word-break: break-word;
+            line-height: 1.4;
         }
-
+        
         .message-time {
-            font-size: 11px;
+            font-size: 10px;
             color: #999;
+            margin-top: 5px;
+            text-align: left;
         }
-
-        .message-delete-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 4px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 11px;
-            margin-top: 8px;
+        
+        .message.sent .message-time {
+            text-align: right;
         }
-
-        .clear-conversation-btn {
-            background: #ffc107;
-            color: #333;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            margin-top: 15px;
-            width: 100%;
+        
+        .input-area {
+            background: #f0f0f0;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
         }
-
-        .notification-input {
-            width: 100%;
+        
+        .message-input {
+            flex: 1;
             padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            margin-bottom: 15px;
+            border: none;
+            border-radius: 25px;
+            outline: none;
             font-size: 14px;
-            resize: vertical;
+            font-family: inherit;
         }
-
-        .send-notification-btn {
-            background: #6f42c1;
+        
+        .send-btn {
+            background: #128c7e;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
+            padding: 10px 25px;
+            border-radius: 25px;
             cursor: pointer;
             font-size: 14px;
+            transition: background 0.3s;
         }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #666;
+        
+        .send-btn:hover {
+            background: #075e54;
         }
-
+        
+        .empty-chat {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #999;
+            font-size: 18px;
+        }
+        
+        /* شريط التمرير */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        
         @media (max-width: 768px) {
-            .admin-header {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .users-table {
-                font-size: 12px;
-            }
-            
-            .users-table th, .users-table td {
-                padding: 8px 10px;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
+            .contacts-sidebar {
+                width: 280px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="admin-container">
-        <div class="admin-header">
-            <h1>🛡️ لوحة تحكم الأدمن - واصل</h1>
-            <div class="admin-stats" id="adminStats">
-                <div class="stat-card">
-                    <div class="stat-number" id="totalUsers">0</div>
-                    <div class="stat-label">إجمالي المستخدمين</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="onlineUsers">0</div>
-                    <div class="stat-label">متصلون الآن</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="bannedUsers">0</div>
-                    <div class="stat-label">محظورون</div>
+    <div class="app-container">
+        <!-- قائمة جهات الاتصال -->
+        <div class="contacts-sidebar">
+            <div class="sidebar-header">
+                <h3>المحادثات</h3>
+                <button class="logout-btn" onclick="logout()">خروج</button>
+            </div>
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar" id="userAvatar"></div>
+                <div class="user-details">
+                    <div class="user-name" id="userName"></div>
+                    <div class="user-status" id="userStatus"></div>
                 </div>
             </div>
-            <button class="logout-btn" onclick="logout()">🚪 خروج</button>
-        </div>
-
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="🔍 بحث عن مستخدم... (اسم المستخدم أو البريد)" onkeyup="filterUsers()">
-            <button onclick="refreshUsers()">🔄 تحديث</button>
-        </div>
-
-        <div class="add-user-section">
-            <h3>➕ إضافة مستخدم جديد</h3>
-            <div class="add-user-form">
-                <input type="text" id="newUsername" placeholder="اسم المستخدم" maxlength="30">
-                <input type="text" id="newPhone" placeholder="رقم الهاتف (اختياري)">
-                <button onclick="addUser()">إضافة مستخدم</button>
+            <div class="search-box">
+                <input type="text" placeholder="بحث في جهات الاتصال..." id="searchInput" onkeyup="filterContacts()">
             </div>
+            <div class="contacts-list" id="contactsList"></div>
         </div>
-
-        <div class="users-table-container">
-            <table class="users-table">
-                <thead>
-                    <tr>
-                        <th>المستخدم</th>
-                        <th>رقم الهاتف</th>
-                        <th>الحالة</th>
-                        <th>آخر نشاط</th>
-                        <th>الإجراءات</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTableBody">
-                    <tr>
-                        <td colspan="5" class="loading">جاري التحميل...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="modal" id="messagesModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalTitle">رسائل المستخدم</h3>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
-            </div>
-            <div class="modal-body" id="modalBody">
-                <div class="loading">جاري التحميل...</div>
+        
+        <!-- منطقة المحادثة -->
+        <div class="chat-area" id="chatArea">
+            <div class="empty-chat">
+                اختر محادثة لبدء المراسلة
             </div>
         </div>
     </div>
 
-    <div class="modal" id="notificationModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>📢 إرسال تنبيه</h3>
-                <button class="modal-close" onclick="closeNotificationModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <textarea id="notificationMessage" class="notification-input" rows="4" placeholder="اكتب رسالة التنبيه هنا..."></textarea>
-                <button class="send-notification-btn" onclick="sendNotification()">إرسال التنبيه</button>
-            </div>
-        </div>
-    </div>
-
+    <script src="/socket.io/socket.io.js"></script>
     <script>
-        let currentUsers = [];
-        let currentSelectedUser = null;
-        let notifyUser = null;
-
-        function checkAuth() {
-            if (sessionStorage.getItem('adminLoggedIn') !== 'true') {
-                window.location.href = '/index.html';
-            }
-        }
-
-        function logout() {
-            sessionStorage.removeItem('adminLoggedIn');
-            window.location.href = '/index.html';
-        }
-
-        async function loadUsers() {
-            try {
-                const response = await fetch('/api/admin/users');
-                const data = await response.json();
-                if (data.success) {
-                    currentUsers = data.users;
-                    updateStats(data.stats);
-                    renderUsers(currentUsers);
-                } else {
-                    showError('فشل في تحميل المستخدمين');
-                }
-            } catch (error) {
-                console.error('Error loading users:', error);
-                showError('خطأ في الاتصال بالخادم');
-            }
-        }
-
-        function updateStats(stats) {
-            document.getElementById('totalUsers').textContent = stats.total || 0;
-            document.getElementById('onlineUsers').textContent = stats.online || 0;
-            document.getElementById('bannedUsers').textContent = stats.banned || 0;
-        }
-
-        function renderUsers(users) {
-            const tbody = document.getElementById('usersTableBody');
-            if (!users || users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">لا يوجد مستخدمين</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = '';
-            users.forEach(user => {
-                const row = document.createElement('tr');
-                
-                const userCell = document.createElement('td');
-                userCell.innerHTML = `
-                    <div style="display:flex;align-items:center;gap:10px">
-                        <div class="user-avatar">${(user.username?.charAt(0) || '?').toUpperCase()}</div>
-                        <div>
-                            <div style="font-weight:bold">${escapeHtml(user.username)}</div>
-                            <div style="font-size:11px;color:#666">${user.email || ''}</div>
-                        </div>
-                    </div>
-                `;
-                
-                const phoneCell = document.createElement('td');
-                phoneCell.textContent = user.phone || '—';
-                
-                const statusCell = document.createElement('td');
-                let statusClass = 'status-offline';
-                let statusText = 'غير متصل';
-                if (user.banned) {
-                    statusClass = 'status-banned';
-                    statusText = 'محظور';
-                } else if (user.status === 'online') {
-                    statusClass = 'status-online';
-                    statusText = 'متصل';
-                }
-                statusCell.innerHTML = `<span class="status-badge ${statusClass}">${statusText}</span>`;
-                
-                const lastActiveCell = document.createElement('td');
-                lastActiveCell.textContent = user.lastActive ? new Date(user.lastActive).toLocaleString('ar-SA') : '—';
-                
-                const actionsCell = document.createElement('td');
-                actionsCell.className = 'action-buttons';
-                
-                const viewBtn = document.createElement('button');
-                viewBtn.textContent = '📋 رسائل';
-                viewBtn.className = 'btn-view';
-                viewBtn.onclick = () => viewUserMessages(user.username);
-                
-                const notifyBtn = document.createElement('button');
-                notifyBtn.textContent = '📢 تنبيه';
-                notifyBtn.className = 'btn-notify';
-                notifyBtn.onclick = () => openNotificationModal(user.username);
-                
-                let banBtn;
-                if (user.banned) {
-                    banBtn = document.createElement('button');
-                    banBtn.textContent = '🔓 رفع الحظر';
-                    banBtn.className = 'btn-unban';
-                    banBtn.onclick = () => unbanUser(user.username);
-                } else {
-                    banBtn = document.createElement('button');
-                    banBtn.textContent = '🔒 حظر';
-                    banBtn.className = 'btn-ban';
-                    banBtn.onclick = () => banUser(user.username);
-                }
-                
-                const deleteBtn = document.createElement('button');
-                deleteBtn.textContent = '🗑️ حذف';
-                deleteBtn.className = 'btn-delete';
-                deleteBtn.onclick = () => deleteUser(user.username);
-                
-                actionsCell.appendChild(viewBtn);
-                actionsCell.appendChild(notifyBtn);
-                actionsCell.appendChild(banBtn);
-                actionsCell.appendChild(deleteBtn);
-                
-                row.appendChild(userCell);
-                row.appendChild(phoneCell);
-                row.appendChild(statusCell);
-                row.appendChild(lastActiveCell);
-                row.appendChild(actionsCell);
-                
-                tbody.appendChild(row);
-            });
-        }
-
-        function filterUsers() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            if (!searchTerm) {
-                renderUsers(currentUsers);
-                return;
-            }
-            const filtered = currentUsers.filter(user => 
-                user.username.toLowerCase().includes(searchTerm) ||
-                (user.email && user.email.toLowerCase().includes(searchTerm)) ||
-                (user.phone && user.phone.includes(searchTerm))
-            );
-            renderUsers(filtered);
-        }
-
-        function refreshUsers() {
-            loadUsers();
-        }
-
-        async function addUser() {
-            const username = document.getElementById('newUsername').value.trim();
-            const phone = document.getElementById('newPhone').value.trim();
-            
-            if (!username) {
-                alert('الرجاء إدخال اسم المستخدم');
+        let socket;
+        let currentUser = null;
+        let currentContact = null;
+        let allContacts = [];
+        let unreadMessages = new Map(); // contactId -> count
+        
+        // تحميل بيانات المستخدم
+        function loadUserData() {
+            if (sessionStorage.getItem('accessGranted') !== 'true') {
+                window.location.href = '/login.html';
                 return;
             }
             
-            if (username.length < 2) {
-                alert('اسم المستخدم قصير جداً (حرفان على الأقل)');
-                return;
-            }
+            currentUser = {
+                username: sessionStorage.getItem('username'),
+                userId: sessionStorage.getItem('username')
+            };
             
-            try {
-                const response = await fetch('/api/admin/add-user', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, phone })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    alert('تم إضافة المستخدم بنجاح');
-                    document.getElementById('newUsername').value = '';
-                    document.getElementById('newPhone').value = '';
-                    loadUsers();
-                } else {
-                    alert(data.message || 'فشل في إضافة المستخدم');
-                }
-            } catch (error) {
-                alert('خطأ في الاتصال بالخادم');
-            }
-        }
-
-        async function banUser(username) {
-            if (!confirm(`هل أنت متأكد من حظر المستخدم "${username}"؟`)) return;
+            document.getElementById('userName').textContent = currentUser.username;
+            document.getElementById('userAvatar').textContent = currentUser.username.charAt(0);
             
-            const reason = prompt('الرجاء إدخال سبب الحظر (اختياري):');
-            
-            try {
-                const response = await fetch('/api/admin/ban-user', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, reason: reason || 'تم الحظر من قبل الإدارة' })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    alert(`تم حظر المستخدم ${username} بنجاح`);
-                    loadUsers();
-                } else {
-                    alert(data.message || 'فشل في حظر المستخدم');
-                }
-            } catch (error) {
-                alert('خطأ في الاتصال بالخادم');
-            }
-        }
-
-        async function unbanUser(username) {
-            if (!confirm(`هل أنت متأكد من رفع الحظر عن المستخدم "${username}"؟`)) return;
-            
-            try {
-                const response = await fetch('/api/admin/unban-user', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    alert(`تم رفع الحظر عن المستخدم ${username}`);
-                    loadUsers();
-                } else {
-                    alert(data.message || 'فشل في رفع الحظر');
-                }
-            } catch (error) {
-                alert('خطأ في الاتصال بالخادم');
-            }
-        }
-
-        async function deleteUser(username) {
-            if (!confirm(`⚠️ تحذير: هذا الإجراء سيقوم بحذف المستخدم "${username}" وجميع رسائله نهائياً.\nهل أنت متأكد؟`)) return;
-            
-            try {
-                const response = await fetch(`/api/admin/delete-user/${encodeURIComponent(username)}`, {
-                    method: 'DELETE'
-                });
-                const data = await response.json();
-                if (data.success) {
-                    alert(`تم حذف المستخدم ${username} بنجاح`);
-                    loadUsers();
-                } else {
-                    alert(data.message || 'فشل في حذف المستخدم');
-                }
-            } catch (error) {
-                alert('خطأ في الاتصال بالخادم');
-            }
-        }
-
-        async function viewUserMessages(username) {
-            currentSelectedUser = username;
-            document.getElementById('modalTitle').textContent = `رسائل المستخدم: ${username}`;
-            document.getElementById('messagesModal').classList.add('active');
-            document.getElementById('modalBody').innerHTML = '<div class="loading">جاري تحميل الرسائل...</div>';
-            
-            try {
-                const response = await fetch(`/api/admin/user-messages/${encodeURIComponent(username)}`);
-                const data = await response.json();
-                if (data.success) {
-                    renderMessages(data.messages);
-                } else {
-                    document.getElementById('modalBody').innerHTML = '<div style="color:red;text-align:center">فشل في تحميل الرسائل</div>';
-                }
-            } catch (error) {
-                document.getElementById('modalBody').innerHTML = '<div style="color:red;text-align:center">خطأ في الاتصال بالخادم</div>';
-            }
-        }
-
-        function renderMessages(messages) {
-            const container = document.getElementById('modalBody');
-            if (!messages || messages.length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:#666">لا توجد رسائل لهذا المستخدم</div>';
-                return;
-            }
-            
-            const conversations = {};
-            messages.forEach(msg => {
-                const otherUser = msg.from === currentSelectedUser ? msg.to : msg.from;
-                if (!conversations[otherUser]) conversations[otherUser] = [];
-                conversations[otherUser].push(msg);
-            });
-            
-            let html = '';
-            for (const [otherUser, msgs] of Object.entries(conversations)) {
-                html += `<div style="margin-bottom:20px">
-                    <div style="background:#e9ecef;padding:8px 12px;border-radius:10px;margin-bottom:10px">
-                        <strong>📱 محادثة مع: ${escapeHtml(otherUser)}</strong>
-                        <button class="clear-conversation-btn" onclick="clearConversation('${escapeHtml(otherUser)}')">🗑️ حذف المحادثة بالكامل</button>
-                    </div>
-                    <div class="messages-list">`;
-                
-                msgs.sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
-                msgs.forEach(msg => {
-                    const isSent = msg.from === currentSelectedUser;
-                    let messageContent = '';
-                    if (msg.type === 'text') {
-                        messageContent = escapeHtml(msg.message);
-                    } else if (msg.type === 'file') {
-                        messageContent = `📎 ملف: ${msg.fileName || 'ملف'}`;
-                    } else if (msg.type === 'voice') {
-                        messageContent = `🎤 رسالة صوتية (${msg.duration || 0} ث)`;
-                    } else if (msg.type === 'video') {
-                        messageContent = `📹 فيديو`;
-                    } else {
-                        messageContent = 'رسالة';
-                    }
-                    
-                    html += `
-                        <div class="message-item">
-                            <div class="message-sender">${isSent ? '📤 مرسلة' : '📥 واردة'} (${msg.from})</div>
-                            <div class="message-text">${messageContent}</div>
-                            <div class="message-time">${new Date(msg.timestamp).toLocaleString('ar-SA')}</div>
-                            <button class="message-delete-btn" onclick="deleteMessage('${msg.id}', '${escapeHtml(otherUser)}')">حذف هذه الرسالة</button>
-                        </div>
-                    `;
-                });
-                html += `</div></div>`;
-            }
-            container.innerHTML = html;
-        }
-
-        async function deleteMessage(messageId, otherUser) {
-            if (!confirm('هل تريد حذف هذه الرسالة؟')) return;
-            
-            try {
-                const response = await fetch('/api/admin/delete-message', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messageId, username: currentSelectedUser, otherUser })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    viewUserMessages(currentSelectedUser);
-                } else {
-                    alert('فشل في حذف الرسالة');
-                }
-            } catch (error) {
-                alert('خطأ في الاتصال بالخادم');
-            }
-        }
-
-        async function clearConversation(otherUser) {
-            if (!confirm(`هل تريد حذف جميع رسائل المحادثة مع ${otherUser} نهائياً؟`)) return;
-            
-            try {
-                const response = await fetch('/api/admin/clear-conversation', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: currentSelectedUser, otherUser })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    viewUserMessages(currentSelectedUser);
-                } else {
-                    alert('فشل في حذف المحادثة');
-                }
-            } catch (error) {
-                alert('خطأ في الاتصال بالخادم');
-            }
-        }
-
-        function openNotificationModal(username) {
-            notifyUser = username;
-            document.getElementById('notificationMessage').value = '';
-            document.getElementById('notificationModal').classList.add('active');
-        }
-
-        async function sendNotification() {
-            const message = document.getElementById('notificationMessage').value.trim();
-            if (!message) {
-                alert('الرجاء كتابة رسالة التنبيه');
-                return;
-            }
-            
-            try {
-                const response = await fetch('/api/admin/send-notification', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: notifyUser, message })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    alert(`تم إرسال التنبيه إلى ${notifyUser}`);
-                    closeNotificationModal();
-                } else {
-                    alert(data.message || 'فشل في إرسال التنبيه');
-                }
-            } catch (error) {
-                alert('خطأ في الاتصال بالخادم');
-            }
-        }
-
-        function closeModal() {
-            document.getElementById('messagesModal').classList.remove('active');
+            // الاتصال بالخادم
+            initializeSocket();
+            loadContacts();
         }
         
-        function closeNotificationModal() {
-            document.getElementById('notificationModal').classList.remove('active');
-            notifyUser = null;
+        // تهيئة Socket.IO
+        function initializeSocket() {
+            socket = io();
+            
+            socket.on('connect', () => {
+                socket.emit('register user', {
+                    username: currentUser.username,
+                    userId: currentUser.userId
+                });
+            });
+            
+            // استقبال رسائل خاصة
+            socket.on('private message', (data) => {
+                addMessageToChat(data.from, data.message, data.timestamp, false);
+                
+                // تحديث عدد الرسائل غير المقروءة
+                if (currentContact && currentContact.name !== data.from) {
+                    const count = unreadMessages.get(data.from) || 0;
+                    unreadMessages.set(data.from, count + 1);
+                    updateContactsList();
+                } else if (!currentContact) {
+                    const count = unreadMessages.get(data.from) || 0;
+                    unreadMessages.set(data.from, count + 1);
+                    updateContactsList();
+                } else {
+                    // إذا كانت المحادثة مفتوحة، نرسل إشعار بالقراءة
+                    socket.emit('mark messages read', {
+                        userId: currentUser.username,
+                        contactId: data.from
+                    });
+                }
+            });
+            
+            // تحديث حالة المستخدمين
+            socket.on('user status change', (data) => {
+                updateContactStatus(data.username, data.status);
+            });
+            
+            // تحديث عدد الرسائل غير المقروءة الكلي
+            socket.on('unread count update', (count) => {
+                if (count > 0 && document.title !== `(${count}) تطبيق المحادثة`) {
+                    document.title = `(${count}) تطبيق المحادثة`;
+                } else if (count === 0) {
+                    document.title = 'تطبيق المحادثة';
+                }
+            });
+            
+            // تأكيد إرسال الرسالة
+            socket.on('message sent', (data) => {
+                console.log('تم إرسال الرسالة بنجاح إلى:', data.to);
+            });
         }
-
+        
+        // تحميل جهات الاتصال
+        async function loadContacts() {
+            try {
+                const response = await fetch('/get-contacts');
+                const data = await response.json();
+                allContacts = data.contacts.filter(c => c.name !== currentUser.username);
+                updateContactsList();
+            } catch (error) {
+                console.error('خطأ في تحميل جهات الاتصال:', error);
+            }
+        }
+        
+        // تحديث قائمة جهات الاتصال
+        function updateContactsList() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredContacts = allContacts.filter(contact => 
+                contact.name.toLowerCase().includes(searchTerm) || 
+                contact.phone.includes(searchTerm)
+            );
+            
+            const contactsList = document.getElementById('contactsList');
+            contactsList.innerHTML = '';
+            
+            filteredContacts.forEach(contact => {
+                const unreadCount = unreadMessages.get(contact.name) || 0;
+                const contactDiv = document.createElement('div');
+                contactDiv.className = `contact-item ${currentContact && currentContact.id === contact.id ? 'active' : ''}`;
+                contactDiv.onclick = () => openChat(contact);
+                
+                contactDiv.innerHTML = `
+                    <div class="contact-avatar">${contact.avatar}</div>
+                    <div class="contact-info">
+                        <div class="contact-name">${contact.name}</div>
+                        <div class="contact-phone">${contact.phone}</div>
+                        <div class="contact-status ${contact.status === 'online' ? 'status-online' : 'status-offline'}">
+                            ${contact.status === 'online' ? '● متصل' : '○ غير متصل'}
+                        </div>
+                    </div>
+                    ${unreadCount > 0 ? `<div class="unread-badge">${unreadCount}</div>` : ''}
+                `;
+                
+                contactsList.appendChild(contactDiv);
+            });
+        }
+        
+        // فتح محادثة مع جهة اتصال
+        async function openChat(contact) {
+            currentContact = contact;
+            
+            // إزالة الإشعارات غير المقروءة لهذه المحادثة
+            if (unreadMessages.has(contact.name)) {
+                unreadMessages.delete(contact.name);
+                updateContactsList();
+            }
+            
+            // إعلام الخادم بقراءة الرسائل
+            socket.emit('mark messages read', {
+                userId: currentUser.username,
+                contactId: contact.name
+            });
+            
+            // تحميل المحادثة السابقة
+            await loadConversation(contact);
+            
+            // عرض واجهة المحادثة
+            const chatArea = document.getElementById('chatArea');
+            chatArea.innerHTML = `
+                <div class="chat-header">
+                    <div class="chat-contact-avatar">${contact.avatar}</div>
+                    <div class="chat-contact-info">
+                        <div class="chat-contact-name">${contact.name}</div>
+                        <div class="chat-contact-status ${contact.status === 'online' ? 'status-online' : 'status-offline'}">
+                            ${contact.status === 'online' ? 'متصل الآن' : 'غير متصل'}
+                        </div>
+                    </div>
+                </div>
+                <div class="messages-container" id="messagesContainer"></div>
+                <div class="input-area">
+                    <input type="text" class="message-input" id="messageInput" placeholder="اكتب رسالتك..." onkeypress="handleKeyPress(event)">
+                    <button class="send-btn" onclick="sendMessage()">إرسال</button>
+                </div>
+            `;
+            
+            // عرض الرسائل المحفوظة
+            displayMessages();
+        }
+        
+        // تحميل المحادثة من الخادم
+        async function loadConversation(contact) {
+            try {
+                const response = await fetch('/get-conversation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: currentUser.username,
+                        contactId: contact.name
+                    })
+                });
+                
+                const data = await response.json();
+                window.currentMessages = data.messages || [];
+                displayMessages();
+            } catch (error) {
+                console.error('خطأ في تحميل المحادثة:', error);
+                window.currentMessages = [];
+            }
+        }
+        
+        // عرض الرسائل في واجهة المحادثة
+        function displayMessages() {
+            const container = document.getElementById('messagesContainer');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            if (window.currentMessages && window.currentMessages.length > 0) {
+                window.currentMessages.forEach(msg => {
+                    const isSent = msg.from === currentUser.username;
+                    addMessageToChatUI(msg.from, msg.message, msg.timestamp, isSent);
+                });
+            }
+            
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // إضافة رسالة إلى واجهة المحادثة
+        function addMessageToChatUI(sender, message, timestamp, isSent) {
+            const container = document.getElementById('messagesContainer');
+            if (!container) return;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+            
+            const time = new Date(timestamp).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                <div class="message-bubble">
+                    <div class="message-text">${escapeHtml(message)}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // إضافة رسالة مستلمة
+        function addMessageToChat(sender, message, timestamp, isReceived) {
+            if (currentContact && currentContact.name === sender) {
+                const messageObj = {
+                    from: sender,
+                    message: message,
+                    timestamp: timestamp,
+                    read: false
+                };
+                
+                if (!window.currentMessages) window.currentMessages = [];
+                window.currentMessages.push(messageObj);
+                addMessageToChatUI(sender, message, timestamp, false);
+            }
+        }
+        
+        // إرسال رسالة
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message || !currentContact) return;
+            
+            const timestamp = new Date().toISOString();
+            
+            // إرسال عبر Socket.IO
+            socket.emit('private message', {
+                from: currentUser.username,
+                to: currentContact.name,
+                message: message,
+                timestamp: timestamp
+            });
+            
+            // إضافة للواجهة المحلية
+            addMessageToChatUI(currentUser.username, message, timestamp, true);
+            
+            // حفظ في الذاكرة المحلية
+            const messageObj = {
+                from: currentUser.username,
+                to: currentContact.name,
+                message: message,
+                timestamp: timestamp,
+                read: true
+            };
+            
+            if (!window.currentMessages) window.currentMessages = [];
+            window.currentMessages.push(messageObj);
+            
+            input.value = '';
+        }
+        
+        // معالجة ضغط Enter
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        // تحديث حالة جهة اتصال
+        function updateContactStatus(username, status) {
+            const contact = allContacts.find(c => c.name === username);
+            if (contact) {
+                contact.status = status;
+                updateContactsList();
+                
+                if (currentContact && currentContact.name === username) {
+                    const statusElement = document.querySelector('.chat-contact-status');
+                    if (statusElement) {
+                        statusElement.textContent = status === 'online' ? 'متصل الآن' : 'غير متصل';
+                        statusElement.className = `chat-contact-status ${status === 'online' ? 'status-online' : 'status-offline'}`;
+                    }
+                }
+            }
+        }
+        
+        // فلترة جهات الاتصال
+        function filterContacts() {
+            updateContactsList();
+        }
+        
+        // تسجيل الخروج
+        function logout() {
+            if (socket) {
+                socket.disconnect();
+            }
+            sessionStorage.clear();
+            window.location.href = '/login.html';
+        }
+        
+        // دالة لتأمين النصوص
         function escapeHtml(text) {
-            if (!text) return '';
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
-
-        function showError(msg) {
-            alert(msg);
-        }
-
-        let refreshInterval = setInterval(loadUsers, 30000);
         
-        checkAuth();
-        loadUsers();
-        
-        window.addEventListener('beforeunload', () => {
-            if (refreshInterval) clearInterval(refreshInterval);
-        });
+        // تحميل البيانات عند فتح الصفحة
+        loadUserData();
     </script>
 </body>
 </html>
