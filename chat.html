@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>واصل - محادثات ذكية مع مكالمات الفيديو</title>
     <style id="theme-style">
+        /* ====================================================
+           CSS Variables - Themes
+        ==================================================== */
         :root {
             --bg-primary: #e5ddd5;
             --bg-secondary: #fff;
@@ -73,6 +76,9 @@
             --call-controls-bg: linear-gradient(135deg, #7b1fa2, #9c27b0);
         }
 
+        /* ====================================================
+           Reset & Base
+        ==================================================== */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
@@ -94,6 +100,9 @@
             box-shadow: 0 0 20px var(--shadow-color);
         }
 
+        /* ====================================================
+           Sidebar
+        ==================================================== */
         .contacts-sidebar {
             width: 350px;
             min-width: 280px;
@@ -112,7 +121,6 @@
             justify-content: space-between;
             align-items: center;
             gap: 8px;
-            flex-wrap: wrap;
         }
 
         .sidebar-header h3 { font-size: 18px; flex: 1; }
@@ -218,6 +226,9 @@
             position: absolute; left: 12px;
         }
 
+        /* ====================================================
+           Chat Area
+        ==================================================== */
         .chat-area {
             flex: 1;
             display: flex;
@@ -272,6 +283,9 @@
             gap: 8px;
         }
 
+        /* ====================================================
+           Messages
+        ==================================================== */
         .message {
             max-width: 70%;
             display: flex;
@@ -373,6 +387,9 @@
         .menu-popup-item:hover { background: var(--input-bg); }
         .menu-popup-item.delete { color: #dc3545; }
 
+        /* ====================================================
+           Input Area
+        ==================================================== */
         .input-area {
             background: var(--input-bg);
             padding: 12px 14px;
@@ -444,6 +461,9 @@
             flex-direction: column; gap: 16px;
         }
 
+        /* ====================================================
+           Settings Modal
+        ==================================================== */
         .settings-modal {
             display: none; position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -489,145 +509,9 @@
             font-size: 15px; font-weight: bold;
         }
 
-        .search-users-modal {
-            display: none; position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 3500;
-            justify-content: center; align-items: center;
-        }
-        .search-users-modal.active { display: flex; }
-
-        .search-users-content {
-            background: var(--bg-secondary); border-radius: 20px;
-            width: 90%; max-width: 600px;
-            max-height: 85vh;
-            overflow: hidden; display: flex; flex-direction: column;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        .search-users-header {
-            background: linear-gradient(135deg, #075e54, #128c7e);
-            color: white; padding: 15px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-
-        .search-users-header h3 { font-size: 18px; margin: 0; }
-
-        .search-users-body {
-            flex: 1; overflow-y: auto; padding: 20px;
-        }
-
-        .search-users-input {
-            width: 100%; padding: 12px; border: 2px solid var(--border-color);
-            border-radius: 10px; margin-bottom: 15px;
-            font-size: 14px; background: var(--bg-primary); color: var(--text-primary);
-        }
-
-        .search-results-list {
-            display: flex; flex-direction: column; gap: 10px;
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-        }
-
-        .search-result-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 12px; background: var(--bg-primary); border-radius: 10px;
-            transition: transform 0.2s;
-        }
-
-        .search-result-item:hover { transform: translateX(-5px); }
-
-        .search-result-info {
-            display: flex; align-items: center; gap: 12px;
-            flex: 1;
-        }
-
-        .search-result-avatar {
-            width: 45px; height: 45px; border-radius: 50%;
-            background: var(--accent-color); color: white;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 18px;
-            flex-shrink: 0;
-        }
-
-        .search-result-details { flex: 1; }
-        .search-result-name { font-weight: bold; font-size: 15px; color: var(--text-primary); margin-bottom: 4px; }
-        .search-result-phone { font-size: 11px; color: var(--text-secondary); }
-        .search-result-email { font-size: 11px; color: var(--text-secondary); }
-
-        .add-contact-result-btn {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white; border: none;
-            padding: 8px 16px; border-radius: 8px; cursor: pointer;
-            font-size: 12px; font-weight: bold;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .add-contact-result-btn:hover:not(:disabled) { transform: scale(1.05); }
-        .add-contact-result-btn.disabled { background: #6c757d; cursor: not-allowed; opacity: 0.6; }
-
-        .add-new-user-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 2px solid var(--border-color);
-        }
-        
-        .add-new-user-section h4 {
-            margin-bottom: 15px;
-            color: var(--accent-color);
-            font-size: 16px;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: var(--text-primary);
-            font-size: 13px;
-        }
-        
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-size: 14px;
-        }
-        
-        .create-user-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            transition: all 0.2s;
-            margin-top: 10px;
-        }
-        
-        .create-user-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(40,167,69,0.3); }
-        
-        .modal-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 28px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        .modal-close:hover { transform: scale(1.1); }
-
+        /* ====================================================
+           VIDEO CALL MODAL - Full Responsive
+        ==================================================== */
         .video-call-modal {
             display: none; position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -640,57 +524,19 @@
         .video-container {
             flex: 1; position: relative;
             background: #111;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             overflow: hidden;
-            flex-wrap: wrap;
-            gap: 10px;
-            padding: 10px;
         }
 
-        .video-container.group-call {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            padding: 10px;
-        }
-
-        .video-tile {
-            position: relative;
-            background: #000;
-            border-radius: 12px;
-            overflow: hidden;
-            min-width: 250px;
-            flex: 1;
-            aspect-ratio: 4/3;
-        }
-
-        .video-tile video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .video-tile .video-label {
-            position: absolute;
-            bottom: 8px;
-            left: 8px;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-        }
-
+        /* Remote video fills the container */
         .remote-video {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             object-fit: cover;
             background: #000;
             display: block;
         }
 
+        /* Local (self) video - responsive picture-in-picture */
         .local-video {
             position: absolute;
             bottom: 16px; right: 16px;
@@ -703,9 +549,12 @@
             transition: transform 0.25s, width 0.25s, height 0.25s;
             background: #333;
             z-index: 10;
+            -webkit-transform: translateZ(0); /* GPU acceleration on mobile */
         }
         .local-video:hover { transform: scale(1.05); }
+        .local-video.draggable { cursor: grab; }
 
+        /* Call info bar (top overlay) */
         .call-info-bar {
             position: absolute;
             top: 0; left: 0; right: 0;
@@ -735,6 +584,7 @@
             padding: 3px 9px; border-radius: 20px;
         }
 
+        /* Video loading indicator */
         .video-loading {
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
@@ -757,6 +607,7 @@
 
         .loading-text { font-size: 15px; opacity: 0.9; }
 
+        /* Call Controls Bar */
         .call-controls {
             background: var(--call-controls-bg, linear-gradient(135deg, #075e54, #128c7e));
             padding: 16px 20px;
@@ -790,12 +641,21 @@
             background: rgba(255,193,7,0.85); color: #000;
         }
 
+        .call-control-label {
+            position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%);
+            font-size: 10px; color: rgba(255,255,255,0.8);
+            white-space: nowrap;
+        }
+
         .btn-wrapper {
             display: flex; flex-direction: column;
             align-items: center; gap: 20px;
         }
         .btn-label { font-size: 11px; color: rgba(255,255,255,0.75); white-space: nowrap; }
 
+        /* ====================================================
+           Incoming Call Modal
+        ==================================================== */
         .incoming-overlay {
             display: none; position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -863,6 +723,9 @@
         .incoming-call-btn.reject { background: #dc3545; color: white; }
         .incoming-call-btn.reject:hover { background: #c82333; }
 
+        /* ====================================================
+           Notifications & Toasts
+        ==================================================== */
         .notification-toast {
             position: fixed; top: 16px; right: 16px;
             background: linear-gradient(135deg, var(--accent-color), #25d366);
@@ -891,8 +754,7 @@
         .error-notification {
             position: fixed; bottom: 16px; right: 16px;
             background: #dc3545; color: white;
-            padding: 11px 16px;
-            border-radius: 10px;
+            padding: 11px 16px; border-radius: 10px;
             z-index: 20000; display: none;
             animation: slideIn 0.3s ease;
             max-width: 300px; font-size: 13px;
@@ -904,6 +766,7 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
+        /* Upload progress */
         .upload-progress {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
@@ -912,6 +775,7 @@
             z-index: 5000; display: none; text-align: center;
         }
 
+        /* Recording timer */
         .recording-timer {
             position: fixed; bottom: 90px; left: 50%;
             transform: translateX(-50%);
@@ -920,6 +784,7 @@
             z-index: 5000; display: none; font-size: 14px;
         }
 
+        /* Listening overlay */
         .listening-overlay {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
@@ -933,12 +798,20 @@
         @keyframes micPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.2); } }
         .listening-text { color: white; font-size: 17px; font-weight: bold; }
 
+        /* ====================================================
+           Scrollbar
+        ==================================================== */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: var(--input-bg); }
         ::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 3px; }
 
+        /* ====================================================
+           RESPONSIVE - Mobile (≤768px)
+        ==================================================== */
         @media (max-width: 768px) {
             .app-container { flex-direction: column; }
+
+            /* On mobile, sidebar becomes bottom sheet / hidden */
             .contacts-sidebar {
                 width: 100%;
                 height: 100vh; height: 100dvh;
@@ -947,61 +820,64 @@
                 transition: transform 0.3s ease;
             }
             .contacts-sidebar.hidden { transform: translateY(-100%); display: none; }
+
             .chat-area {
                 position: fixed; top: 0; left: 0; right: 0; bottom: 0;
                 display: none;
             }
             .chat-area.active { display: flex; }
+
+            /* Back button in chat header for mobile */
             .back-btn {
                 display: flex !important;
                 background: rgba(255,255,255,0.2); border: none;
                 color: white; padding: 6px 10px; border-radius: 8px;
                 cursor: pointer; font-size: 18px; align-items: center;
             }
+
             .message { max-width: 82%; }
             .message-menu { opacity: 1; }
+
+            /* Local video smaller on mobile */
             .local-video {
                 width: 90px; height: 120px;
                 bottom: 10px; right: 10px;
             }
+
+            /* Call controls adjusted for mobile */
             .call-control-btn { width: 52px; height: 52px; font-size: 20px; }
             .call-control-btn.end-call { width: 58px; height: 58px; font-size: 22px; }
             .call-controls { gap: 12px; padding: 14px 16px; padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+
             .btn-wrapper { gap: 16px; }
-            .video-container.group-call {
-                flex-direction: column;
-            }
-            .video-tile {
-                min-width: auto;
-                width: 100%;
-            }
         }
 
+        /* Landscape on mobile */
         @media (max-width: 768px) and (orientation: landscape) {
             .local-video { width: 80px; height: 106px; bottom: 8px; right: 8px; }
             .call-controls { padding: 10px 16px; gap: 14px; }
             .call-info-bar { padding: 8px 14px; }
         }
 
+        /* Small phones */
         @media (max-width: 380px) {
             .local-video { width: 75px; height: 100px; }
             .call-control-btn { width: 46px; height: 46px; font-size: 18px; }
             .call-controls { gap: 10px; }
         }
 
+        /* Back button hidden on desktop */
         .back-btn { display: none; }
     </style>
 </head>
 <body>
-
 <div class="app-container">
+    <!-- ======================== SIDEBAR ======================== -->
     <div class="contacts-sidebar" id="contactsSidebar">
         <div class="sidebar-header">
             <h3>المحادثات</h3>
             <div class="header-buttons">
-                <button class="header-btn add-contact-btn" onclick="openSearchUsersModal()">➕ إضافة جهة اتصال</button>
                 <button class="header-btn video-call-btn" onclick="showVideoCallMenu()">📹 مكالمة</button>
-                <button class="header-btn" style="background:linear-gradient(135deg,#6f42c1,#9c27b0)" onclick="showGroupCallMenu()">👥 جماعي</button>
                 <button class="header-btn settings-btn" onclick="openSettings()">⚙️</button>
                 <button class="header-btn logout-btn" onclick="logout()">خروج</button>
             </div>
@@ -1019,15 +895,16 @@
         <div class="contacts-list" id="contactsList"></div>
     </div>
 
+    <!-- ======================== CHAT AREA ======================== -->
     <div class="chat-area" id="chatArea">
         <div class="empty-chat">
             <div style="font-size:48px">💬</div>
             <div>اختر محادثة لبدء المراسلة</div>
-            <button class="header-btn add-contact-btn" style="margin-top:20px;background:linear-gradient(135deg,#28a745,#20c997)" onclick="openSearchUsersModal()">➕ إضافة جهة اتصال جديدة</button>
         </div>
     </div>
 </div>
 
+<!-- ======================== SETTINGS MODAL ======================== -->
 <div class="settings-modal" id="settingsModal">
     <div class="settings-content">
         <h3>⚙️ الإعدادات المتقدمة</h3>
@@ -1067,76 +944,30 @@
     </div>
 </div>
 
-<div class="search-users-modal" id="searchUsersModal">
-    <div class="search-users-content">
-        <div class="search-users-header">
-            <h3>➕ إضافة جهة اتصال متقدمة</h3>
-            <button class="modal-close" onclick="closeSearchUsersModal()">&times;</button>
-        </div>
-        <div class="search-users-body">
-            <!-- قسم البحث عن مستخدمين موجودين -->
-            <div class="search-existing-section">
-                <h4 style="margin-bottom: 12px; color: var(--accent-color);">🔍 بحث عن مستخدمين</h4>
-                <input type="text" id="searchUsersInput" class="search-users-input" 
-                       placeholder="ابحث بالاسم أو رقم الهاتف أو البريد الإلكتروني..." 
-                       onkeyup="searchUsers()">
-                <div id="searchResultsList" class="search-results-list">
-                    <div style="text-align:center;color:var(--text-secondary);padding:20px;">
-                        ابحث عن مستخدمين لإضافتهم
-                    </div>
-                </div>
-            </div>
-
-            <!-- قسم إضافة مستخدم جديد متقدم -->
-            <div class="add-new-user-section">
-                <h4>➕ إضافة مستخدم جديد (متقدم)</h4>
-                <div class="form-group">
-                    <label>الاسم الكامل *</label>
-                    <input type="text" id="newUserName" placeholder="أدخل الاسم الكامل" maxlength="50">
-                </div>
-                <div class="form-group">
-                    <label>رقم الهاتف</label>
-                    <input type="tel" id="newUserPhone" placeholder="رقم الهاتف (اختياري)">
-                </div>
-                <div class="form-group">
-                    <label>البريد الإلكتروني</label>
-                    <input type="email" id="newUserEmail" placeholder="البريد الإلكتروني (اختياري)">
-                </div>
-                <div class="form-group">
-                    <label>المجموعة</label>
-                    <select id="newUserGroup">
-                        <option value="عام">عام</option>
-                        <option value="أصدقاء">أصدقاء</option>
-                        <option value="عمل">عمل</option>
-                        <option value="عائلة">عائلة</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>ملاحظات</label>
-                    <input type="text" id="newUserNotes" placeholder="ملاحظات إضافية (اختياري)">
-                </div>
-                <button class="create-user-btn" onclick="createAdvancedUser()">
-                    ➕ إضافة جهة الاتصال
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
+<!-- ======================== VIDEO CALL MODAL ======================== -->
 <div class="video-call-modal" id="videoCallModal">
     <div class="video-container" id="videoContainer">
+        <!-- Remote (far-end) video -->
         <video class="remote-video" id="remoteVideo" autoplay playsinline></video>
+
+        <!-- Local (self) video PiP -->
         <video class="local-video" id="localVideo" autoplay playsinline muted></video>
+
+        <!-- Top info bar -->
         <div class="call-info-bar">
             <div class="call-contact-name" id="callContactName">مكالمة فيديو</div>
             <div class="call-quality-badge" id="callQualityBadge">HD</div>
             <div class="call-timer" id="callTimer">00:00</div>
         </div>
+
+        <!-- Loading / Connecting -->
         <div class="video-loading" id="videoLoading">
             <div class="loading-spinner"></div>
             <div class="loading-text" id="loadingText">جاري الاتصال...</div>
         </div>
     </div>
+
+    <!-- Controls Bar -->
     <div class="call-controls">
         <div class="btn-wrapper">
             <button class="call-control-btn" id="micToggleBtn" onclick="toggleMicrophone()" title="كتم الميكروفون">🎤</button>
@@ -1161,6 +992,7 @@
     </div>
 </div>
 
+<!-- ======================== INCOMING CALL ======================== -->
 <div class="incoming-overlay" id="incomingOverlay">
     <div class="incoming-call-modal">
         <div class="incoming-avatar" id="incomingAvatar">?</div>
@@ -1174,6 +1006,7 @@
     </div>
 </div>
 
+<!-- ======================== MISC OVERLAYS ======================== -->
 <div class="listening-overlay" id="listeningOverlay">
     <div class="mic-icon">🎙️</div>
     <div class="listening-text">جاري الاستماع...</div>
@@ -1191,32 +1024,43 @@
 <div class="error-notification" id="errorNotification"></div>
 
 <script src="/socket.io/socket.io.js"></script>
-
 <script>
 'use strict';
 
+// ============================================================
+// GLOBAL STATE
+// ============================================================
 let socket;
 let currentUser = null;
 let currentContact = null;
 let allContacts = [];
-let allUsers = [];
 let unreadMessages = new Map();
 
+// Voice recording
 let mediaRecorder, audioChunks = [], isRecording = false;
 let recordingStream = null, recordingTimer = null;
 let recordingSeconds = 0, currentAudioBlob = null, currentAudioDuration = 0;
 
+// Speech recognition
 let recognition = null, isListening = false;
 let finalTranscript = '', silenceTimeout = null;
 
+// Ringtone
 let currentRingtone = null;
 let ringtoneSettings = { ringtoneFile: 'default', volume: 80, vibrate: true };
 
+// UI helpers
 let currentMenuPopup = null;
+
+// App settings
 let appSettings = { theme: 'light', retentionDays: 7 };
 
+// Upload endpoints
 const uploadEndpoints = ['/upload-file', '/api/upload', '/upload'];
 
+// ============================================================
+// VIDEO CALL STATE
+// ============================================================
 let peerConnection = null;
 let localStream = null;
 let isInCall = false;
@@ -1225,36 +1069,30 @@ let isMicEnabled = true, isCameraEnabled = true, isSpeakerOn = true;
 let currentFacingMode = 'user';
 let pendingCallFrom = null, pendingOffer = null;
 let currentCallId = null;
-let pendingIceCandidates = [];
 
-let groupPeerConnections = new Map();
-let isInGroupCall = false;
-let currentGroupRoomId = null;
-let groupVideoTiles = new Map();
-
+// ✅ WebRTC config – robust ICE with multiple TURN/STUN servers
 const webrtcConfig = {
     iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
         { urls: 'stun:stun2.l.google.com:19302' },
-        { urls: 'stun:stun3.l.google.com:19302' },
-        { urls: 'stun:stun4.l.google.com:19302' },
         { urls: 'stun:stun.stunprotocol.org:3478' },
-        { urls: 'stun:stun.voip.blackberry.com:3478' },
-        { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
-        { urls: 'turn:openrelay.metered.ca:80?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
-        { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+        // TURN servers (relayed – essential for firewalls / mobile networks)
+        { urls: 'turn:openrelay.metered.ca:80',    username: 'openrelayproject', credential: 'openrelayproject' },
+        { urls: 'turn:openrelay.metered.ca:443',   username: 'openrelayproject', credential: 'openrelayproject' },
         { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
     ],
     iceCandidatePoolSize: 10,
     bundlePolicy: 'max-bundle',
     rtcpMuxPolicy: 'require',
-    iceTransportPolicy: 'all',
-    sdpSemantics: 'unified-plan'
+    iceTransportPolicy: 'all'
 };
 
+// ============================================================
+// MOBILE HELPERS
+// ============================================================
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+const isIOS    = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
 function isMobileView() { return window.innerWidth <= 768; }
 
@@ -1270,16 +1108,18 @@ function showSidebarOnMobile() {
     document.getElementById('chatArea').classList.remove('active');
 }
 
-// ==================== RINGTONE ====================
+// ============================================================
+// RINGTONE
+// ============================================================
 function playRingtone(name = 'default', loop = true, volume = 80) {
     stopRingtone();
+    const url = `/ringtones/${name}.mp3`;
     try {
-        const url = `/ringtones/${name}.mp3`;
         currentRingtone = new Audio(url);
         currentRingtone.loop = loop;
         currentRingtone.volume = Math.min(1, Math.max(0, volume / 100));
-        currentRingtone.play().catch(e => console.log('Ringtone play failed:', e));
-    } catch(e) { console.error('Ringtone error:', e); }
+        currentRingtone.play().catch(e => console.log('Ringtone error:', e));
+    } catch(e) { console.error(e); }
 }
 
 function stopRingtone() {
@@ -1333,6 +1173,9 @@ async function loadAvailableRingtones() {
     } catch(e) { console.error(e); }
 }
 
+// ============================================================
+// THEME & SETTINGS
+// ============================================================
 function loadSettings() {
     const s = localStorage.getItem('chatSettings');
     if (s) {
@@ -1348,8 +1191,8 @@ function saveSettings() { localStorage.setItem('chatSettings', JSON.stringify(ap
 function setTheme(theme) {
     appSettings.theme = theme;
     document.body.classList.remove('dark-theme', 'blue-theme', 'purple-theme');
-    if (theme === 'dark') document.body.classList.add('dark-theme');
-    if (theme === 'blue') document.body.classList.add('blue-theme');
+    if (theme === 'dark')   document.body.classList.add('dark-theme');
+    if (theme === 'blue')   document.body.classList.add('blue-theme');
     if (theme === 'purple') document.body.classList.add('purple-theme');
     saveSettings();
 }
@@ -1371,181 +1214,19 @@ async function cleanupOldMessages() {
     }
 }
 
-function openSettings() { document.getElementById('settingsModal').classList.add('active'); }
+function openSettings()  { document.getElementById('settingsModal').classList.add('active'); }
 function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
 
-// ==================== SEARCH USERS ====================
-async function openSearchUsersModal() {
-    document.getElementById('searchUsersModal').classList.add('active');
-    document.getElementById('searchUsersInput').value = '';
-    document.getElementById('searchResultsList').innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:20px;">ابحث عن مستخدمين لإضافتهم</div>';
-    await loadAllUsers();
-}
-
-function closeSearchUsersModal() {
-    document.getElementById('searchUsersModal').classList.remove('active');
-}
-
-async function loadAllUsers() {
-    try {
-        const response = await fetch('/api/all-users');
-        const data = await response.json();
-        if (data.success) {
-            allUsers = data.users.filter(u => u.username !== currentUser.username);
-        }
-    } catch(e) {
-        console.error('Error loading users:', e);
-    }
-}
-
-function searchUsers() {
-    const searchTerm = document.getElementById('searchUsersInput').value.toLowerCase().trim();
-    const resultsList = document.getElementById('searchResultsList');
-    
-    if (!searchTerm) {
-        resultsList.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:20px;">ابحث عن مستخدمين لإضافتهم</div>';
-        return;
-    }
-    
-    const filtered = allUsers.filter(user => 
-        user.username.toLowerCase().includes(searchTerm) ||
-        (user.phone && user.phone.includes(searchTerm)) ||
-        (user.email && user.email.toLowerCase().includes(searchTerm))
-    );
-    
-    if (filtered.length === 0) {
-        resultsList.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:20px;">لا توجد نتائج</div>';
-        return;
-    }
-    
-    resultsList.innerHTML = '';
-    filtered.forEach(user => {
-        const isAlreadyContact = allContacts.some(c => c.name === user.username);
-        const item = document.createElement('div');
-        item.className = 'search-result-item';
-        item.innerHTML = `
-            <div class="search-result-info">
-                <div class="search-result-avatar">${(user.username.charAt(0) || '?').toUpperCase()}</div>
-                <div class="search-result-details">
-                    <div class="search-result-name">${escapeHtml(user.username)}</div>
-                    ${user.phone ? `<div class="search-result-phone">📱 ${escapeHtml(user.phone)}</div>` : ''}
-                    ${user.email ? `<div class="search-result-email">✉️ ${escapeHtml(user.email)}</div>` : ''}
-                </div>
-            </div>
-            <button class="add-contact-result-btn ${isAlreadyContact ? 'disabled' : ''}" 
-                ${isAlreadyContact ? 'disabled' : ''} 
-                onclick="addContact('${escapeHtml(user.username)}', '${escapeHtml(user.phone || '')}', '${escapeHtml(user.email || '')}')">
-                ${isAlreadyContact ? '✓ مضاف' : '+ إضافة'}
-            </button>
-        `;
-        resultsList.appendChild(item);
-    });
-}
-
-async function addContact(username, phone, email) {
-    if (allContacts.some(c => c.name === username)) {
-        showErrorNotification('جهة الاتصال موجودة بالفعل');
-        return;
-    }
-    
-    try {
-        const response = await fetch('/api/add-contact', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application.json' },
-            body: JSON.stringify({ name: username, phone: phone, email: email })
-        });
-        const data = await response.json();
-        if (data.success) {
-            showBeautifulNotification('✅ تم الإضافة', `تمت إضافة ${username} إلى جهات الاتصال`, '✅', 3000);
-            await loadContacts();
-            closeSearchUsersModal();
-        } else {
-            showErrorNotification('فشل في إضافة جهة الاتصال: ' + (data.message || 'خطأ غير معروف'));
-        }
-    } catch(e) {
-        showErrorNotification('خطأ في الاتصال');
-        console.error(e);
-    }
-}
-
-async function createAdvancedUser() {
-    const nameInput = document.getElementById('newUserName');
-    const phoneInput = document.getElementById('newUserPhone');
-    const emailInput = document.getElementById('newUserEmail');
-    const groupSelect = document.getElementById('newUserGroup');
-    const notesInput = document.getElementById('newUserNotes');
-    
-    const name = nameInput.value.trim();
-    const phone = phoneInput.value.trim();
-    const email = emailInput.value.trim();
-    const group = groupSelect.value;
-    const notes = notesInput.value.trim();
-    
-    if (!name) {
-        alert('❌ الرجاء إدخال الاسم الكامل');
-        nameInput.focus();
-        return;
-    }
-    
-    if (name.length < 2) {
-        alert('❌ الاسم يجب أن يكون حرفين على الأقل');
-        nameInput.focus();
-        return;
-    }
-    
-    if (phone && !/^[\d\s\+\-\(\)]+$/.test(phone)) {
-        alert('❌ رقم الهاتف غير صالح');
-        phoneInput.focus();
-        return;
-    }
-    
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        alert('❌ البريد الإلكتروني غير صالح');
-        emailInput.focus();
-        return;
-    }
-    
-    try {
-        const response = await fetch('/api/add-contact-advanced', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                name: name, 
-                phone: phone, 
-                email: email,
-                group: group,
-                notes: notes
-            })
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-            showBeautifulNotification('✅ تمت الإضافة', `تمت إضافة "${name}" إلى جهات الاتصال بنجاح`, '✅', 3000);
-            nameInput.value = '';
-            phoneInput.value = '';
-            emailInput.value = '';
-            notesInput.value = '';
-            await loadContacts();
-            await loadAllUsers();
-            searchUsers();
-            closeSearchUsersModal();
-        } else {
-            alert(`❌ خطأ: ${data.message || 'فشل في إضافة المستخدم'}`);
-        }
-    } catch (error) {
-        alert(`❌ خطأ: ${error.message}`);
-        console.error('Error adding user:', error);
-    }
-}
-
-// ==================== NOTIFICATIONS ====================
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
 function showBeautifulNotification(title, message, icon = '🔔', duration = 5000) {
     const t = document.createElement('div');
     t.className = 'notification-toast';
     t.innerHTML = `<div class="notification-icon">${icon}</div>
         <div class="notification-content">
-            <div class="notification-title">${escapeHtml(title)}</div>
-            <div class="notification-message">${escapeHtml(message)}</div>
+            <div class="notification-title">${title}</div>
+            <div class="notification-message">${message}</div>
         </div>`;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), duration + 100);
@@ -1557,20 +1238,9 @@ function showErrorNotification(msg, duration = 5000) {
     setTimeout(() => el.style.display = 'none', duration);
 }
 
-async function checkBanned() {
-    try {
-        const res = await fetch(`/api/check-banned?username=${encodeURIComponent(currentUser.username)}`);
-        const data = await res.json();
-        if (data.banned) {
-            showErrorNotification(`⚠️ حسابك محظور: ${data.reason || 'تم حظرك من قبل الإدارة'}`);
-            setTimeout(() => logout(), 4000);
-            return true;
-        }
-    } catch(e) {}
-    return false;
-}
-
-// ==================== MESSAGE HELPERS ====================
+// ============================================================
+// MESSAGE HELPERS
+// ============================================================
 function closeMenuPopup() {
     if (currentMenuPopup) { currentMenuPopup.remove(); currentMenuPopup = null; }
 }
@@ -1579,17 +1249,21 @@ function showMessageMenu(event, messageData) {
     event.stopPropagation(); closeMenuPopup();
     const menu = document.createElement('div');
     menu.className = 'menu-popup';
+
+    // Position safely within viewport
     const x = Math.min(event.clientX, window.innerWidth - 170);
     const y = Math.min(event.clientY, window.innerHeight - 220);
     menu.style.cssText = `left:${x}px;top:${y}px`;
+
     const items = [
         { icon:'📥', text:'تحميل', action:()=>downloadMessage(messageData), show: messageData.type !== 'text' },
-        { icon:'📋', text:'نسخ', action:()=>copyMessage(messageData), show: messageData.type === 'text' },
-        { icon:'💬', text:'رد', action:()=>replyToMessage(messageData) },
+        { icon:'📋', text:'نسخ',   action:()=>copyMessage(messageData),     show: messageData.type === 'text' },
+        { icon:'💬', text:'رد',    action:()=>replyToMessage(messageData) },
         { icon:'↪️', text:'توجيه', action:()=>forwardMessage(messageData) },
-        { icon:'📤', text:'مشاركة', action:()=>shareMessage(messageData) },
-        { icon:'🗑️', text:'حذف', action:()=>deleteMessage(messageData), cls:'delete' }
+        { icon:'📤', text:'مشاركة',action:()=>shareMessage(messageData) },
+        { icon:'🗑️', text:'حذف',  action:()=>deleteMessage(messageData), cls:'delete' }
     ];
+
     items.forEach(item => {
         if (item.show === false) return;
         const el = document.createElement('div');
@@ -1598,6 +1272,7 @@ function showMessageMenu(event, messageData) {
         el.onclick = () => { item.action(); closeMenuPopup(); };
         menu.appendChild(el);
     });
+
     document.body.appendChild(menu);
     currentMenuPopup = menu;
     setTimeout(() => {
@@ -1629,8 +1304,8 @@ function forwardMessage(d) {
     const name = prompt('اسم جهة الاتصال للإعادة:');
     if (!name || !socket) return;
     if (d.type === 'text') socket.emit('private message', { from: currentUser.username, to: name, message: d.message, timestamp: new Date().toISOString(), messageId: uid() });
-    else if (d.fileUrl) socket.emit('send file', { from: currentUser.username, to: name, fileUrl: d.fileUrl, fileName: d.fileName, fileType: d.fileType, timestamp: new Date().toISOString() });
-    else if (d.audioUrl) socket.emit('voice message', { from: currentUser.username, to: name, audioUrl: d.audioUrl, duration: d.duration, timestamp: new Date().toISOString() });
+    else if (d.fileUrl)    socket.emit('send file',      { from: currentUser.username, to: name, fileUrl: d.fileUrl, fileName: d.fileName, fileType: d.fileType, timestamp: new Date().toISOString() });
+    else if (d.audioUrl)   socket.emit('voice message',  { from: currentUser.username, to: name, audioUrl: d.audioUrl, duration: d.duration, timestamp: new Date().toISOString() });
     showBeautifulNotification('↪️ توجيه','تمت إعادة التوجيه','↪️',2000);
 }
 
@@ -1663,7 +1338,9 @@ function updateMessageReadStatus(messageId, isRead) {
     if (el) el.textContent = isRead ? '✓✓' : '✓';
 }
 
-// ==================== SPEECH RECOGNITION ====================
+// ============================================================
+// SPEECH RECOGNITION
+// ============================================================
 function initSpeechRecognition() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) return;
@@ -1716,32 +1393,39 @@ function stopVoiceToText() {
     document.getElementById('listeningOverlay').classList.remove('active');
 }
 
-// ==================== VIDEO CALL ====================
-async function getLocalMedia(facingMode = 'user') {
-    const strategies = [
-        { video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: { ideal: facingMode } }, audio: { echoCancellation: true, noiseSuppression: true } },
-        { video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: { ideal: facingMode } }, audio: true },
-        { video: true, audio: true },
-        { video: false, audio: true }
-    ];
-    
-    for (const constraints of strategies) {
-        try {
-            return await navigator.mediaDevices.getUserMedia(constraints);
-        } catch(err) {
-            console.warn('Media constraints failed:', err.message);
-            continue;
-        }
-    }
-    throw new Error('لا يمكن الوصول إلى الكاميرا أو الميكروفون');
+// ============================================================
+// VIDEO CALL - Core
+// ============================================================
+function showVideoCallMenu() {
+    if (!currentContact) { showErrorNotification('اختر جهة اتصال أولاً'); return; }
+    startVideoCall();
 }
 
+// ✅ Get user media with proper constraints per platform
+async function getLocalMedia(facingMode = 'user') {
+    const videoConstraints = isMobile
+        ? { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: { ideal: facingMode }, frameRate: { ideal: 24 } }
+        : { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } };
+
+    const audioConstraints = {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        // Prefer earpiece on mobile for privacy, overridden if user toggles speaker
+    };
+
+    return navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: audioConstraints });
+}
+
+// ✅ Attach stream to video element – handles iOS quirks
 function attachStream(videoEl, stream) {
     if (!videoEl || !stream) return;
     videoEl.srcObject = stream;
+    // iOS requires explicit play() after srcObject assignment
     const playPromise = videoEl.play();
     if (playPromise !== undefined) {
         playPromise.catch(e => {
+            // Autoplay blocked – user gesture required. Show a tap-to-play button on iOS
             if (isIOS) {
                 videoEl.setAttribute('playsinline', '');
                 videoEl.muted = videoEl === document.getElementById('localVideo');
@@ -1753,40 +1437,34 @@ function attachStream(videoEl, stream) {
 
 function buildPeerConnection(remoteUser) {
     const pc = new RTCPeerConnection(webrtcConfig);
-    
+
     pc.ontrack = (event) => {
-        const stream = event.streams && event.streams[0] ? event.streams[0] : new MediaStream([event.track]);
-        const remoteVideo = document.getElementById('remoteVideo');
-        if (remoteVideo) {
-            attachStream(remoteVideo, stream);
+        if (event.streams && event.streams[0]) {
+            const remoteVideo = document.getElementById('remoteVideo');
+            attachStream(remoteVideo, event.streams[0]);
             setVideoLoading(false);
             showBeautifulNotification('📹 متصل','الاتصال ناجح','📹',2500);
         }
     };
-    
+
     pc.onicecandidate = (event) => {
         if (event.candidate && socket && currentCallId) {
-            const to = isInGroupCall ? remoteUser : currentContact?.name;
-            if (to) {
-                socket.emit(isInGroupCall ? 'group-call-ice' : 'video-call-ice', 
-                    { to, candidate: event.candidate, callId: currentCallId, roomId: currentGroupRoomId });
-            }
+            socket.emit('video-call-ice', { to: remoteUser, candidate: event.candidate, callId: currentCallId });
         }
     };
-    
-    pc.oniceconnectionstatechange = () => {
-        const s = pc.iceConnectionState;
-        if (s === 'disconnected') setVideoLoading(true, 'إعادة الاتصال...');
-        if (s === 'connected' || s === 'completed') setVideoLoading(false);
-    };
-    
+
     pc.onconnectionstatechange = () => {
-        if (pc.connectionState === 'failed') {
-            endVideoCall();
-            showErrorNotification('انقطع الاتصال - حاول مرة أخرى');
+        const s = pc.connectionState;
+        if (s === 'connected') { setVideoLoading(false); }
+        if (s === 'disconnected' || s === 'failed') { endVideoCall(); showErrorNotification('انقطع الاتصال'); }
+    };
+
+    pc.oniceconnectionstatechange = () => {
+        if (pc.iceConnectionState === 'failed') {
+            pc.restartIce?.(); // try ICE restart
         }
     };
-    
+
     return pc;
 }
 
@@ -1797,77 +1475,49 @@ function setVideoLoading(show, text = 'جاري الاتصال...') {
     if (txt) txt.textContent = text;
 }
 
-function startCallTimer() {
-    callSeconds = 0;
-    callTimerInterval = setInterval(() => {
-        callSeconds++;
-        const m = Math.floor(callSeconds/60).toString().padStart(2,'0');
-        const s = (callSeconds%60).toString().padStart(2,'0');
-        const el = document.getElementById('callTimer');
-        if (el) el.textContent = `${m}:${s}`;
-    }, 1000);
-}
-
-function stopCallTimer() {
-    if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
-    const el = document.getElementById('callTimer');
-    if (el) el.textContent = '00:00';
-}
-
-function showVideoCallMenu() {
-    if (!currentContact) { showErrorNotification('اختر جهة اتصال أولاً'); return; }
-    startVideoCall();
-}
-
 async function startVideoCall() {
     if (!currentContact || isInCall) return;
-    const banned = await checkBanned();
-    if (banned) return;
-    
     try {
         setVideoLoading(true, 'جاري فتح الكاميرا...');
         document.getElementById('videoCallModal').classList.add('active');
         document.getElementById('callContactName').textContent = currentContact.name;
-        
-        const container = document.getElementById('videoContainer');
-        container.classList.remove('group-call');
-        container.innerHTML = `
-            <video class="remote-video" id="remoteVideo" autoplay playsinline></video>
-            <video class="local-video" id="localVideo" autoplay playsinline muted></video>
-            <div class="call-info-bar">
-                <div class="call-contact-name" id="callContactName">${currentContact.name}</div>
-                <div class="call-quality-badge" id="callQualityBadge">HD</div>
-                <div class="call-timer" id="callTimer">00:00</div>
-            </div>
-            <div class="video-loading" id="videoLoading">
-                <div class="loading-spinner"></div>
-                <div class="loading-text" id="loadingText">جاري الاتصال...</div>
-            </div>
-        `;
-        
+        document.getElementById('callQualityBadge').textContent = isMobile ? 'HD' : 'Full HD';
+
         localStream = await getLocalMedia('user');
         const localVideo = document.getElementById('localVideo');
+        localVideo.muted = true;
         attachStream(localVideo, localStream);
-        
+
         peerConnection = buildPeerConnection(currentContact.name);
         localStream.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
-        
-        currentCallId = uid();
-        socket.emit('video-call-init', { to: currentContact.name, callId: currentCallId });
-        
-        const offer = await peerConnection.createOffer();
+
+        setVideoLoading(true, 'جاري الاتصال...');
+
+        // Notify server to initiate
+        socket.emit('video-call-init', {
+            to: currentContact.name,
+            quality: isMobile ? 'medium' : 'high',
+            videoEnabled: true,
+            audioEnabled: true
+        });
+
+        const offer = await peerConnection.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true });
         await peerConnection.setLocalDescription(offer);
-        socket.emit('video-call-offer', { to: currentContact.name, offer: peerConnection.localDescription, callId: currentCallId });
-        
+
+        socket.emit('video-call-offer', { to: currentContact.name, offer, callId: currentCallId });
+
         isInCall = true;
         startCallTimer();
+        playRingtone('calling', true, ringtoneSettings.volume);
         showBeautifulNotification('📹 مكالمة','جاري الاتصال بـ ' + currentContact.name,'📹',3000);
-        
+
     } catch(error) {
         console.error('Video call error:', error);
         setVideoLoading(false);
         document.getElementById('videoCallModal').classList.remove('active');
-        showErrorNotification('خطأ في بدء المكالمة: ' + error.message);
+        if (error.name === 'NotAllowedError') showErrorNotification('الرجاء السماح بالوصول إلى الكاميرا والميكروفون');
+        else if (error.name === 'NotFoundError') showErrorNotification('لم يتم العثور على كاميرا أو ميكروفون');
+        else showErrorNotification('خطأ في بدء المكالمة: ' + error.message);
         cleanupCall();
     }
 }
@@ -1875,55 +1525,37 @@ async function startVideoCall() {
 async function acceptIncomingCall() {
     const caller = pendingCallFrom;
     if (!caller) return;
-    
+
     document.getElementById('incomingOverlay').classList.remove('active');
     stopRingtone();
     currentContact = allContacts.find(c => c.name === caller) || { name: caller };
-    
+
     try {
         setVideoLoading(true, 'جاري فتح الكاميرا...');
         document.getElementById('videoCallModal').classList.add('active');
-        
-        const container = document.getElementById('videoContainer');
-        container.classList.remove('group-call');
-        container.innerHTML = `
-            <video class="remote-video" id="remoteVideo" autoplay playsinline></video>
-            <video class="local-video" id="localVideo" autoplay playsinline muted></video>
-            <div class="call-info-bar">
-                <div class="call-contact-name" id="callContactName">${caller}</div>
-                <div class="call-quality-badge" id="callQualityBadge">HD</div>
-                <div class="call-timer" id="callTimer">00:00</div>
-            </div>
-            <div class="video-loading" id="videoLoading">
-                <div class="loading-spinner"></div>
-                <div class="loading-text" id="loadingText">جاري الاتصال...</div>
-            </div>
-        `;
-        
+        document.getElementById('callContactName').textContent = caller;
+
         localStream = await getLocalMedia('user');
         const localVideo = document.getElementById('localVideo');
+        localVideo.muted = true;
         attachStream(localVideo, localStream);
-        
+
         peerConnection = buildPeerConnection(caller);
         localStream.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
-        
+
         if (pendingOffer) {
             await peerConnection.setRemoteDescription(new RTCSessionDescription(pendingOffer));
-            for (const c of pendingIceCandidates) {
-                try { await peerConnection.addIceCandidate(new RTCIceCandidate(c)); } catch(e) { }
-            }
-            pendingIceCandidates = [];
             const answer = await peerConnection.createAnswer();
             await peerConnection.setLocalDescription(answer);
-            socket.emit('video-call-answer', { to: caller, answer: peerConnection.localDescription, callId: currentCallId });
+            socket.emit('video-call-answer', { to: caller, answer, callId: currentCallId });
             pendingOffer = null;
         }
-        
+
         isInCall = true;
         startCallTimer();
-        setVideoLoading(false);
+        setVideoLoading(true, 'جاري إتمام الاتصال...');
         showBeautifulNotification('📹 مقبولة','تم قبول المكالمة','📹',2500);
-        
+
     } catch(error) {
         console.error('Accept call error:', error);
         setVideoLoading(false);
@@ -1931,6 +1563,7 @@ async function acceptIncomingCall() {
         showErrorNotification('خطأ في قبول المكالمة: ' + error.message);
         cleanupCall();
     }
+
     pendingCallFrom = null;
 }
 
@@ -1941,15 +1574,10 @@ function rejectIncomingCall() {
     document.getElementById('incomingOverlay').classList.remove('active');
     stopRingtone();
     pendingCallFrom = null; pendingOffer = null; currentCallId = null;
-    pendingIceCandidates = [];
     showBeautifulNotification('📹 مرفوضة','تم رفض المكالمة','📹',2000);
 }
 
 function endVideoCall() {
-    if (isInGroupCall) {
-        endGroupCall();
-        return;
-    }
     if (socket && currentContact) {
         socket.emit('video-call-end', { to: currentContact.name, callId: currentCallId });
     }
@@ -1959,28 +1587,29 @@ function endVideoCall() {
 
 function cleanupCall() {
     if (peerConnection) { peerConnection.close(); peerConnection = null; }
-    if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
-    
+    if (localStream)    { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+
     const rv = document.getElementById('remoteVideo');
     const lv = document.getElementById('localVideo');
     if (rv) rv.srcObject = null;
     if (lv) lv.srcObject = null;
-    
+
     isInCall = false;
     isMicEnabled = true; isCameraEnabled = true;
-    currentCallId = null;
-    pendingIceCandidates = [];
-    pendingOffer = null;
-    
+    currentFacingMode = 'user'; currentCallId = null;
     document.getElementById('videoCallModal').classList.remove('active');
     stopCallTimer(); stopRingtone(); setVideoLoading(false);
-    
+
+    // Reset button icons
     const micBtn = document.getElementById('micToggleBtn');
     const camBtn = document.getElementById('cameraToggleBtn');
     if (micBtn) { micBtn.textContent = '🎤'; micBtn.classList.remove('btn-off'); }
     if (camBtn) { camBtn.textContent = '📹'; camBtn.classList.remove('btn-off'); }
 }
 
+// ============================================================
+// CALL CONTROLS
+// ============================================================
 function toggleMicrophone() {
     if (!localStream) return;
     const tracks = localStream.getAudioTracks();
@@ -2003,14 +1632,17 @@ function toggleCamera() {
     showBeautifulNotification('📹 كاميرا', isCameraEnabled ? 'تم التشغيل' : 'تم الإيقاف','📹',1500);
 }
 
+// ✅ Flip camera (mobile feature)
 async function flipCamera() {
     if (!isMobile || !localStream || !peerConnection) return;
     currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
     try {
         const newStream = await getLocalMedia(currentFacingMode);
         const newVideoTrack = newStream.getVideoTracks()[0];
+        // Replace track in peer connection
         const sender = peerConnection.getSenders().find(s => s.track?.kind === 'video');
         if (sender) await sender.replaceTrack(newVideoTrack);
+        // Update local preview
         const oldTracks = localStream.getVideoTracks();
         oldTracks.forEach(t => { t.stop(); localStream.removeTrack(t); });
         localStream.addTrack(newVideoTrack);
@@ -2019,216 +1651,44 @@ async function flipCamera() {
     } catch(e) { showErrorNotification('لا يمكن تبديل الكاميرا'); }
 }
 
+// ✅ Toggle speaker (iOS: earpiece vs speaker)
 function toggleSpeaker() {
     isSpeakerOn = !isSpeakerOn;
     const btn = document.getElementById('speakerBtn');
     if (btn) { btn.textContent = isSpeakerOn ? '🔊' : '🔈'; btn.classList.toggle('btn-off', !isSpeakerOn); }
+    const remoteVideo = document.getElementById('remoteVideo');
+    if (remoteVideo) {
+        // setSinkId works on Chrome; for iOS this is a no-op but we can mute/unmute
+        if (remoteVideo.setSinkId && isSpeakerOn) {
+            remoteVideo.setSinkId('').catch(()=>{});
+        }
+    }
     showBeautifulNotification('🔊 سماعة', isSpeakerOn ? 'السماعة الخارجية' : 'سماعة الأذن','🔊',1500);
 }
 
-function showGroupCallMenu() {
-    if (allContacts.length === 0) { showErrorNotification('لا توجد جهات اتصال'); return; }
-    const onlineContacts = allContacts.filter(c => c.status === 'online');
-    if (onlineContacts.length === 0) { showErrorNotification('لا يوجد مستخدمون متصلون الآن'); return; }
-    
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:15000;display:flex;align-items:center;justify-content:center;';
-    const box = document.createElement('div');
-    box.style.cssText = 'background:var(--bg-secondary);border-radius:20px;padding:24px;min-width:300px;max-width:90vw;max-height:80vh;overflow-y:auto;direction:rtl;';
-    box.innerHTML = `<h3 style="margin-bottom:16px;color:var(--text-primary)">👥 اختر المشاركين في المكالمة الجماعية</h3>`;
-    
-    const selected = new Set();
-    onlineContacts.forEach(c => {
-        const item = document.createElement('div');
-        item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;cursor:pointer;transition:background 0.2s;margin-bottom:4px;';
-        item.innerHTML = `
-            <input type="checkbox" id="gc_${c.name}" style="width:18px;height:18px;cursor:pointer;">
-            <div style="width:40px;height:40px;border-radius:50%;background:var(--accent-color);color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;">${c.name.charAt(0)}</div>
-            <label for="gc_${c.name}" style="font-size:15px;color:var(--text-primary);cursor:pointer;flex:1;">${c.name}</label>
-            <span style="font-size:11px;color:#25d366;">● متصل</span>`;
-        item.querySelector('input').onchange = (e) => {
-            if (e.target.checked) selected.add(c.name); else selected.delete(c.name);
-        };
-        item.onclick = (e) => { if (e.target.tagName !== 'INPUT') { const chk = item.querySelector('input'); chk.checked = !chk.checked; chk.dispatchEvent(new Event('change')); } };
-        box.appendChild(item);
-    });
-    
-    const btnRow = document.createElement('div');
-    btnRow.style.cssText = 'display:flex;gap:12px;margin-top:20px;';
-    btnRow.innerHTML = `
-        <button onclick="this.closest('div[style*=fixed]').remove()" style="flex:1;padding:12px;border:1px solid var(--border-color);background:transparent;color:var(--text-primary);border-radius:10px;cursor:pointer;font-size:14px;">إلغاء</button>
-        <button id="startGCBtn" style="flex:2;padding:12px;background:linear-gradient(135deg,#6f42c1,#9c27b0);color:white;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:bold;">📹 بدء المكالمة</button>`;
-    btnRow.querySelector('#startGCBtn').onclick = () => {
-        if (selected.size === 0) { showErrorNotification('اختر شخصاً واحداً على الأقل'); return; }
-        overlay.remove();
-        startGroupCall([...selected]);
-    };
-    box.appendChild(btnRow);
-    overlay.appendChild(box);
-    document.body.appendChild(overlay);
+// ============================================================
+// CALL TIMER
+// ============================================================
+function startCallTimer() {
+    callSeconds = 0;
+    callTimerInterval = setInterval(() => {
+        callSeconds++;
+        const m = Math.floor(callSeconds/60).toString().padStart(2,'0');
+        const s = (callSeconds%60).toString().padStart(2,'0');
+        const el = document.getElementById('callTimer');
+        if (el) el.textContent = `${m}:${s}`;
+    }, 1000);
 }
 
-function cleanupGroupCall() {
-    groupPeerConnections.forEach(pc => {
-        try { pc.close(); } catch(e) {}
-    });
-    groupPeerConnections.clear();
-    groupVideoTiles.clear();
-    isInGroupCall = false;
-    currentGroupRoomId = null;
+function stopCallTimer() {
+    if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
+    const el = document.getElementById('callTimer');
+    if (el) el.textContent = '00:00';
 }
 
-async function startGroupCall(participants) {
-    if (!participants || participants.length === 0) return;
-    const banned = await checkBanned();
-    if (banned) return;
-    
-    const roomId = `group_${currentUser.username}_${Date.now()}`;
-    currentGroupRoomId = roomId;
-    isInGroupCall = true;
-    
-    try {
-        setVideoLoading(true, 'جاري فتح الكاميرا...');
-        document.getElementById('videoCallModal').classList.add('active');
-        
-        const container = document.getElementById('videoContainer');
-        container.classList.add('group-call');
-        container.innerHTML = `
-            <div class="call-info-bar">
-                <div class="call-contact-name" id="callContactName">مكالمة جماعية</div>
-                <div class="call-quality-badge" id="callQualityBadge">HD</div>
-                <div class="call-timer" id="callTimer">00:00</div>
-            </div>
-            <div class="video-loading" id="videoLoading">
-                <div class="loading-spinner"></div>
-                <div class="loading-text" id="loadingText">جاري الاتصال...</div>
-            </div>
-        `;
-        
-        localStream = await getLocalMedia('user');
-        
-        const localTile = document.createElement('div');
-        localTile.className = 'video-tile';
-        localTile.id = 'local-tile';
-        const localVideo = document.createElement('video');
-        localVideo.autoplay = true;
-        localVideo.playsinline = true;
-        localVideo.muted = true;
-        localVideo.srcObject = localStream;
-        localVideo.play().catch(() => {});
-        const localLabel = document.createElement('div');
-        localLabel.className = 'video-label';
-        localLabel.textContent = `${currentUser.username} (أنت)`;
-        localTile.appendChild(localVideo);
-        localTile.appendChild(localLabel);
-        container.appendChild(localTile);
-        
-        socket.emit('group-call-join', { roomId, username: currentUser.username });
-        
-        participants.forEach(p => {
-            socket.emit('group-call-invite', { roomId, to: p, from: currentUser.username });
-        });
-        
-        startCallTimer();
-        showBeautifulNotification('👥 مكالمة جماعية', `دعوة ${participants.length} أشخاص`, '👥', 3000);
-        
-    } catch(e) {
-        showErrorNotification('خطأ في بدء المكالمة الجماعية: ' + e.message);
-        cleanupGroupCall();
-        document.getElementById('videoCallModal').classList.remove('active');
-    }
-}
-
-async function joinGroupCall(roomId) {
-    currentGroupRoomId = roomId;
-    isInGroupCall = true;
-    document.getElementById('incomingOverlay').classList.remove('active');
-    stopRingtone();
-    
-    try {
-        setVideoLoading(true, 'جاري الانضمام...');
-        document.getElementById('videoCallModal').classList.add('active');
-        
-        const container = document.getElementById('videoContainer');
-        container.classList.add('group-call');
-        container.innerHTML = `
-            <div class="call-info-bar">
-                <div class="call-contact-name" id="callContactName">مكالمة جماعية</div>
-                <div class="call-quality-badge" id="callQualityBadge">HD</div>
-                <div class="call-timer" id="callTimer">00:00</div>
-            </div>
-            <div class="video-loading" id="videoLoading">
-                <div class="loading-spinner"></div>
-                <div class="loading-text" id="loadingText">جاري الاتصال...</div>
-            </div>
-        `;
-        
-        localStream = await getLocalMedia('user');
-        
-        const localTile = document.createElement('div');
-        localTile.className = 'video-tile';
-        localTile.id = 'local-tile';
-        const localVideo = document.createElement('video');
-        localVideo.autoplay = true;
-        localVideo.playsinline = true;
-        localVideo.muted = true;
-        localVideo.srcObject = localStream;
-        localVideo.play().catch(() => {});
-        const localLabel = document.createElement('div');
-        localLabel.className = 'video-label';
-        localLabel.textContent = `${currentUser.username} (أنت)`;
-        localTile.appendChild(localVideo);
-        localTile.appendChild(localLabel);
-        container.appendChild(localTile);
-        
-        socket.emit('group-call-join', { roomId, username: currentUser.username });
-        startCallTimer();
-        
-    } catch(e) {
-        showErrorNotification('خطأ في الانضمام للمكالمة: ' + e.message);
-        cleanupGroupCall();
-        document.getElementById('videoCallModal').classList.remove('active');
-    }
-}
-
-function addGroupVideoTile(username, stream) {
-    const container = document.getElementById('videoContainer');
-    if (!container) return;
-    
-    const existingTile = document.getElementById(`group-tile-${username}`);
-    if (existingTile) existingTile.remove();
-    
-    const tile = document.createElement('div');
-    tile.id = `group-tile-${username}`;
-    tile.className = 'video-tile';
-    
-    const video = document.createElement('video');
-    video.autoplay = true;
-    video.playsinline = true;
-    video.srcObject = stream;
-    video.play().catch(() => {});
-    
-    const label = document.createElement('div');
-    label.className = 'video-label';
-    label.textContent = username;
-    
-    tile.appendChild(video);
-    tile.appendChild(label);
-    container.appendChild(tile);
-    
-    groupVideoTiles.set(username, tile);
-}
-
-function endGroupCall() {
-    if (currentGroupRoomId) {
-        socket.emit('group-call-leave', { roomId: currentGroupRoomId });
-    }
-    cleanupGroupCall();
-    cleanupCall();
-    showBeautifulNotification('📵 انتهت','تم إنهاء المكالمة الجماعية','📵',2000);
-}
-
-// ==================== SOCKET.IO ====================
+// ============================================================
+// SOCKET.IO
+// ============================================================
 function initializeSocket() {
     socket = io({
         transports: ['websocket', 'polling'],
@@ -2236,15 +1696,21 @@ function initializeSocket() {
         reconnectionDelay: 1000, reconnectionDelayMax: 5000,
         timeout: 20000
     });
-    
+
     socket.on('connect', () => {
         socket.emit('register user', { username: currentUser.username, userId: currentUser.userId });
         showBeautifulNotification('✅ اتصال','تم الاتصال بنجاح','✅',2000);
     });
-    
+
     socket.on('connect_error', () => showErrorNotification('خطأ في الاتصال'));
-    
-    // Video call events
+
+    // ===== VIDEO CALL EVENTS =====
+
+    socket.on('outgoing-call', (data) => {
+        currentCallId = data.callId;
+        playRingtone('calling', true, ringtoneSettings.volume);
+    });
+
     socket.on('video-call-init', (data) => {
         if (isInCall) {
             socket.emit('video-call-reject', { to: data.from, callId: data.callId });
@@ -2252,9 +1718,9 @@ function initializeSocket() {
         }
         pendingCallFrom = data.from;
         currentCallId = data.callId;
-        playRingtone(ringtoneSettings.ringtoneFile, true, ringtoneSettings.volume);
+        playRingtone(data.ringtoneFile || ringtoneSettings.ringtoneFile, true, data.volume || ringtoneSettings.volume);
         vibrateDevice([200,100,200,100,200]);
-        
+
         const av = document.getElementById('incomingAvatar');
         const nm = document.getElementById('callerName');
         if (av) av.textContent = data.from.charAt(0).toUpperCase();
@@ -2262,48 +1728,39 @@ function initializeSocket() {
         document.getElementById('incomingOverlay').classList.add('active');
         showBeautifulNotification('📹 مكالمة واردة', data.from + ' يطلب مكالمة فيديو','📹',8000);
     });
-    
+
     socket.on('video-call-offer', async (data) => {
         pendingCallFrom = data.from;
         pendingOffer = data.offer;
-        pendingIceCandidates = [];
         if (data.callId) currentCallId = data.callId;
     });
-    
+
     socket.on('video-call-answer', async (data) => {
         if (peerConnection && peerConnection.signalingState === 'have-local-offer') {
             try {
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-                for (const c of pendingIceCandidates) {
-                    try { await peerConnection.addIceCandidate(new RTCIceCandidate(c)); } catch(e) { }
-                }
-                pendingIceCandidates = [];
-            } catch(e) { console.error('setRemoteDescription answer error:', e); }
+            } catch(e) { console.error('setRemoteDescription error:', e); }
         }
     });
-    
+
     socket.on('video-call-ice', async (data) => {
-        if (!data.candidate) return;
-        if (peerConnection && peerConnection.remoteDescription) {
+        if (peerConnection && data.candidate) {
             try {
                 await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-            } catch(e) { }
-        } else {
-            pendingIceCandidates.push(data.candidate);
+            } catch(e) { /* ignore stale candidates */ }
         }
     });
-    
+
     socket.on('video-call-end', () => {
         if (isInCall) { cleanupCall(); showErrorNotification('انتهت المكالمة من الطرف الآخر'); }
-        if (isInGroupCall) { cleanupGroupCall(); cleanupCall(); }
     });
-    
+
     socket.on('video-call-reject', () => {
         if (!isInCall) { document.getElementById('incomingOverlay').classList.remove('active'); }
         else { cleanupCall(); showErrorNotification('تم رفض المكالمة'); }
         stopRingtone();
     });
-    
+
     socket.on('stop-ringtone', (data) => {
         stopRingtone();
         if (navigator.vibrate) navigator.vibrate(0);
@@ -2312,95 +1769,16 @@ function initializeSocket() {
         else if (data.reason === 'rejected') showBeautifulNotification('📹 مرفوضة','تم رفض المكالمة','📹',2000);
         else if (data.reason === 'ended') { cleanupCall(); showBeautifulNotification('📵 انتهت','انتهت المكالمة','📵',2000); }
     });
-    
-    // Group call events
-    socket.on('group-call-invite', (data) => {
-        const { roomId, from } = data;
-        playRingtone(ringtoneSettings.ringtoneFile, true, ringtoneSettings.volume);
-        vibrateDevice([200,100,200,100,200]);
-        
-        const av = document.getElementById('incomingAvatar');
-        const nm = document.getElementById('callerName');
-        if (av) av.textContent = from.charAt(0).toUpperCase();
-        if (nm) nm.textContent = `${from} - مكالمة جماعية`;
-        document.getElementById('incomingOverlay').classList.add('active');
-        
-        const acceptBtn = document.querySelector('.incoming-call-btn.accept');
-        if (acceptBtn) {
-            acceptBtn.onclick = () => joinGroupCall(roomId);
-        }
+
+    socket.on('call-interrupted', (data) => {
+        stopRingtone(); showErrorNotification(data.message);
+        if (data.shouldReload) setTimeout(() => location.reload(), 2500);
     });
-    
-    socket.on('group-call-existing-members', async (data) => {
-        for (const member of data.members) {
-            const pc = new RTCPeerConnection(webrtcConfig);
-            groupPeerConnections.set(member, pc);
-            localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-            pc.ontrack = (event) => {
-                const stream = event.streams?.[0] || new MediaStream([event.track]);
-                addGroupVideoTile(member, stream);
-            };
-            pc.onicecandidate = (event) => {
-                if (event.candidate) {
-                    socket.emit('group-call-ice', { roomId: data.roomId, to: member, candidate: event.candidate });
-                }
-            };
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-            socket.emit('group-call-offer', { roomId: data.roomId, to: member, offer: pc.localDescription });
-        }
-    });
-    
-    socket.on('group-call-member-joined', (data) => {
-        showBeautifulNotification('👥 انضم', `${data.username} انضم للمكالمة`, '👥', 2000);
-    });
-    
-    socket.on('group-call-member-left', (data) => {
-        showBeautifulNotification('👋 غادر', `${data.username} غادر المكالمة`, '👋', 2000);
-        const pc = groupPeerConnections.get(data.username);
-        if (pc) { pc.close(); groupPeerConnections.delete(data.username); }
-        const tile = document.getElementById(`group-tile-${data.username}`);
-        if (tile) tile.remove();
-    });
-    
-    socket.on('group-call-offer', async (data) => {
-        const pc = new RTCPeerConnection(webrtcConfig);
-        groupPeerConnections.set(data.from, pc);
-        localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-        pc.ontrack = (event) => {
-            const stream = event.streams?.[0] || new MediaStream([event.track]);
-            addGroupVideoTile(data.from, stream);
-        };
-        pc.onicecandidate = (event) => {
-            if (event.candidate) {
-                socket.emit('group-call-ice', { roomId: data.roomId, to: data.from, candidate: event.candidate });
-            }
-        };
-        await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-        socket.emit('group-call-answer', { roomId: data.roomId, to: data.from, answer: pc.localDescription });
-    });
-    
-    socket.on('group-call-answer', async (data) => {
-        const pc = groupPeerConnections.get(data.from);
-        if (pc && pc.signalingState === 'have-local-offer') {
-            try {
-                await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-            } catch(e) { console.error('Group call answer error:', e); }
-        }
-    });
-    
-    socket.on('group-call-ice', async (data) => {
-        const pc = groupPeerConnections.get(data.from);
-        if (pc && data.candidate) {
-            try {
-                await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-            } catch(e) { }
-        }
-    });
-    
-    // Message events
+
+    socket.on('force-reload', () => { setTimeout(() => location.reload(), 1000); });
+
+    // ===== MESSAGE EVENTS =====
+
     socket.on('private message', (data) => {
         if (currentContact?.name === data.from) {
             addMessageToChatUI(data.from, data.message, data.timestamp, false, data.messageId, false);
@@ -2411,7 +1789,7 @@ function initializeSocket() {
             showBeautifulNotification('💬 رسالة',`${data.from}: ${data.message.substring(0,50)}`,'💬',4000);
         }
     });
-    
+
     socket.on('file received', (data) => {
         if (currentContact?.name === data.from) {
             addFileToChatUI(data.from, data.fileUrl, data.fileName, data.fileType, false, data.timestamp, uid());
@@ -2421,7 +1799,7 @@ function initializeSocket() {
             showBeautifulNotification('📎 ملف',`${data.from}: ${data.fileName}`,'📎',4000);
         }
     });
-    
+
     socket.on('voice message', (data) => {
         if (currentContact?.name === data.from) {
             addVoiceMessageToChatUI(data.from, data.audioUrl, data.duration, false, data.timestamp, uid());
@@ -2431,14 +1809,15 @@ function initializeSocket() {
             showBeautifulNotification('🎤 صوتية',`${data.from} أرسل رسالة صوتية`,'🎤',4000);
         }
     });
-    
+
     socket.on('message read', (data) => updateMessageReadStatus(data.messageId, true));
+
     socket.on('typing', (data) => {
         if (currentContact?.name === data.from) {
             showTypingIndicator(); setTimeout(hideTypingIndicator, 3000);
         }
     });
-    
+
     socket.on('user status change', (data) => {
         updateContactStatus(data.username, data.status);
         showBeautifulNotification(
@@ -2447,7 +1826,7 @@ function initializeSocket() {
             data.status==='online' ? '🟢' : '🔴', 2500
         );
     });
-    
+
     socket.on('ringtone settings', (data) => {
         if (data.settings) {
             ringtoneSettings = data.settings;
@@ -2457,31 +1836,11 @@ function initializeSocket() {
             document.getElementById('volumeValue').textContent = ringtoneSettings.volume||80;
         }
     });
-    
-    socket.on('admin-notification', (data) => {
-        showBeautifulNotification('📢 تنبيه من الإدارة', data.message, '⚠️', 10000);
-        if (currentContact) {
-            addSystemMessageToChat(`📢 تنبيه من الإدارة: ${data.message}`);
-        }
-    });
 }
 
-function addSystemMessageToChat(message) {
-    const container = document.getElementById('messagesContainer');
-    if (!container) return;
-    const div = document.createElement('div');
-    div.className = 'message received';
-    div.innerHTML = `
-        <div class="message-bubble" style="background:#ffc107;color:#333">
-            <div class="message-text">${escapeHtml(message)}</div>
-            <div class="message-time">${new Date().toLocaleTimeString('ar-SA')}</div>
-        </div>
-    `;
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-}
-
-// ==================== CONTACTS & CHAT ====================
+// ============================================================
+// CONTACTS & CHAT
+// ============================================================
 async function loadContacts() {
     try {
         const r = await fetch('/get-contacts');
@@ -2496,21 +1855,24 @@ function updateContactsList() {
     const filtered = allContacts.filter(c =>
         c.name.toLowerCase().includes(term) || (c.phone||'').includes(term)
     );
+
     const list = document.getElementById('contactsList');
     list.innerHTML = '';
+
     if (!filtered.length) {
         list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary)">لا توجد جهات اتصال</div>';
         return;
     }
+
     filtered.forEach(contact => {
         const unread = unreadMessages.get(contact.name) || 0;
         const div = document.createElement('div');
-        div.className = `contact-item ${currentContact?.name === contact.name ? 'active' : ''}`;
+        div.className = `contact-item ${currentContact?.id === contact.id ? 'active' : ''}`;
         div.onclick = () => openChat(contact);
         div.innerHTML = `
             <div class="contact-avatar">${contact.avatar || contact.name.charAt(0).toUpperCase()}</div>
             <div class="contact-info">
-                <div class="contact-name">${escapeHtml(contact.name)}</div>
+                <div class="contact-name">${escHtml(contact.name)}</div>
                 <div class="contact-phone">${contact.phone||''}</div>
                 <div class="contact-status ${contact.status==='online'?'status-online':'status-offline'}">
                     ${contact.status==='online'?'● متصل':'○ غير متصل'}
@@ -2525,23 +1887,18 @@ function updateContactsList() {
 function filterContacts() { updateContactsList(); }
 
 async function openChat(contact) {
-    if (!contact || !contact.name) {
-        console.error('Invalid contact data:', contact);
-        return;
-    }
-    
     currentContact = contact;
     unreadMessages.delete(contact.name);
     updateContactsList();
     await loadConversation(contact);
-    
+
     const chatArea = document.getElementById('chatArea');
     chatArea.innerHTML = `
         <div class="chat-header">
             <button class="back-btn" onclick="showSidebarOnMobile()">‹</button>
             <div class="chat-contact-avatar">${contact.avatar || contact.name.charAt(0).toUpperCase()}</div>
             <div class="chat-contact-info">
-                <div class="chat-contact-name">${escapeHtml(contact.name)}</div>
+                <div class="chat-contact-name">${escHtml(contact.name)}</div>
                 <div class="chat-contact-status ${contact.status==='online'?'status-online':'status-offline'}">
                     ${contact.status==='online'?'متصل الآن':'غير متصل'}
                 </div>
@@ -2568,6 +1925,7 @@ async function openChat(contact) {
             <button class="send-btn" onclick="sendMessage()">إرسال</button>
         </div>
     `;
+
     displayMessages();
     showChatOnMobile(contact);
 }
@@ -2603,14 +1961,17 @@ function displayMessages() {
     c.innerHTML = '';
     (window.currentMessages || []).forEach(msg => {
         const sent = msg.from === currentUser.username;
-        if (msg.type === 'file') addFileToChatUI(msg.from, msg.fileUrl, msg.fileName, msg.fileType, sent, msg.timestamp, msg.id);
+        if      (msg.type === 'file')  addFileToChatUI(msg.from, msg.fileUrl, msg.fileName, msg.fileType, sent, msg.timestamp, msg.id);
         else if (msg.type === 'voice') addVoiceMessageToChatUI(msg.from, msg.audioUrl, msg.duration, sent, msg.timestamp, msg.id);
         else if (msg.type === 'video') addVideoToChatUI(msg.from, msg.videoUrl, sent, msg.timestamp, msg.id);
-        else addMessageToChatUI(msg.from, msg.message, msg.timestamp, sent, msg.id, msg.read);
+        else                           addMessageToChatUI(msg.from, msg.message, msg.timestamp, sent, msg.id, msg.read);
     });
     c.scrollTop = c.scrollHeight;
 }
 
+// ============================================================
+// MESSAGE UI BUILDERS
+// ============================================================
 function fmtTime(ts) {
     return ts ? new Date(ts).toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit' }) : '';
 }
@@ -2626,7 +1987,7 @@ function addMessageToChatUI(sender, message, timestamp, isSent, messageId, isRea
     div.innerHTML = `
         <div class="message-bubble">
             ${iconHtml}
-            <div class="message-text">${escapeHtml(message)}</div>
+            <div class="message-text">${escHtml(message)}</div>
             <div class="message-time">${fmtTime(timestamp)} ${readStatus}</div>
         </div>
         <div class="message-menu" onclick="showMessageMenu(event, ${JSON.stringify(md).replace(/"/g,'&quot;')})">
@@ -2646,10 +2007,10 @@ function addFileToChatUI(sender, fileUrl, fileName, fileType, isSent, timestamp,
     const iconHtml = !isSent ? '<div class="message-icon"><span>📎</span></div>' : '';
     const readStatus = isSent ? '<span class="message-status">✓✓</span>' : '';
     const content = isImage
-        ? `<div class="image-message"><img src="${fileUrl}" loading="lazy" onclick="window.open('${fileUrl}')" alt="${escapeHtml(fileName)}"></div>`
+        ? `<div class="image-message"><img src="${fileUrl}" loading="lazy" onclick="window.open('${fileUrl}')" alt="${escHtml(fileName)}"></div>`
         : `<div class="file-message">
               <div class="file-icon">📄</div>
-              <div class="file-info"><div class="file-name">${escapeHtml(fileName)}</div></div>
+              <div class="file-info"><div class="file-name">${escHtml(fileName)}</div></div>
               <a href="${fileUrl}" download class="download-link">تحميل</a>
            </div>`;
     const md = { id:messageId, type:'file', fileUrl, fileName, fileType, from:sender };
@@ -2707,10 +2068,10 @@ function addVoiceMessageToChatUI(sender, audioUrl, duration, isSent, timestamp, 
     c.appendChild(div); c.scrollTop = c.scrollHeight;
 }
 
-// ==================== SEND MESSAGE ====================
-async function sendMessage() {
-    const banned = await checkBanned();
-    if (banned) return;
+// ============================================================
+// SEND MESSAGE
+// ============================================================
+function sendMessage() {
     const input = document.getElementById('messageInput');
     const msg = input?.value.trim();
     if (!msg || !currentContact) return;
@@ -2727,7 +2088,9 @@ function handleKeyPress(e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 }
 
-// ==================== FILE UPLOAD ====================
+// ============================================================
+// FILE UPLOAD
+// ============================================================
 async function uploadFile(file, onProgress) {
     for (const endpoint of uploadEndpoints) {
         try {
@@ -2816,7 +2179,9 @@ async function doUploadVideo(file) {
     } catch(e) { showUploadProgress(false); showErrorNotification('فشل رفع الفيديو'); }
 }
 
-// ==================== VOICE RECORDING ====================
+// ============================================================
+// VOICE RECORDING
+// ============================================================
 function toggleVoiceRecording() { isRecording ? stopVoiceRecording() : startVoiceRecording(); }
 
 function startVoiceRecording() {
@@ -2824,6 +2189,7 @@ function startVoiceRecording() {
     audioChunks = []; recordingSeconds = 0;
     navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
         recordingStream = stream;
+        // Prefer webm on Chrome, fallback to mp4 on iOS
         const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
         mediaRecorder = new MediaRecorder(stream, { mimeType });
         mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
@@ -2880,10 +2246,12 @@ async function sendVoiceRecording() {
     } catch(e) { showUploadProgress(false); showErrorNotification('فشل إرسال التسجيل'); }
 }
 
-// ==================== UTILITIES ====================
+// ============================================================
+// UTILITIES
+// ============================================================
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
 
-function escapeHtml(text) {
+function escHtml(text) {
     if (!text) return '';
     const d = document.createElement('div'); d.textContent = text; return d.innerHTML;
 }
@@ -2897,7 +2265,7 @@ function updateContactStatus(username, status) {
     }
 }
 
-async function logout() {
+function logout() {
     if (isRecording) stopVoiceRecording();
     if (isListening) stopVoiceToText();
     if (isInCall) endVideoCall();
@@ -2906,7 +2274,9 @@ async function logout() {
     window.location.href = '/index.html';
 }
 
-// ==================== INITIALIZATION ====================
+// ============================================================
+// INIT
+// ============================================================
 function loadUserData() {
     if (sessionStorage.getItem('accessGranted') !== 'true') { window.location.href = '/index.html'; return; }
     currentUser = { username: sessionStorage.getItem('username'), userId: sessionStorage.getItem('username') };
@@ -2918,13 +2288,12 @@ function loadUserData() {
     loadAvailableRingtones();
     initializeSocket();
     loadContacts();
-    loadAllUsers();
     initSpeechRecognition();
     setInterval(cleanupOldMessages, 3600000);
-    setInterval(async () => { await checkBanned(); }, 30000);
     showBeautifulNotification('👋 مرحباً', `أهلاً بك ${currentUser.username}`, '👋', 3000);
 }
 
+// Handle window resize for mobile/desktop switching
 window.addEventListener('resize', () => {
     if (!isMobileView()) {
         document.getElementById('contactsSidebar').classList.remove('hidden');
@@ -2933,12 +2302,12 @@ window.addEventListener('resize', () => {
     }
 });
 
+// Prevent accidental page close during call
 window.addEventListener('beforeunload', e => {
     if (isInCall) { e.preventDefault(); e.returnValue = 'أنت في مكالمة فيديو. هل تريد المغادرة؟'; }
 });
 
 loadUserData();
 </script>
-
 </body>
 </html>
