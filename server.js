@@ -277,7 +277,7 @@ io.on('connection', (socket) => {
         registeredUser = { username, userId };
         connectedUsers.set(socket.id, { username, userId });
 
-        // Disconnect duplicate sessions
+        // قطع الاتصال المكرر
         if (userSockets.has(username)) {
             const oldId = userSockets.get(username);
             if (oldId !== socket.id) {
@@ -291,7 +291,6 @@ io.on('connection', (socket) => {
 
         userSockets.set(username, socket.id);
 
-        // Update status in contacts list
         const cd = readContacts();
         const contact = cd.contacts.find(c => c.name === username);
         if (contact) { contact.status = 'online'; writeJSON(contactsFilePath, cd); }
@@ -304,7 +303,6 @@ io.on('connection', (socket) => {
     });
 
     // ── Video Call: Initiate ───────────────────────────────
-    // Caller sends 'video-call-init' first (before offer) so we can ring the callee
     socket.on('video-call-init', (data) => {
         const { to, quality = 'high', videoEnabled = true, audioEnabled = true } = data;
         const fromUser = connectedUsers.get(socket.id);
@@ -327,10 +325,8 @@ io.on('connection', (socket) => {
 
         console.log(`📹 Call init: ${fromUser.username} → ${to} [${callId}]`);
 
-        // Tell caller their callId + play outgoing ring
         socket.emit('outgoing-call', { to, callId, message:`جاري الاتصال بـ ${to}...` });
 
-        // Tell callee to ring
         io.to(targetId).emit('video-call-init', {
             from: fromUser.username,
             quality, videoEnabled, audioEnabled,
@@ -342,21 +338,29 @@ io.on('connection', (socket) => {
     });
 
     // ── Video Call: Offer (SDP) ────────────────────────────
+    // ✅ يدعم الآن relayOnly لإعادة المحاولة عند فشل 5G↔5G
     socket.on('video-call-offer', (data) => {
-        const { to, offer, quality, callId } = data;
+        const { to, offer, quality, callId, relayOnly } = data;
         const fromUser = connectedUsers.get(socket.id);
         const targetId = userSockets.get(to);
         if (!fromUser || !targetId) return;
 
-        // Attach callId to the active call record if not already set
         if (callId && activeCalls.has(callId)) {
             const info = activeCalls.get(callId);
             info.offerSent = true;
+            if (relayOnly) info.relayOnly = true;
             activeCalls.set(callId, info);
         }
 
+        console.log(`📤 Offer: ${fromUser.username} → ${to}${relayOnly ? ' [relay-only]' : ''}`);
+
+        // ✅ نمرر relayOnly إلى المستقبل حتى يعيد بناء اتصاله بـ TURN فقط
         io.to(targetId).emit('video-call-offer', {
-            from: fromUser.username, offer, quality, callId
+            from: fromUser.username,
+            offer,
+            quality,
+            callId,
+            relayOnly: !!relayOnly
         });
     });
 
@@ -367,7 +371,6 @@ io.on('connection', (socket) => {
         const targetId = userSockets.get(to);
         if (!fromUser || !targetId) return;
 
-        // Stop ringing on both sides
         io.to(targetId).emit('stop-ringtone', { callId, reason:'answered' });
         socket.emit('stop-ringtone', { callId, reason:'answered' });
 
@@ -399,7 +402,6 @@ io.on('connection', (socket) => {
 
         console.log(`📵 Call ended: ${fromUser.username} → ${to}`);
 
-        // Stop ringing/call on both sides
         if (targetId) {
             io.to(targetId).emit('stop-ringtone', { callId, reason: reason || 'ended' });
             io.to(targetId).emit('video-call-end', { from: fromUser.username, callId, reason: reason || 'ended' });
@@ -532,7 +534,6 @@ io.on('connection', (socket) => {
         const { username } = userInfo;
         console.log(`⚠️ Disconnected: ${username} (${reason})`);
 
-        // End any active calls
         for (const [callId, callInfo] of activeCalls.entries()) {
             if (callInfo.from === username || callInfo.to === username) {
                 const other = callInfo.from === username ? callInfo.to : callInfo.from;
@@ -545,7 +546,6 @@ io.on('connection', (socket) => {
             }
         }
 
-        // Update contact status
         const cd = readContacts();
         const contact = cd.contacts.find(c => c.name === username);
         if (contact) { contact.status = 'offline'; writeJSON(contactsFilePath, cd); }
@@ -597,13 +597,19 @@ server.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
     console.log(`☁️  Cloudinary ready`);
     console.log(`\n📹 Video call features:`);
-    console.log(`   ✅ Phone ↔ Phone`);
-    console.log(`   ✅ Phone ↔ Computer`);
-    console.log(`   ✅ Computer ↔ Computer`);
+    console.log(`   ✅ WiFi ↔ WiFi`);
+    console.log(`   ✅ WiFi ↔ 5G`);
+    console.log(`   ✅ 5G  ↔ WiFi`);
+    console.log(`   ✅ 5G  ↔ 5G  (relay-only fallback)`);
     console.log(`   ✅ Camera flip (mobile)`);
     console.log(`   ✅ Speaker toggle`);
     console.log(`   ✅ ICE restart on failure`);
-    console.log(`   ✅ Consistent UI across devices`);
-    console.log(`   ✅ Ringtone stop on answer/reject/end/disconnect`);
+    console.log(`   ✅ Auto relay retry for strict NAT`);
+    console.log(`\n🎙️  Speech recognition features:`);
+    console.log(`   ✅ Live red label in center of screen`);
+    console.log(`   ✅ Auto-close on silence (2s)`);
+    console.log(`   ✅ Text transfers to message input`);
+    console.log(`   ✅ Append mode — existing text preserved`);
+    console.log(`   ✅ Send via Enter or button`);
     console.log(`========================================\n`);
 });
