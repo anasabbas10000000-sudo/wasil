@@ -2,557 +2,970 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>واصل – سجّل دخولك</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>واصل - لوحة تحكم الأدمن</title>
     <style>
-        :root {
-            --green: #25d366;
-            --green-dark: #075e54;
-            --green-mid: #128c7e;
-            --purple: #6f42c1;
-            --purple-light: #9c27b0;
-            --github: #24292e;
-            --glass: rgba(255,255,255,0.12);
-            --glass-border: rgba(255,255,255,0.22);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Cairo', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            min-height: 100dvh;
-            background: linear-gradient(135deg, #0a1628 0%, #0d2137 40%, #071a0f 100%);
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .admin-header h1 {
+            color: #075e54;
+            font-size: 24px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .blob {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.18;
-            animation: blobFloat 8s ease-in-out infinite;
-            pointer-events: none;
-        }
-        .blob-1 { width:400px;height:400px;background:#25d366;top:-80px;right:-80px;animation-delay:0s; }
-        .blob-2 { width:300px;height:300px;background:#128c7e;bottom:-60px;left:-60px;animation-delay:-3s; }
-        .blob-3 { width:250px;height:250px;background:#6f42c1;top:50%;left:50%;animation-delay:-5s; }
-        @keyframes blobFloat {
-            0%,100% { transform: translate(0,0) scale(1); }
-            33%      { transform: translate(20px,-20px) scale(1.05); }
-            66%      { transform: translate(-15px,15px) scale(0.97); }
-        }
-
-        .particles { position:fixed;inset:0;pointer-events:none;overflow:hidden; }
-        .particle {
-            position:absolute;width:3px;height:3px;border-radius:50%;
-            background:rgba(37,211,102,0.5);
-            animation: particleDrift linear infinite;
-        }
-        @keyframes particleDrift {
-            from { transform: translateY(100vh) rotate(0deg); opacity:0; }
-            10%  { opacity:1; }
-            90%  { opacity:1; }
-            to   { transform: translateY(-100px) rotate(720deg); opacity:0; }
-        }
-
-        .card {
-            position: relative;
-            z-index: 10;
-            background: rgba(10,22,40,0.75);
-            backdrop-filter: blur(24px) saturate(1.5);
-            -webkit-backdrop-filter: blur(24px) saturate(1.5);
-            border: 1px solid var(--glass-border);
-            border-radius: 28px;
-            padding: 44px 40px;
-            width: 100%;
-            max-width: 420px;
-            margin: 16px;
-            box-shadow: 0 32px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04);
-            animation: cardIn 0.6s cubic-bezier(0.16,1,0.3,1);
-        }
-        @keyframes cardIn {
-            from { opacity:0; transform: translateY(32px) scale(0.96); }
-            to   { opacity:1; transform: translateY(0) scale(1); }
-        }
-
-        .logo-wrap {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-        .logo-icon {
-            width: 72px; height: 72px;
-            background: linear-gradient(135deg, var(--green-dark), var(--green));
-            border-radius: 22px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 36px;
-            margin-bottom: 14px;
-            box-shadow: 0 8px 24px rgba(37,211,102,0.3);
-            animation: logoPulse 3s ease-in-out infinite;
-        }
-        @keyframes logoPulse {
-            0%,100% { box-shadow: 0 8px 24px rgba(37,211,102,0.3); }
-            50%      { box-shadow: 0 8px 40px rgba(37,211,102,0.55); }
-        }
-        .logo-title {
-            font-size: 32px;
-            font-weight: 900;
-            color: #fff;
-            letter-spacing: -0.5px;
-        }
-        .logo-title span { color: var(--green); }
-        .logo-sub {
-            font-size: 13px;
-            color: rgba(255,255,255,0.45);
-            margin-top: 4px;
-        }
-
-        .tabs {
-            display: flex;
-            background: rgba(255,255,255,0.06);
-            border-radius: 12px;
-            padding: 4px;
-            margin-bottom: 28px;
-        }
-        .tab-btn {
-            flex: 1;
-            padding: 9px;
-            border: none;
-            border-radius: 9px;
-            background: transparent;
-            color: rgba(255,255,255,0.5);
-            font-family: 'Cairo', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s;
-        }
-        .tab-btn.active {
-            background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
-            color: white;
-            box-shadow: 0 4px 12px rgba(18,140,126,0.4);
-        }
-
-        .oauth-section { margin-bottom: 20px; }
-        .oauth-btn {
-            width: 100%;
-            padding: 14px 18px;
-            border: none;
-            border-radius: 14px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             gap: 10px;
-            transition: all 0.25s;
-            margin-bottom: 12px;
-            position: relative;
-            overflow: hidden;
-        }
-        .oauth-btn::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(255,255,255,0);
-            transition: background 0.2s;
-        }
-        .oauth-btn:hover::after { background: rgba(255,255,255,0.08); }
-        .oauth-btn:active { transform: scale(0.98); }
-
-        .google-btn {
-            background: linear-gradient(135deg, #ea4335, #fbbc04, #34a853, #4285f4);
-            background-size: 300% 300%;
-            color: white;
-            animation: gradientShift 5s ease infinite;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        }
-        @keyframes gradientShift {
-            0%,100% { background-position: 0% 50%; }
-            50%      { background-position: 100% 50%; }
         }
 
-        .github-btn {
-            background: linear-gradient(135deg, #24292e, #444d56);
-            color: white;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-        }
-
-        .oauth-icon { font-size: 20px; flex-shrink: 0; }
-
-        .divider {
+        .admin-stats {
             display: flex;
-            align-items: center;
-            gap: 14px;
-            margin: 20px 0;
-            color: rgba(255,255,255,0.25);
-            font-size: 12px;
-        }
-        .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: rgba(255,255,255,0.12);
+            gap: 20px;
+            flex-wrap: wrap;
         }
 
-        .code-section { display: none; }
-        .code-section.active { display: block; }
-
-        .field-label {
-            font-size: 13px;
-            color: rgba(255,255,255,0.55);
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .input-group { position: relative; margin-bottom: 16px; }
-
-        .input-field {
-            width: 100%;
-            padding: 14px 18px;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 14px;
+        .stat-card {
+            background: linear-gradient(135deg, #075e54, #128c7e);
             color: white;
-            font-family: 'Cairo', sans-serif;
-            font-size: 15px;
-            outline: none;
-            transition: all 0.25s;
-            direction: rtl;
-        }
-        .input-field::placeholder { color: rgba(255,255,255,0.28); }
-        .input-field:focus {
-            border-color: var(--green);
-            background: rgba(37,211,102,0.07);
-            box-shadow: 0 0 0 3px rgba(37,211,102,0.12);
+            padding: 10px 20px;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 100px;
         }
 
-        .login-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, var(--green-dark), var(--green));
+        .stat-card .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .stat-card .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .logout-btn {
+            background: #dc3545;
             color: white;
             border: none;
-            border-radius: 14px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 16px;
-            font-weight: 700;
+            padding: 10px 20px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.25s;
-            margin-top: 4px;
-            box-shadow: 0 6px 20px rgba(37,211,102,0.3);
-            position: relative;
-            overflow: hidden;
-        }
-        .login-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(37,211,102,0.45); }
-        .login-btn:active { transform: scale(0.98); }
-        .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-        .error-msg {
-            color: #ff6b6b;
-            font-size: 13px;
-            text-align: center;
-            margin-top: 12px;
-            min-height: 20px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        .error-msg.show { opacity: 1; }
-
-        .loading-ring {
-            display: inline-block;
-            width: 18px; height: 18px;
-            border: 2px solid rgba(255,255,255,0.4);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            vertical-align: middle;
-            margin-left: 8px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .card-footer {
-            text-align: center;
-            margin-top: 24px;
-            font-size: 12px;
-            color: rgba(255,255,255,0.22);
-            line-height: 1.7;
+            font-size: 14px;
+            transition: all 0.3s;
         }
 
-        .security-badge {
-            display: inline-flex;
+        .logout-btn:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        .search-bar {
+            background: white;
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
             align-items: center;
-            gap: 6px;
-            background: rgba(37,211,102,0.1);
-            border: 1px solid rgba(37,211,102,0.2);
-            color: var(--green);
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-bar input:focus {
+            border-color: #128c7e;
+        }
+
+        .search-bar button {
+            background: linear-gradient(135deg, #075e54, #128c7e);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .search-bar button:hover {
+            transform: scale(1.02);
+        }
+
+        .add-user-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .add-user-section h3 {
+            color: #075e54;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-user-form {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .add-user-form input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .add-user-form input:focus {
+            border-color: #128c7e;
+        }
+
+        .add-user-form button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .add-user-form button:hover {
+            background: #218838;
+            transform: scale(1.02);
+        }
+
+        .users-table-container {
+            background: white;
+            border-radius: 15px;
+            overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        .users-table th {
+            background: #075e54;
+            color: white;
+            padding: 15px;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .users-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .users-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #075e54, #128c7e);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .status-badge {
             padding: 5px 12px;
             border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-online {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-offline {
+            background: #6c757d;
+            color: white;
+        }
+
+        .status-banned {
+            background: #dc3545;
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-view {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .btn-ban {
+            background: #ffc107;
+            color: #333;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .btn-unban {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .btn-notify {
+            background: #6f42c1;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .btn-view:hover, .btn-ban:hover, .btn-unban:hover, .btn-delete:hover, .btn-notify:hover {
+            transform: scale(1.05);
+            filter: brightness(0.95);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #075e54, #128c7e);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .messages-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 12px;
+            border-right: 4px solid #128c7e;
+        }
+
+        .message-sender {
+            font-weight: bold;
+            color: #075e54;
+            margin-bottom: 5px;
+        }
+
+        .message-text {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .message-delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 5px;
+            cursor: pointer;
             font-size: 11px;
             margin-top: 8px;
         }
 
-        @media (max-width: 480px) {
-            .card { padding: 32px 22px; }
-            .logo-title { font-size: 26px; }
+        .clear-conversation-btn {
+            background: #ffc107;
+            color: #333;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .notification-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .send-notification-btn {
+            background: #6f42c1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .users-table {
+                font-size: 12px;
+            }
+            
+            .users-table th, .users-table td {
+                padding: 8px 10px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
-
-<div class="blob blob-1"></div>
-<div class="blob blob-2"></div>
-<div class="blob blob-3"></div>
-<div class="particles" id="particles"></div>
-
-<div class="card">
-    <div class="logo-wrap">
-        <div class="logo-icon">💬</div>
-        <div class="logo-title">وا<span>صل</span></div>
-        <div class="logo-sub">محادثات ذكية · مكالمات فيديو · رسائل صوتية</div>
-    </div>
-
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('oauth')">🔐 تسجيل سريع</button>
-        <button class="tab-btn" onclick="switchTab('code')">🔑 رمز الدخول</button>
-        <button class="tab-btn" onclick="switchTab('admin')">🛡️ أدمن</button>
-    </div>
-
-    <div class="oauth-section" id="oauthTab">
-        <button class="oauth-btn google-btn" onclick="handleGoogleLogin()">
-            <span class="oauth-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                </svg>
-            </span>
-            الدخول بحساب Google
-        </button>
-
-        <button class="oauth-btn github-btn" onclick="handleGitHubLogin()">
-            <span class="oauth-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
-                </svg>
-            </span>
-            الدخول بحساب GitHub
-        </button>
-
-        <div class="divider">أو</div>
-
-        <div class="input-group">
-            <label class="field-label">اسم المستخدم المباشر</label>
-            <input type="text" class="input-field" id="directUsername" placeholder="اكتب اسمك..." maxlength="30" onkeypress="if(event.key==='Enter')directLogin()">
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>🛡️ لوحة تحكم الأدمن - واصل</h1>
+            <div class="admin-stats" id="adminStats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalUsers">0</div>
+                    <div class="stat-label">إجمالي المستخدمين</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="onlineUsers">0</div>
+                    <div class="stat-label">متصلون الآن</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="bannedUsers">0</div>
+                    <div class="stat-label">محظورون</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">🚪 خروج</button>
         </div>
-        <button class="login-btn" onclick="directLogin()">🚀 دخول مباشر</button>
-    </div>
 
-    <div class="code-section" id="codeTab">
-        <div class="input-group">
-            <label class="field-label">اسم المستخدم</label>
-            <input type="text" class="input-field" id="codeUsername" placeholder="أدخل اسمك..." maxlength="30">
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 بحث عن مستخدم... (اسم المستخدم أو البريد)" onkeyup="filterUsers()">
+            <button onclick="refreshUsers()">🔄 تحديث</button>
         </div>
-        <div class="input-group">
-            <label class="field-label">رمز الدخول</label>
-            <input type="text" class="input-field" id="accessCode" placeholder="أدخل الرمز السري..." maxlength="20" onkeypress="if(event.key==='Enter')loginWithCode()">
-        </div>
-        <button class="login-btn" onclick="loginWithCode()" id="codeLoginBtn">🔑 تسجيل الدخول</button>
-    </div>
 
-    <div class="code-section" id="adminTab">
-        <div class="input-group">
-            <label class="field-label">كلمة مرور الأدمن</label>
-            <input type="password" class="input-field" id="adminPassword" placeholder="أدخل كلمة المرور..." onkeypress="if(event.key==='Enter')adminLogin()">
+        <div class="add-user-section">
+            <h3>➕ إضافة مستخدم جديد</h3>
+            <div class="add-user-form">
+                <input type="text" id="newUsername" placeholder="اسم المستخدم" maxlength="30">
+                <input type="text" id="newPhone" placeholder="رقم الهاتف (اختياري)">
+                <button onclick="addUser()">إضافة مستخدم</button>
+            </div>
         </div>
-        <button class="login-btn" onclick="adminLogin()">🛡️ دخول لوحة التحكم</button>
-        <div class="security-badge" style="margin-top:16px;justify-content:center">
-            🔐 مخصص للإدارة فقط
+
+        <div class="users-table-container">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>المستخدم</th>
+                        <th>رقم الهاتف</th>
+                        <th>الحالة</th>
+                        <th>آخر نشاط</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <tr>
+                        <td colspan="5" class="loading">جاري التحميل...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <div class="error-msg" id="errorMsg"></div>
-
-    <div class="card-footer">
-        <div class="security-badge">🔒 مشفّر ومحمي</div><br>
-        مكالمات فيديو عالية الجودة بين جميع الأجهزة
+    <div class="modal" id="messagesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">رسائل المستخدم</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="loading">جاري التحميل...</div>
+            </div>
+        </div>
     </div>
-</div>
 
-<script>
-(function() {
-    const container = document.getElementById('particles');
-    for (let i = 0; i < 22; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.style.cssText = `
-            left:${Math.random()*100}%;
-            animation-duration:${6+Math.random()*10}s;
-            animation-delay:${Math.random()*8}s;
-            width:${2+Math.random()*3}px;
-            height:${2+Math.random()*3}px;
-            opacity:${0.3+Math.random()*0.5};
-        `;
-        container.appendChild(p);
-    }
-})();
+    <div class="modal" id="notificationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📢 إرسال تنبيه</h3>
+                <button class="modal-close" onclick="closeNotificationModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <textarea id="notificationMessage" class="notification-input" rows="4" placeholder="اكتب رسالة التنبيه هنا..."></textarea>
+                <button class="send-notification-btn" onclick="sendNotification()">إرسال التنبيه</button>
+            </div>
+        </div>
+    </div>
 
-function switchTab(tab) {
-    document.querySelectorAll('.tab-btn').forEach((b,i) => {
-        if (tab === 'oauth') b.classList.toggle('active', i === 0);
-        else if (tab === 'code') b.classList.toggle('active', i === 1);
-        else if (tab === 'admin') b.classList.toggle('active', i === 2);
-    });
-    document.getElementById('oauthTab').style.display = tab === 'oauth' ? 'block' : 'none';
-    document.getElementById('codeTab').classList.toggle('active', tab === 'code');
-    document.getElementById('adminTab').classList.toggle('active', tab === 'admin');
-    clearError();
-}
+    <script>
+        let currentUsers = [];
+        let currentSelectedUser = null;
+        let notifyUser = null;
 
-function showError(msg) {
-    const el = document.getElementById('errorMsg');
-    el.textContent = msg;
-    el.classList.add('show');
-}
-function clearError() {
-    document.getElementById('errorMsg').classList.remove('show');
-}
-
-async function directLogin() {
-    const username = document.getElementById('directUsername').value.trim();
-    if (!username) { showError('أدخل اسم المستخدم'); return; }
-    if (username.length < 2) { showError('الاسم قصير جداً (حرفان على الأقل)'); return; }
-    
-    try {
-        const res = await fetch(`/api/check-banned?username=${encodeURIComponent(username)}`);
-        const data = await res.json();
-        if (data.banned) {
-            showError(`الحساب محظور: ${data.reason || 'تم حظرك من قبل الإدارة'}`);
-            return;
+        function checkAuth() {
+            if (sessionStorage.getItem('adminLoggedIn') !== 'true') {
+                window.location.href = '/index.html';
+            }
         }
-    } catch(e) {}
-    
-    sessionStorage.setItem('accessGranted', 'true');
-    sessionStorage.setItem('username', username);
-    sessionStorage.setItem('loginMethod', 'direct');
-    window.location.href = '/chat.html';
-}
 
-async function adminLogin() {
-    const password = document.getElementById('adminPassword').value.trim();
-    if (!password) { showError('أدخل كلمة المرور'); return; }
-    
-    const btn = document.querySelector('#adminTab .login-btn');
-    btn.disabled = true;
-    btn.innerHTML = 'جاري التحقق <span class="loading-ring"></span>';
-    clearError();
-    
-    try {
-        const res = await fetch('/api/admin/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password })
+        function logout() {
+            sessionStorage.removeItem('adminLoggedIn');
+            window.location.href = '/index.html';
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/admin/users');
+                const data = await response.json();
+                if (data.success) {
+                    currentUsers = data.users;
+                    updateStats(data.stats);
+                    renderUsers(currentUsers);
+                } else {
+                    showError('فشل في تحميل المستخدمين');
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showError('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        function updateStats(stats) {
+            document.getElementById('totalUsers').textContent = stats.total || 0;
+            document.getElementById('onlineUsers').textContent = stats.online || 0;
+            document.getElementById('bannedUsers').textContent = stats.banned || 0;
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('usersTableBody');
+            if (!users || users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">لا يوجد مستخدمين</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                
+                const userCell = document.createElement('td');
+                userCell.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <div class="user-avatar">${(user.username?.charAt(0) || '?').toUpperCase()}</div>
+                        <div>
+                            <div style="font-weight:bold">${escapeHtml(user.username)}</div>
+                            <div style="font-size:11px;color:#666">${user.email || ''}</div>
+                        </div>
+                    </div>
+                `;
+                
+                const phoneCell = document.createElement('td');
+                phoneCell.textContent = user.phone || '—';
+                
+                const statusCell = document.createElement('td');
+                let statusClass = 'status-offline';
+                let statusText = 'غير متصل';
+                if (user.banned) {
+                    statusClass = 'status-banned';
+                    statusText = 'محظور';
+                } else if (user.status === 'online') {
+                    statusClass = 'status-online';
+                    statusText = 'متصل';
+                }
+                statusCell.innerHTML = `<span class="status-badge ${statusClass}">${statusText}</span>`;
+                
+                const lastActiveCell = document.createElement('td');
+                lastActiveCell.textContent = user.lastActive ? new Date(user.lastActive).toLocaleString('ar-SA') : '—';
+                
+                const actionsCell = document.createElement('td');
+                actionsCell.className = 'action-buttons';
+                
+                const viewBtn = document.createElement('button');
+                viewBtn.textContent = '📋 رسائل';
+                viewBtn.className = 'btn-view';
+                viewBtn.onclick = () => viewUserMessages(user.username);
+                
+                const notifyBtn = document.createElement('button');
+                notifyBtn.textContent = '📢 تنبيه';
+                notifyBtn.className = 'btn-notify';
+                notifyBtn.onclick = () => openNotificationModal(user.username);
+                
+                let banBtn;
+                if (user.banned) {
+                    banBtn = document.createElement('button');
+                    banBtn.textContent = '🔓 رفع الحظر';
+                    banBtn.className = 'btn-unban';
+                    banBtn.onclick = () => unbanUser(user.username);
+                } else {
+                    banBtn = document.createElement('button');
+                    banBtn.textContent = '🔒 حظر';
+                    banBtn.className = 'btn-ban';
+                    banBtn.onclick = () => banUser(user.username);
+                }
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '🗑️ حذف';
+                deleteBtn.className = 'btn-delete';
+                deleteBtn.onclick = () => deleteUser(user.username);
+                
+                actionsCell.appendChild(viewBtn);
+                actionsCell.appendChild(notifyBtn);
+                actionsCell.appendChild(banBtn);
+                actionsCell.appendChild(deleteBtn);
+                
+                row.appendChild(userCell);
+                row.appendChild(phoneCell);
+                row.appendChild(statusCell);
+                row.appendChild(lastActiveCell);
+                row.appendChild(actionsCell);
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function filterUsers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (!searchTerm) {
+                renderUsers(currentUsers);
+                return;
+            }
+            const filtered = currentUsers.filter(user => 
+                user.username.toLowerCase().includes(searchTerm) ||
+                (user.email && user.email.toLowerCase().includes(searchTerm)) ||
+                (user.phone && user.phone.includes(searchTerm))
+            );
+            renderUsers(filtered);
+        }
+
+        function refreshUsers() {
+            loadUsers();
+        }
+
+        async function addUser() {
+            const username = document.getElementById('newUsername').value.trim();
+            const phone = document.getElementById('newPhone').value.trim();
+            
+            if (!username) {
+                alert('الرجاء إدخال اسم المستخدم');
+                return;
+            }
+            
+            if (username.length < 2) {
+                alert('اسم المستخدم قصير جداً (حرفان على الأقل)');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/add-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, phone })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('تم إضافة المستخدم بنجاح');
+                    document.getElementById('newUsername').value = '';
+                    document.getElementById('newPhone').value = '';
+                    loadUsers();
+                } else {
+                    alert(data.message || 'فشل في إضافة المستخدم');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        async function banUser(username) {
+            if (!confirm(`هل أنت متأكد من حظر المستخدم "${username}"؟`)) return;
+            
+            const reason = prompt('الرجاء إدخال سبب الحظر (اختياري):');
+            
+            try {
+                const response = await fetch('/api/admin/ban-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, reason: reason || 'تم الحظر من قبل الإدارة' })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert(`تم حظر المستخدم ${username} بنجاح`);
+                    loadUsers();
+                } else {
+                    alert(data.message || 'فشل في حظر المستخدم');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        async function unbanUser(username) {
+            if (!confirm(`هل أنت متأكد من رفع الحظر عن المستخدم "${username}"؟`)) return;
+            
+            try {
+                const response = await fetch('/api/admin/unban-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert(`تم رفع الحظر عن المستخدم ${username}`);
+                    loadUsers();
+                } else {
+                    alert(data.message || 'فشل في رفع الحظر');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        async function deleteUser(username) {
+            if (!confirm(`⚠️ تحذير: هذا الإجراء سيقوم بحذف المستخدم "${username}" وجميع رسائله نهائياً.\nهل أنت متأكد؟`)) return;
+            
+            try {
+                const response = await fetch(`/api/admin/delete-user/${encodeURIComponent(username)}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert(`تم حذف المستخدم ${username} بنجاح`);
+                    loadUsers();
+                } else {
+                    alert(data.message || 'فشل في حذف المستخدم');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        async function viewUserMessages(username) {
+            currentSelectedUser = username;
+            document.getElementById('modalTitle').textContent = `رسائل المستخدم: ${username}`;
+            document.getElementById('messagesModal').classList.add('active');
+            document.getElementById('modalBody').innerHTML = '<div class="loading">جاري تحميل الرسائل...</div>';
+            
+            try {
+                const response = await fetch(`/api/admin/user-messages/${encodeURIComponent(username)}`);
+                const data = await response.json();
+                if (data.success) {
+                    renderMessages(data.messages);
+                } else {
+                    document.getElementById('modalBody').innerHTML = '<div style="color:red;text-align:center">فشل في تحميل الرسائل</div>';
+                }
+            } catch (error) {
+                document.getElementById('modalBody').innerHTML = '<div style="color:red;text-align:center">خطأ في الاتصال بالخادم</div>';
+            }
+        }
+
+        function renderMessages(messages) {
+            const container = document.getElementById('modalBody');
+            if (!messages || messages.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:#666">لا توجد رسائل لهذا المستخدم</div>';
+                return;
+            }
+            
+            const conversations = {};
+            messages.forEach(msg => {
+                const otherUser = msg.from === currentSelectedUser ? msg.to : msg.from;
+                if (!conversations[otherUser]) conversations[otherUser] = [];
+                conversations[otherUser].push(msg);
+            });
+            
+            let html = '';
+            for (const [otherUser, msgs] of Object.entries(conversations)) {
+                html += `<div style="margin-bottom:20px">
+                    <div style="background:#e9ecef;padding:8px 12px;border-radius:10px;margin-bottom:10px">
+                        <strong>📱 محادثة مع: ${escapeHtml(otherUser)}</strong>
+                        <button class="clear-conversation-btn" onclick="clearConversation('${escapeHtml(otherUser)}')">🗑️ حذف المحادثة بالكامل</button>
+                    </div>
+                    <div class="messages-list">`;
+                
+                msgs.sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+                msgs.forEach(msg => {
+                    const isSent = msg.from === currentSelectedUser;
+                    let messageContent = '';
+                    if (msg.type === 'text') {
+                        messageContent = escapeHtml(msg.message);
+                    } else if (msg.type === 'file') {
+                        messageContent = `📎 ملف: ${msg.fileName || 'ملف'}`;
+                    } else if (msg.type === 'voice') {
+                        messageContent = `🎤 رسالة صوتية (${msg.duration || 0} ث)`;
+                    } else if (msg.type === 'video') {
+                        messageContent = `📹 فيديو`;
+                    } else {
+                        messageContent = 'رسالة';
+                    }
+                    
+                    html += `
+                        <div class="message-item">
+                            <div class="message-sender">${isSent ? '📤 مرسلة' : '📥 واردة'} (${msg.from})</div>
+                            <div class="message-text">${messageContent}</div>
+                            <div class="message-time">${new Date(msg.timestamp).toLocaleString('ar-SA')}</div>
+                            <button class="message-delete-btn" onclick="deleteMessage('${msg.id}', '${escapeHtml(otherUser)}')">حذف هذه الرسالة</button>
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        async function deleteMessage(messageId, otherUser) {
+            if (!confirm('هل تريد حذف هذه الرسالة؟')) return;
+            
+            try {
+                const response = await fetch('/api/admin/delete-message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messageId, username: currentSelectedUser, otherUser })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    viewUserMessages(currentSelectedUser);
+                } else {
+                    alert('فشل في حذف الرسالة');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        async function clearConversation(otherUser) {
+            if (!confirm(`هل تريد حذف جميع رسائل المحادثة مع ${otherUser} نهائياً؟`)) return;
+            
+            try {
+                const response = await fetch('/api/admin/clear-conversation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: currentSelectedUser, otherUser })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    viewUserMessages(currentSelectedUser);
+                } else {
+                    alert('فشل في حذف المحادثة');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        function openNotificationModal(username) {
+            notifyUser = username;
+            document.getElementById('notificationMessage').value = '';
+            document.getElementById('notificationModal').classList.add('active');
+        }
+
+        async function sendNotification() {
+            const message = document.getElementById('notificationMessage').value.trim();
+            if (!message) {
+                alert('الرجاء كتابة رسالة التنبيه');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/send-notification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: notifyUser, message })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert(`تم إرسال التنبيه إلى ${notifyUser}`);
+                    closeNotificationModal();
+                } else {
+                    alert(data.message || 'فشل في إرسال التنبيه');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('messagesModal').classList.remove('active');
+        }
+        
+        function closeNotificationModal() {
+            document.getElementById('notificationModal').classList.remove('active');
+            notifyUser = null;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showError(msg) {
+            alert(msg);
+        }
+
+        let refreshInterval = setInterval(loadUsers, 30000);
+        
+        checkAuth();
+        loadUsers();
+        
+        window.addEventListener('beforeunload', () => {
+            if (refreshInterval) clearInterval(refreshInterval);
         });
-        const data = await res.json();
-        if (data.success) {
-            sessionStorage.setItem('adminLoggedIn', 'true');
-            window.location.href = '/admin.html';
-        } else {
-            showError('كلمة المرور غير صحيحة');
-            btn.disabled = false;
-            btn.innerHTML = '🛡️ دخول لوحة التحكم';
-        }
-    } catch(e) {
-        showError('خطأ في الاتصال');
-        btn.disabled = false;
-        btn.innerHTML = '🛡️ دخول لوحة التحكم';
-    }
-}
-
-function handleGoogleLogin() {
-    const name = prompt('تسجيل الدخول بـ Google\n\nأدخل اسمك:');
-    if (!name || !name.trim()) return;
-    completeOAuthLogin(name.trim(), 'google');
-}
-
-function handleGitHubLogin() {
-    const name = prompt('تسجيل الدخول بـ GitHub\n\nأدخل اسمك:');
-    if (!name || !name.trim()) return;
-    completeOAuthLogin(name.trim(), 'github');
-}
-
-async function completeOAuthLogin(username, provider) {
-    try {
-        const res = await fetch(`/api/check-banned?username=${encodeURIComponent(username)}`);
-        const data = await res.json();
-        if (data.banned) {
-            showError(`الحساب محظور: ${data.reason || 'تم حظرك من قبل الإدارة'}`);
-            return;
-        }
-    } catch(e) {}
-    
-    sessionStorage.setItem('accessGranted', 'true');
-    sessionStorage.setItem('username', username);
-    sessionStorage.setItem('loginMethod', provider);
-    window.location.href = '/chat.html';
-}
-
-async function loginWithCode() {
-    const username = document.getElementById('codeUsername').value.trim();
-    const code = document.getElementById('accessCode').value.trim();
-    if (!username) { showError('أدخل اسم المستخدم'); return; }
-    if (!code) { showError('أدخل رمز الدخول'); return; }
-
-    try {
-        const res = await fetch(`/api/check-banned?username=${encodeURIComponent(username)}`);
-        const data = await res.json();
-        if (data.banned) {
-            showError(`الحساب محظور: ${data.reason || 'تم حظرك من قبل الإدارة'}`);
-            return;
-        }
-    } catch(e) {}
-
-    const btn = document.getElementById('codeLoginBtn');
-    btn.disabled = true;
-    btn.innerHTML = 'جاري التحقق <span class="loading-ring"></span>';
-    clearError();
-
-    try {
-        const r = await fetch('/verify-code', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code, username })
-        });
-        const d = await r.json();
-        if (d.success) {
-            sessionStorage.setItem('accessGranted', 'true');
-            sessionStorage.setItem('username', username);
-            sessionStorage.setItem('loginMethod', 'code');
-            window.location.href = '/chat.html';
-        } else {
-            showError(d.message || 'رمز الدخول غير صحيح');
-            btn.disabled = false;
-            btn.innerHTML = '🔑 تسجيل الدخول';
-        }
-    } catch(e) {
-        showError('خطأ في الاتصال بالخادم');
-        btn.disabled = false;
-        btn.innerHTML = '🔑 تسجيل الدخول';
-    }
-}
-
-switchTab('oauth');
-</script>
+    </script>
 </body>
 </html>
