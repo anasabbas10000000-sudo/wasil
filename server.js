@@ -13,58 +13,14 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET || 'vV6GrKIp-VBifpafhdz4Bs82xdA'
 });
 
-// ==================== ✅ Metered TURN Config ====================
-// ضع هنا بياناتك من dashboard.metered.ca أو عبر متغيرات البيئة
-const METERED_APP_NAME = process.env.METERED_APP_NAME || 'YOUR_APP_NAME';
-const METERED_API_KEY  = process.env.METERED_API_KEY  || 'YOUR_API_KEY';
-
-// Cache للـ ICE Servers — نجلبها مرة واحدة كل ساعة
-let cachedIceServers = null;
-let iceServersCacheTime = 0;
-const ICE_CACHE_DURATION = 60 * 60 * 1000; // ساعة
-
-async function getIceServers() {
-    const now = Date.now();
-    if (cachedIceServers && (now - iceServersCacheTime) < ICE_CACHE_DURATION) {
-        return cachedIceServers;
-    }
-    try {
-        const url = `https://${METERED_APP_NAME}.metered.live/api/v1/turn/credentials?apiKey=${METERED_API_KEY}`;
-        const response = await fetch(url, { signal: AbortSignal.timeout(8000) });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const iceServers = await response.json();
-        cachedIceServers = iceServers;
-        iceServersCacheTime = now;
-        console.log(`✅ ICE Servers loaded (${iceServers.length} servers)`);
-        return iceServers;
-    } catch (err) {
-        console.error('⚠️ metered.ca fallback:', err.message);
-        // fallback مؤقت
-        return [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
-            {
-                urls: [
-                    'turn:standard.relay.metered.ca:80',
-                    'turn:standard.relay.metered.ca:80?transport=tcp',
-                    'turn:standard.relay.metered.ca:443',
-                    'turns:standard.relay.metered.ca:443?transport=tcp'
-                ],
-                username: 'fallback',
-                credential: 'fallback'
-            }
-        ];
-    }
-}
-
 // ==================== Server Setup ====================
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: { origin: '*', methods: ['GET', 'POST'] },
     transports: ['websocket', 'polling'],
-    pingTimeout: 30000,
-    pingInterval: 10000,
+    pingTimeout: 60000,
+    pingInterval: 25000,
     connectTimeout: 30000,
     allowEIO3: true,
     upgradeTimeout: 10000,
@@ -75,9 +31,11 @@ app.use(express.static(__dirname));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ==================== Uploads Folder ====================
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
 
+// ==================== Multer ====================
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 },
@@ -85,7 +43,8 @@ const upload = multer({
         const allowed = [
             'image/jpeg','image/png','image/gif','image/webp',
             'video/mp4','video/webm','video/quicktime',
-            'audio/webm','audio/mpeg','audio/mp3','audio/mp4','audio/ogg','audio/wav',
+            'audio/webm','audio/mpeg','audio/mp3','audio/mp4',
+            'audio/ogg','audio/wav',
             'application/pdf','application/msword',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'text/plain'
@@ -94,83 +53,95 @@ const upload = multer({
     }
 });
 
+// ==================== Cloudinary Upload ====================
 async function uploadToCloudinary(buffer, originalName, mimetype) {
     return new Promise((resolve, reject) => {
         let resourceType = 'auto';
-        if (mimetype.startsWith('image/'))  resourceType = 'image';
+        if (mimetype.startsWith('image/')) resourceType = 'image';
         else if (mimetype.startsWith('video/')) resourceType = 'video';
         else if (mimetype.startsWith('audio/')) resourceType = 'raw';
         else resourceType = 'raw';
+
         const stream = cloudinary.uploader.upload_stream(
-            { resource_type: resourceType, folder: 'wasil_uploads', public_id: `${Date.now()}_${originalName.split('.')[0].replace(/[^a-zA-Z0-9]/g,'_')}`, timeout: 120000 },
+            {
+                resource_type: resourceType,
+                folder: 'wasil_uploads',
+                public_id: `${Date.now()}_${originalName.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_')}`,
+                timeout: 120000
+            },
             (err, result) => err ? reject(err) : resolve(result)
         );
         stream.end(buffer);
     });
 }
 
+// ==================== File Upload Handler ====================
 async function handleFileUpload(req, res) {
     if (!req.file) return res.status(400).json({ success: false, message: 'لم يتم رفع أي ملف' });
     try {
         const result = await uploadToCloudinary(req.file.buffer, req.file.originalname, req.file.mimetype);
-        res.json({ success: true, fileUrl: result.secure_url, fileName: req.file.originalname, fileType: req.file.mimetype, fileSize: req.file.size, publicId: result.public_id });
-    } catch(e) {
+        res.json({
+            success: true,
+            fileUrl: result.secure_url,
+            fileName: req.file.originalname,
+            fileType: req.file.mimetype,
+            fileSize: req.file.size,
+            publicId: result.public_id
+        });
+    } catch (e) {
         res.status(500).json({ success: false, message: 'خطأ في الرفع: ' + e.message });
     }
 }
 
 app.post('/upload-file', upload.single('file'), handleFileUpload);
-app.post('/api/upload',  upload.single('file'), handleFileUpload);
-app.post('/upload',      upload.single('file'), handleFileUpload);
+app.post('/api/upload', upload.single('file'), handleFileUpload);
+app.post('/upload', upload.single('file'), handleFileUpload);
 app.use('/uploads', express.static(uploadsDir));
 
-// ✅ API تُعيد ICE Servers للـ client — يُطلب قبل كل مكالمة
-app.get('/api/ice-servers', async (req, res) => {
-    try {
-        const iceServers = await getIceServers();
-        res.json({ success: true, iceServers });
-    } catch(e) {
-        res.status(500).json({ success: false, message: e.message });
-    }
-});
-
-// ==================== Data Paths ====================
-const codesFilePath       = path.join(__dirname, 'access_codes.json');
-const contactsFilePath    = path.join(__dirname, 'contacts.json');
+// ==================== Data File Paths ====================
+const codesFilePath = path.join(__dirname, 'access_codes.json');
+const contactsFilePath = path.join(__dirname, 'contacts.json');
 const privateMessagesPath = path.join(__dirname, 'private_messages.json');
-const settingsFilePath    = path.join(__dirname, 'user_settings.json');
-const sessionFilePath     = path.join(__dirname, 'user_sessions.json');
+const settingsFilePath = path.join(__dirname, 'user_settings.json');
+const sessionFilePath = path.join(__dirname, 'user_sessions.json');
 
+// ==================== File Helpers ====================
 function readJSON(filePath, defaultValue) {
     try {
         if (fs.existsSync(filePath)) return JSON.parse(fs.readFileSync(filePath, 'utf8'));
         fs.writeFileSync(filePath, JSON.stringify(defaultValue, null, 2));
         return defaultValue;
-    } catch(e) { return defaultValue; }
+    } catch (e) { return defaultValue; }
 }
 
 function writeJSON(filePath, data) {
     try { fs.writeFileSync(filePath, JSON.stringify(data, null, 2)); return true; }
-    catch(e) { console.error('Write error:', e); return false; }
+    catch (e) { console.error('Write error:', e); return false; }
 }
 
 function readContacts() {
     return readJSON(contactsFilePath, {
         contacts: [
-            { id:'1', name:'أحمد محمد',  phone:'0501111111', avatar:'أ', status:'online' },
-            { id:'2', name:'سارة أحمد',  phone:'0502222222', avatar:'س', status:'offline' },
-            { id:'3', name:'محمد علي',   phone:'0503333333', avatar:'م', status:'online' },
-            { id:'4', name:'فاطمة حسن',  phone:'0504444444', avatar:'ف', status:'offline' },
-            { id:'5', name:'عبدالله عمر',phone:'0505555555', avatar:'ع', status:'online' }
+            { id: '1', name: 'أحمد محمد', phone: '0501111111', avatar: 'أ', status: 'online' },
+            { id: '2', name: 'سارة أحمد', phone: '0502222222', avatar: 'س', status: 'offline' },
+            { id: '3', name: 'محمد علي', phone: '0503333333', avatar: 'م', status: 'online' },
+            { id: '4', name: 'فاطمة حسن', phone: '0504444444', avatar: 'ف', status: 'offline' },
+            { id: '5', name: 'عبدالله عمر', phone: '0505555555', avatar: 'ع', status: 'online' }
         ]
     });
 }
 
-function readPrivateMessages() { return readJSON(privateMessagesPath, { conversations: {} }); }
+function readPrivateMessages() {
+    return readJSON(privateMessagesPath, { conversations: {} });
+}
 
 function readUserSettings(username) {
     const all = readJSON(settingsFilePath, {});
-    return all[username] || { ringtone:'default', volume:80, vibrate:true, ringtoneFile:'default', videoQuality:'high', cameraEnabled:true, micEnabled:true, theme:'light', language:'ar' };
+    return all[username] || {
+        ringtone: 'default', volume: 80, vibrate: true,
+        ringtoneFile: 'default', videoQuality: 'high',
+        cameraEnabled: true, micEnabled: true, theme: 'light', language: 'ar'
+    };
 }
 
 function saveUserSettings(username, settings) {
@@ -194,25 +165,27 @@ function getConversationId(u1, u2) { return [u1, u2].sort().join('_'); }
 
 // ==================== API Routes ====================
 app.post('/verify-code', (req, res) => {
-    const codes = readJSON(codesFilePath, { codes:['1234','5678'] });
-    res.json(codes.codes.includes(req.body.code) ? { success:true } : { success:false, message:'رمز غير صحيح' });
+    const codes = readJSON(codesFilePath, { codes: ['1234', '5678'] });
+    res.json(codes.codes.includes(req.body.code)
+        ? { success: true }
+        : { success: false, message: 'رمز غير صحيح' });
 });
 
 app.get('/get-contacts', (req, res) => res.json(readContacts()));
 
 app.post('/add-contact', (req, res) => {
     const d = readContacts();
-    const c = { id:Date.now().toString(), name:req.body.name, phone:req.body.phone, avatar:req.body.name.charAt(0), status:'offline' };
+    const c = { id: Date.now().toString(), name: req.body.name, phone: req.body.phone, avatar: req.body.name.charAt(0), status: 'offline' };
     d.contacts.push(c);
     writeJSON(contactsFilePath, d);
-    res.json({ success:true, contact:c });
+    res.json({ success: true, contact: c });
 });
 
 app.post('/delete-contact', (req, res) => {
     const d = readContacts();
     const i = d.contacts.findIndex(c => c.id === req.body.contactId);
-    if (i !== -1) { d.contacts.splice(i,1); writeJSON(contactsFilePath, d); res.json({ success:true }); }
-    else res.json({ success:false });
+    if (i !== -1) { d.contacts.splice(i, 1); writeJSON(contactsFilePath, d); res.json({ success: true }); }
+    else res.json({ success: false });
 });
 
 app.post('/get-conversation', (req, res) => {
@@ -223,7 +196,7 @@ app.post('/get-conversation', (req, res) => {
 
 app.post('/cleanup-messages', (req, res) => {
     const { username, days } = req.body;
-    if (!days || days <= 0) return res.json({ success:true, cleanedCount:0 });
+    if (!days || days <= 0) return res.json({ success: true, cleanedCount: 0 });
     const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - days);
     const d = readPrivateMessages(); let count = 0;
     for (const key of Object.keys(d.conversations)) {
@@ -232,24 +205,24 @@ app.post('/cleanup-messages', (req, res) => {
         count += orig - d.conversations[key].length;
     }
     writeJSON(privateMessagesPath, d);
-    res.json({ success:true, cleanedCount:count });
+    res.json({ success: true, cleanedCount: count });
 });
 
 app.post('/update-status', (req, res) => {
     const d = readContacts();
     const c = d.contacts.find(c => c.id === req.body.userId || c.name === req.body.userId);
-    if (c) { c.status = req.body.status; writeJSON(contactsFilePath, d); res.json({ success:true }); }
-    else res.json({ success:false });
+    if (c) { c.status = req.body.status; writeJSON(contactsFilePath, d); res.json({ success: true }); }
+    else res.json({ success: false });
 });
 
 app.get('/get-ringtone-settings', (req, res) => {
-    if (!req.query.username) return res.status(400).json({ success:false });
-    res.json({ success:true, settings: readUserSettings(req.query.username) });
+    if (!req.query.username) return res.status(400).json({ success: false });
+    res.json({ success: true, settings: readUserSettings(req.query.username) });
 });
 
 app.post('/update-ringtone-settings', (req, res) => {
     const { username, settings } = req.body;
-    if (!username || !settings) return res.status(400).json({ success:false });
+    if (!username || !settings) return res.status(400).json({ success: false });
     res.json({ success: saveUserSettings(username, settings) });
 });
 
@@ -259,7 +232,7 @@ app.post('/save-user-state', (req, res) => {
 });
 
 app.get('/get-user-state', (req, res) => {
-    res.json({ success:true, state: getUserSession(req.query.username) });
+    res.json({ success: true, state: getUserSession(req.query.username) });
 });
 
 app.post('/delete-message', (req, res) => {
@@ -270,7 +243,7 @@ app.post('/delete-message', (req, res) => {
         d.conversations[key] = d.conversations[key].filter(m => m.id !== messageId);
         writeJSON(privateMessagesPath, d);
     }
-    res.json({ success:true });
+    res.json({ success: true });
 });
 
 app.get('/available-ringtones', (req, res) => {
@@ -279,63 +252,84 @@ app.get('/available-ringtones', (req, res) => {
     try {
         if (fs.existsSync(dir)) {
             const files = fs.readdirSync(dir).filter(f => /\.(mp3|wav|ogg)$/.test(f));
-            files.forEach(f => { const name = f.replace(/\.[^/.]+$/,''); if (!ringtones.includes(name)) ringtones.push(name); });
+            files.forEach(f => {
+                const name = f.replace(/\.[^/.]+$/, '');
+                if (!ringtones.includes(name)) ringtones.push(name);
+            });
         }
-    } catch(e) {}
-    res.json({ success:true, ringtones });
+    } catch (e) { }
+    res.json({ success: true, ringtones });
 });
 
 // ==================== In-Memory State ====================
 const connectedUsers = new Map();
-const userSockets    = new Map();
-const activeCalls    = new Map();
+const userSockets = new Map();
+const activeCalls = new Map();
 
 // ==================== Socket.IO ====================
 io.on('connection', (socket) => {
     console.log('🔌 Connected:', socket.id);
+    let registeredUser = null;
 
     socket.on('register user', (data) => {
         const { username, userId } = data;
+        registeredUser = { username, userId };
         connectedUsers.set(socket.id, { username, userId });
+
         if (userSockets.has(username)) {
             const oldId = userSockets.get(username);
             if (oldId !== socket.id) {
                 const oldSock = io.sockets.sockets.get(oldId);
-                if (oldSock?.connected) { oldSock.emit('force-reload', { reason:'new_connection' }); setTimeout(() => oldSock.disconnect(true), 600); }
+                if (oldSock?.connected) {
+                    oldSock.emit('force-reload', { reason: 'new_connection' });
+                    setTimeout(() => oldSock.disconnect(true), 600);
+                }
             }
         }
+
         userSockets.set(username, socket.id);
+
         const cd = readContacts();
         const contact = cd.contacts.find(c => c.name === username);
         if (contact) { contact.status = 'online'; writeJSON(contactsFilePath, cd); }
-        socket.broadcast.emit('user status change', { username, status:'online' });
+
+        socket.broadcast.emit('user status change', { username, status: 'online' });
         socket.emit('contacts list', { contacts: readContacts().contacts });
         socket.emit('ringtone settings', { settings: readUserSettings(username) });
         socket.emit('registration-confirmed', { username, timestamp: Date.now() });
         console.log(`✅ Registered: ${username}`);
     });
 
+    // Video Call Events
     socket.on('video-call-init', (data) => {
-        const { to, quality='high', videoEnabled=true, audioEnabled=true } = data;
+        const { to, quality = 'high', videoEnabled = true, audioEnabled = true } = data;
         const fromUser = connectedUsers.get(socket.id);
         const targetId = userSockets.get(to);
         if (!fromUser) return;
-        if (!targetId) return socket.emit('video-call-error', { message:'المستخدم غير متصل', code:'user_offline' });
+        if (!targetId) {
+            return socket.emit('video-call-error', { message: 'المستخدم غير متصل', code: 'user_offline' });
+        }
         const callId = `${fromUser.username}_${to}_${Date.now()}`;
         const targetSettings = readUserSettings(to);
-        activeCalls.set(callId, { from: fromUser.username, to, quality, startTime: Date.now(), videoEnabled, audioEnabled });
-        socket.emit('outgoing-call', { to, callId, message:`جاري الاتصال بـ ${to}...` });
-        io.to(targetId).emit('video-call-init', { from: fromUser.username, quality, videoEnabled, audioEnabled, callId, ringtoneFile: targetSettings.ringtoneFile||'default', volume: targetSettings.volume||80, vibrate: targetSettings.vibrate });
-        console.log(`📹 ${fromUser.username} → ${to} [${callId}]`);
+        activeCalls.set(callId, {
+            from: fromUser.username, to, quality, startTime: Date.now(),
+            videoEnabled, audioEnabled
+        });
+        socket.emit('outgoing-call', { to, callId, message: `جاري الاتصال بـ ${to}...` });
+        io.to(targetId).emit('video-call-init', {
+            from: fromUser.username, quality, videoEnabled, audioEnabled, callId,
+            ringtoneFile: targetSettings.ringtoneFile || 'default',
+            volume: targetSettings.volume || 80,
+            vibrate: targetSettings.vibrate
+        });
     });
 
     socket.on('video-call-offer', (data) => {
-        const { to, offer, quality, callId, relayOnly } = data;
+        const { to, offer, quality, callId } = data;
         const fromUser = connectedUsers.get(socket.id);
         const targetId = userSockets.get(to);
         if (!fromUser || !targetId) return;
-        if (callId && activeCalls.has(callId)) { const info = activeCalls.get(callId); info.offerSent = true; if (relayOnly) info.relayOnly = true; activeCalls.set(callId, info); }
-        io.to(targetId).emit('video-call-offer', { from: fromUser.username, offer, quality, callId, relayOnly: !!relayOnly });
+        io.to(targetId).emit('video-call-offer', { from: fromUser.username, offer, quality, callId });
     });
 
     socket.on('video-call-answer', (data) => {
@@ -343,11 +337,10 @@ io.on('connection', (socket) => {
         const fromUser = connectedUsers.get(socket.id);
         const targetId = userSockets.get(to);
         if (!fromUser || !targetId) return;
-        io.to(targetId).emit('stop-ringtone', { callId, reason:'answered' });
-        socket.emit('stop-ringtone', { callId, reason:'answered' });
-        if (callId && activeCalls.has(callId)) { const info = activeCalls.get(callId); info.answered = true; info.answeredAt = Date.now(); activeCalls.set(callId, info); }
+        io.to(targetId).emit('stop-ringtone', { callId, reason: 'answered' });
+        socket.emit('stop-ringtone', { callId, reason: 'answered' });
         io.to(targetId).emit('video-call-answer', { from: fromUser.username, answer, callId });
-        console.log(`✅ ${fromUser.username} ↔ ${to}`);
+        console.log(`✅ Call answered: ${fromUser.username} ↔ ${to}`);
     });
 
     socket.on('video-call-ice', (data) => {
@@ -363,9 +356,12 @@ io.on('connection', (socket) => {
         const fromUser = connectedUsers.get(socket.id);
         const targetId = userSockets.get(to);
         if (!fromUser) return;
-        if (targetId) { io.to(targetId).emit('stop-ringtone', { callId, reason: reason||'ended' }); io.to(targetId).emit('video-call-end', { from: fromUser.username, callId, reason: reason||'ended' }); }
-        socket.emit('stop-ringtone', { callId, reason: reason||'ended' });
-        if (callId && activeCalls.has(callId)) { const d = Math.floor((Date.now()-activeCalls.get(callId).startTime)/1000); console.log(`📵 ${fromUser.username}→${to} (${d}s)`); activeCalls.delete(callId); }
+        if (targetId) {
+            io.to(targetId).emit('stop-ringtone', { callId, reason: reason || 'ended' });
+            io.to(targetId).emit('video-call-end', { from: fromUser.username, callId, reason: reason || 'ended' });
+        }
+        socket.emit('stop-ringtone', { callId, reason: reason || 'ended' });
+        if (callId && activeCalls.has(callId)) activeCalls.delete(callId);
     });
 
     socket.on('video-call-reject', (data) => {
@@ -373,22 +369,30 @@ io.on('connection', (socket) => {
         const fromUser = connectedUsers.get(socket.id);
         const targetId = userSockets.get(to);
         if (!fromUser) return;
-        if (targetId) { io.to(targetId).emit('stop-ringtone', { callId, reason:'rejected' }); io.to(targetId).emit('video-call-reject', { from: fromUser.username, callId }); }
-        socket.emit('stop-ringtone', { callId, reason:'rejected' });
+        if (targetId) {
+            io.to(targetId).emit('stop-ringtone', { callId, reason: 'rejected' });
+            io.to(targetId).emit('video-call-reject', { from: fromUser.username, callId });
+        }
+        socket.emit('stop-ringtone', { callId, reason: 'rejected' });
         if (callId && activeCalls.has(callId)) activeCalls.delete(callId);
-        console.log(`❌ ${fromUser.username}→${to}`);
     });
 
+    // Message Events
     socket.on('private message', (data) => {
         const { from, to, message, timestamp, messageId } = data;
         const d = readPrivateMessages();
         const key = getConversationId(from, to);
         if (!d.conversations[key]) d.conversations[key] = [];
-        d.conversations[key].push({ id: messageId||Date.now().toString(), from, to, message, type:'text', timestamp: timestamp||new Date().toISOString(), read: false });
+        d.conversations[key].push({
+            id: messageId || Date.now().toString(),
+            from, to, message, type: 'text',
+            timestamp: timestamp || new Date().toISOString(),
+            read: false
+        });
         writeJSON(privateMessagesPath, d);
         const recipId = userSockets.get(to);
         if (recipId) io.to(recipId).emit('private message', { from, message, timestamp, messageId });
-        socket.emit('message sent', { messageId, status:'sent' });
+        socket.emit('message sent', { messageId, status: 'sent' });
     });
 
     socket.on('send file', (data) => {
@@ -397,7 +401,15 @@ io.on('connection', (socket) => {
         const key = getConversationId(from, to);
         if (!d.conversations[key]) d.conversations[key] = [];
         const isVideo = fileType?.startsWith('video/');
-        d.conversations[key].push({ id: messageId||Date.now().toString(), from, to, type: isVideo?'video':'file', fileUrl, fileName, fileType, ...(isVideo?{videoUrl:fileUrl}:{}), timestamp: timestamp||new Date().toISOString(), read: false });
+        d.conversations[key].push({
+            id: messageId || Date.now().toString(),
+            from, to,
+            type: isVideo ? 'video' : 'file',
+            fileUrl, fileName, fileType,
+            ...(isVideo ? { videoUrl: fileUrl } : {}),
+            timestamp: timestamp || new Date().toISOString(),
+            read: false
+        });
         writeJSON(privateMessagesPath, d);
         const recipId = userSockets.get(to);
         if (recipId) io.to(recipId).emit('file received', { from, fileUrl, fileName, fileType, timestamp });
@@ -408,7 +420,12 @@ io.on('connection', (socket) => {
         const d = readPrivateMessages();
         const key = getConversationId(from, to);
         if (!d.conversations[key]) d.conversations[key] = [];
-        d.conversations[key].push({ id: messageId||Date.now().toString(), from, to, type:'voice', audioUrl, duration, timestamp: timestamp||new Date().toISOString(), read: false });
+        d.conversations[key].push({
+            id: messageId || Date.now().toString(),
+            from, to, type: 'voice', audioUrl, duration,
+            timestamp: timestamp || new Date().toISOString(),
+            read: false
+        });
         writeJSON(privateMessagesPath, d);
         const recipId = userSockets.get(to);
         if (recipId) io.to(recipId).emit('voice message', { from, audioUrl, duration, timestamp });
@@ -418,15 +435,23 @@ io.on('connection', (socket) => {
         const { userId, messageId, contactId } = data;
         const d = readPrivateMessages();
         const key = getConversationId(userId, contactId);
-        const msg = (d.conversations[key]||[]).find(m => m.id === messageId);
-        if (msg) { msg.read = true; writeJSON(privateMessagesPath, d); const sid = userSockets.get(contactId); if (sid) io.to(sid).emit('message read', { messageId }); }
+        const msg = (d.conversations[key] || []).find(m => m.id === messageId);
+        if (msg) {
+            msg.read = true;
+            writeJSON(privateMessagesPath, d);
+            const senderSocketId = userSockets.get(contactId);
+            if (senderSocketId) io.to(senderSocketId).emit('message read', { messageId });
+        }
     });
 
     socket.on('delete message', (data) => {
         const { messageId, userId, contactId } = data;
         const d = readPrivateMessages();
         const key = getConversationId(userId, contactId);
-        if (d.conversations[key]) { d.conversations[key] = d.conversations[key].filter(m => m.id !== messageId); writeJSON(privateMessagesPath, d); }
+        if (d.conversations[key]) {
+            d.conversations[key] = d.conversations[key].filter(m => m.id !== messageId);
+            writeJSON(privateMessagesPath, d);
+        }
     });
 
     socket.on('typing', (data) => {
@@ -436,59 +461,41 @@ io.on('connection', (socket) => {
 
     socket.on('update ringtone settings', (data) => {
         const { username, settings } = data;
-        if (username && settings) { saveUserSettings(username, settings); socket.emit('ringtone settings updated', { success:true }); }
+        if (username && settings) {
+            saveUserSettings(username, settings);
+            socket.emit('ringtone settings updated', { success: true });
+        }
     });
 
     socket.on('disconnect', (reason) => {
         const userInfo = connectedUsers.get(socket.id);
         if (!userInfo) return;
         const { username } = userInfo;
+        console.log(`⚠️ Disconnected: ${username} (${reason})`);
         for (const [callId, callInfo] of activeCalls.entries()) {
             if (callInfo.from === username || callInfo.to === username) {
                 const other = callInfo.from === username ? callInfo.to : callInfo.from;
                 const otherId = userSockets.get(other);
-                if (otherId) { io.to(otherId).emit('stop-ringtone', { callId, reason:'disconnected' }); io.to(otherId).emit('video-call-end', { from: username, callId, reason:'disconnected' }); }
+                if (otherId) {
+                    io.to(otherId).emit('stop-ringtone', { callId, reason: 'disconnected' });
+                    io.to(otherId).emit('video-call-end', { from: username, callId, reason: 'disconnected' });
+                }
                 activeCalls.delete(callId);
             }
         }
         const cd = readContacts();
         const contact = cd.contacts.find(c => c.name === username);
         if (contact) { contact.status = 'offline'; writeJSON(contactsFilePath, cd); }
-        if (userSockets.get(username) === socket.id) { userSockets.delete(username); io.emit('user status change', { username, status:'offline' }); }
+        if (userSockets.get(username) === socket.id) {
+            userSockets.delete(username);
+            io.emit('user status change', { username, status: 'offline' });
+        }
         connectedUsers.delete(socket.id);
-        console.log(`⚠️ Disconnected: ${username} (${reason})`);
     });
-
-    socket.on('error', (err) => { console.error('Socket error:', err); socket.emit('force-reload', { reason:'socket_error' }); });
 });
 
-// ==================== Routes ====================
-app.get('/',           (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/index.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 
-// ==================== Graceful Shutdown ====================
-let isShuttingDown = false;
-function gracefulShutdown(signal) {
-    if (isShuttingDown) return;
-    isShuttingDown = true;
-    console.log(`\n🛑 ${signal}`);
-    io.close(() => { server.close(() => { try { fs.rmSync(uploadsDir, { recursive:true, force:true }); } catch(e){} process.exit(0); }); });
-    setTimeout(() => process.exit(1), 10000);
-}
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
-process.on('uncaughtException',  (e) => { console.error('Uncaught:', e); gracefulShutdown('uncaughtException'); });
-process.on('unhandledRejection', (r) => { console.error('Unhandled:', r); });
-
-// ==================== Start ====================
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, async () => {
-    await getIceServers(); // تحميل مسبق
-    console.log(`\n========================================`);
-    console.log(`🚀 http://localhost:${PORT}`);
-    console.log(`🔀 TURN: metered.ca → ${METERED_APP_NAME}`);
-    console.log(`   ✅ WiFi ↔ WiFi`);
-    console.log(`   ✅ WiFi ↔ 5G`);
-    console.log(`   ✅ 5G   ↔ 5G  ← مُصلَح نهائياً`);
-    console.log(`========================================\n`);
-});
+server.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
